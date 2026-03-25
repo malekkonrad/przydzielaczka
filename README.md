@@ -10,3 +10,10 @@ Następczyni obieraczki, precz z komunizmem - najlepsze plany tylko dla jednoste
 - preference wykładów
 
 - informuj o kolizjach
+
+# Tech stack
+
+- nlohmanjson for Cpp json
+- emscriptem for binding wasm to Cpp
+- pybind 11 for binding python to Cpp
+- next.js for frontend
