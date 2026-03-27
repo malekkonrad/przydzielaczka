@@ -1,0 +1,2187 @@
+[
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "4.07",
+            "building": "D2"
+        },
+        "group": 8,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 7,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13",
+            "2025-01-20"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "4.07",
+            "building": "D2"
+        },
+        "group": 5,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13",
+            "2025-01-20"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 8,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13",
+            "2025-01-20"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "4.07",
+            "building": "D2"
+        },
+        "group": 6,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13",
+            "2025-01-20"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "224",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "15:00",
+            "timeMinutes": 900
+        },
+        "endTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13",
+            "2025-01-20"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-220",
+        "name": "In\u017cynieria oprogramowania",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "224",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "endTime": {
+            "time": "18:00",
+            "timeMinutes": 1080
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-19",
+            "2024-11-26",
+            "2024-12-03",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 8,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "19:45",
+            "timeMinutes": 1185
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 8,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "20:30",
+            "timeMinutes": 1230
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 3,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "19:45",
+            "timeMinutes": 1185
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 3,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "20:30",
+            "timeMinutes": 1230
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 2,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "19:45",
+            "timeMinutes": 1185
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 2,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "20:30",
+            "timeMinutes": 1230
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 1,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "19:45",
+            "timeMinutes": 1185
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 1,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "endTime": {
+            "time": "20:30",
+            "timeMinutes": 1230
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-07",
+            "2025-01-13"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 1,
+        "week": "AB",
+        "location": {
+            "room": "208",
+            "building": "C2"
+        },
+        "group": 5,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:30",
+            "timeMinutes": 1110
+        },
+        "endTime": {
+            "time": "20:00",
+            "timeMinutes": 1200
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-07",
+            "2024-10-14",
+            "2024-10-21",
+            "2024-10-28",
+            "2024-11-04",
+            "2024-11-13",
+            "2024-11-18",
+            "2024-11-25",
+            "2024-12-02",
+            "2024-12-09",
+            "2024-12-16",
+            "2025-01-13",
+            "2025-01-20",
+            "2025-01-27"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 2,
+        "week": "AB",
+        "location": {
+            "room": "A",
+            "building": "D10"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-01",
+            "2024-10-08",
+            "2024-10-15",
+            "2024-10-22",
+            "2024-10-29",
+            "2024-11-05",
+            "2024-11-12",
+            "2024-11-19",
+            "2024-11-26",
+            "2024-12-03",
+            "2024-12-10",
+            "2025-01-14",
+            "2025-01-21",
+            "2025-01-28"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 2,
+        "week": "AB",
+        "location": {
+            "room": "429",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-01",
+            "2024-10-08",
+            "2024-10-15",
+            "2024-10-22",
+            "2024-10-29",
+            "2024-11-05",
+            "2024-11-12",
+            "2024-11-19",
+            "2024-11-26",
+            "2024-12-03"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 2,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 7,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-01",
+            "2024-10-08",
+            "2024-10-15",
+            "2024-10-22",
+            "2024-10-29",
+            "2024-11-05",
+            "2024-11-12",
+            "2024-11-19",
+            "2024-11-26",
+            "2024-12-03"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-712",
+        "name": "Lingwistyka formalna i automaty",
+        "day": 2,
+        "week": "A",
+        "location": {
+            "room": "107",
+            "building": "B5"
+        },
+        "group": 2,
+        "classType": "CWA",
+        "limit": 28,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-08",
+            "2024-10-22",
+            "2024-11-05",
+            "2024-11-19",
+            "2024-12-03",
+            "2024-12-17",
+            "2025-01-14"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-712",
+        "name": "Lingwistyka formalna i automaty",
+        "day": 2,
+        "week": "B",
+        "location": {
+            "room": "107",
+            "building": "B5"
+        },
+        "group": 1,
+        "classType": "CWA",
+        "limit": 28,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-01",
+            "2024-10-15",
+            "2024-10-29",
+            "2024-11-12",
+            "2024-11-26",
+            "2024-12-10",
+            "2025-01-21"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-712",
+        "name": "Lingwistyka formalna i automaty",
+        "day": 2,
+        "week": "A",
+        "location": {
+            "room": "107",
+            "building": "B5"
+        },
+        "group": 4,
+        "classType": "CWA",
+        "limit": 28,
+        "startTime": {
+            "time": "15:00",
+            "timeMinutes": 900
+        },
+        "endTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-08",
+            "2024-10-22",
+            "2024-11-05",
+            "2024-11-19",
+            "2024-12-03",
+            "2024-12-17",
+            "2025-01-14"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 2,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 4,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:00",
+            "timeMinutes": 900
+        },
+        "endTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-01",
+            "2024-10-08",
+            "2024-10-15",
+            "2024-10-22",
+            "2024-10-29",
+            "2024-11-05",
+            "2024-11-12",
+            "2024-11-19",
+            "2024-11-26",
+            "2024-12-03"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-712",
+        "name": "Lingwistyka formalna i automaty",
+        "day": 2,
+        "week": "B",
+        "location": {
+            "room": "107",
+            "building": "B5"
+        },
+        "group": 3,
+        "classType": "CWA",
+        "limit": 28,
+        "startTime": {
+            "time": "15:00",
+            "timeMinutes": 900
+        },
+        "endTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-01",
+            "2024-10-15",
+            "2024-10-29",
+            "2024-11-12",
+            "2024-11-26",
+            "2024-12-10",
+            "2025-01-21"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-220",
+        "name": "In\u017cynieria oprogramowania",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "214",
+            "building": "B5"
+        },
+        "group": 2,
+        "classType": "CWP",
+        "limit": 28,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "212",
+            "building": "B5"
+        },
+        "group": 2,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-220",
+        "name": "In\u017cynieria oprogramowania",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "214",
+            "building": "B5"
+        },
+        "group": 4,
+        "classType": "CWP",
+        "limit": 28,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-220",
+        "name": "In\u017cynieria oprogramowania",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "210",
+            "building": "B5"
+        },
+        "group": 3,
+        "classType": "CWP",
+        "limit": 28,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 2,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "212",
+            "building": "B5"
+        },
+        "group": 1,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "221",
+            "building": "C2"
+        },
+        "group": 5,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "426",
+            "building": "C2"
+        },
+        "group": 4,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 3,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-220",
+        "name": "In\u017cynieria oprogramowania",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "210",
+            "building": "B5"
+        },
+        "group": 1,
+        "classType": "CWP",
+        "limit": 28,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 7,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "221",
+            "building": "C2"
+        },
+        "group": 3,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "13:15",
+            "timeMinutes": 795
+        },
+        "endTime": {
+            "time": "14:45",
+            "timeMinutes": 885
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "216",
+            "building": "C2"
+        },
+        "group": 8,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:00",
+            "timeMinutes": 900
+        },
+        "endTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "on-line",
+            "building": "B1"
+        },
+        "group": 4,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:00",
+            "timeMinutes": 900
+        },
+        "endTime": {
+            "time": "16:30",
+            "timeMinutes": 990
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "on-line",
+            "building": "B1"
+        },
+        "group": 2,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "16:45",
+            "timeMinutes": 1005
+        },
+        "endTime": {
+            "time": "18:15",
+            "timeMinutes": 1095
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 3,
+        "week": "AB",
+        "location": {
+            "room": "on-line",
+            "building": "B1"
+        },
+        "group": 6,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "18:30",
+            "timeMinutes": 1110
+        },
+        "endTime": {
+            "time": "20:00",
+            "timeMinutes": 1200
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-02",
+            "2024-10-09",
+            "2024-10-16",
+            "2024-10-23",
+            "2024-10-30",
+            "2024-11-06",
+            "2024-11-20",
+            "2024-11-27",
+            "2024-12-04",
+            "2024-12-11",
+            "2024-12-18",
+            "2025-01-08",
+            "2025-01-15",
+            "2025-01-22"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "221",
+            "building": "C2"
+        },
+        "group": 3,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28",
+            "2024-12-05",
+            "2024-12-12"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 4,
+        "week": "A",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 2,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-10",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-21",
+            "2024-12-05",
+            "2024-12-19",
+            "2025-01-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 4,
+        "week": "B",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-17",
+            "2024-11-14",
+            "2024-11-28",
+            "2024-12-12",
+            "2025-01-09",
+            "2025-01-23"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-293",
+        "name": "Metody numeryczne",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "221",
+            "building": "C2"
+        },
+        "group": 6,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28",
+            "2024-12-05",
+            "2024-12-12"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 4,
+        "week": "A",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 4,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-10",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-21",
+            "2024-12-05",
+            "2024-12-19",
+            "2025-01-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 4,
+        "week": "B",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 3,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-17",
+            "2024-11-14",
+            "2024-11-28",
+            "2024-12-12",
+            "2025-01-09",
+            "2025-01-23"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "D-czarna",
+            "building": "D10"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "14:00",
+            "timeMinutes": 840
+        },
+        "endTime": {
+            "time": "15:30",
+            "timeMinutes": 930
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 7,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "18:00",
+            "timeMinutes": 1080
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-05",
+            "2024-12-12",
+            "2024-12-19",
+            "2025-01-09",
+            "2025-01-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 7,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "17:15",
+            "timeMinutes": 1035
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 6,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "18:00",
+            "timeMinutes": 1080
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-05",
+            "2024-12-12",
+            "2024-12-19",
+            "2025-01-09",
+            "2025-01-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 6,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "17:15",
+            "timeMinutes": 1035
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 5,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "18:00",
+            "timeMinutes": 1080
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-05",
+            "2024-12-12",
+            "2024-12-19",
+            "2025-01-09",
+            "2025-01-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 5,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "17:15",
+            "timeMinutes": 1035
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-698",
+        "name": "Elementy fizyki wsp\u00f3\u0142czesnej",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "304",
+            "building": "D10"
+        },
+        "group": 4,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "18:00",
+            "timeMinutes": 1080
+        },
+        "duration": 135,
+        "days": [
+            "2024-12-05",
+            "2024-12-12",
+            "2024-12-19",
+            "2025-01-09",
+            "2025-01-16"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-165",
+        "name": "Fizyka 2",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "303",
+            "building": "D10"
+        },
+        "group": 4,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "15:45",
+            "timeMinutes": 945
+        },
+        "endTime": {
+            "time": "17:15",
+            "timeMinutes": 1035
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-712",
+        "name": "Lingwistyka formalna i automaty",
+        "day": 4,
+        "week": "AB",
+        "location": {
+            "room": "224",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "18:30",
+            "timeMinutes": 1110
+        },
+        "endTime": {
+            "time": "20:00",
+            "timeMinutes": 1200
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-03",
+            "2024-10-10",
+            "2024-10-17",
+            "2024-10-24",
+            "2024-11-07",
+            "2024-11-14",
+            "2024-11-21",
+            "2024-11-28",
+            "2024-12-05",
+            "2024-12-12",
+            "2024-12-19",
+            "2025-01-09",
+            "2025-01-16",
+            "2025-01-23"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 5,
+        "week": "A",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 6,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-11",
+            "2024-10-25",
+            "2024-11-08",
+            "2024-11-22",
+            "2024-12-06",
+            "2024-12-20",
+            "2025-01-17"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 5,
+        "week": "B",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 5,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "08:00",
+            "timeMinutes": 480
+        },
+        "endTime": {
+            "time": "09:30",
+            "timeMinutes": 570
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-18",
+            "2024-10-31",
+            "2024-11-15",
+            "2024-11-29",
+            "2024-12-13",
+            "2025-01-10",
+            "2025-01-24"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-688",
+        "name": "Bazy danych",
+        "day": 5,
+        "week": "AB",
+        "location": {
+            "room": "429",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "09:45",
+            "timeMinutes": 585
+        },
+        "endTime": {
+            "time": "11:15",
+            "timeMinutes": 675
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-11",
+            "2024-10-18",
+            "2024-10-25",
+            "2024-10-31",
+            "2024-11-08",
+            "2024-11-15",
+            "2024-11-22",
+            "2024-11-29",
+            "2024-12-06",
+            "2024-12-13",
+            "2024-12-17",
+            "2025-01-10",
+            "2025-01-17",
+            "2025-01-24"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 5,
+        "week": "A",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 8,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-11",
+            "2024-10-25",
+            "2024-11-08",
+            "2024-11-22",
+            "2024-12-06",
+            "2024-12-20",
+            "2025-01-17"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-737",
+        "name": "Podstawy sztucznej inteligencji",
+        "day": 5,
+        "week": "B",
+        "location": {
+            "room": "316",
+            "building": "C2"
+        },
+        "group": 7,
+        "classType": "CWL",
+        "limit": 14,
+        "startTime": {
+            "time": "11:30",
+            "timeMinutes": 690
+        },
+        "endTime": {
+            "time": "13:00",
+            "timeMinutes": 780
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-18",
+            "2024-10-31",
+            "2024-11-15",
+            "2024-11-29",
+            "2024-12-13",
+            "2025-01-10",
+            "2025-01-24"
+        ]
+    },
+    {
+        "id": "120-ISI-1S-752",
+        "name": "Programowanie zaawansowane 1",
+        "day": 5,
+        "week": "AB",
+        "location": {
+            "room": "224",
+            "building": "C2"
+        },
+        "group": 1,
+        "classType": "W",
+        "limit": 999,
+        "startTime": {
+            "time": "18:30",
+            "timeMinutes": 1110
+        },
+        "endTime": {
+            "time": "20:00",
+            "timeMinutes": 1200
+        },
+        "duration": 90,
+        "days": [
+            "2024-10-11",
+            "2024-10-18",
+            "2024-10-25",
+            "2024-10-31",
+            "2024-11-08",
+            "2024-11-15",
+            "2024-11-22",
+            "2024-11-29",
+            "2024-12-06",
+            "2024-12-13",
+            "2024-12-20",
+            "2025-01-10",
+            "2025-01-17",
+            "2025-01-24"
+        ]
+    }
+]
