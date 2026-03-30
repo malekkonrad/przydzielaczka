@@ -4,6 +4,13 @@
 
 #pragma once
 
+#include <string>
+#include <optional>
+#include <filesystem>
+#include <nlohmann/json_fwd.hpp>
+
+class TimeTableProblem;
+
 using json = nlohmann::json;
 
 // -------------------- Models --------------------
@@ -78,5 +85,5 @@ public:
 	InputDataParser& parse(json data);
 	InputDataParser& parse(std::filesystem::path input_path);
 	InputDataParser& parse(std::string input_file);
-	TimetableProblem to_problem();
+	TimeTableProblem to_problem();
 };
