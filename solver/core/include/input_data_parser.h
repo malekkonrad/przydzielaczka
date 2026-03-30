@@ -13,7 +13,7 @@ class TimeTableProblem;
 
 using json = nlohmann::json;
 
-// -------------------- Models --------------------
+// -------------------- MODELS --------------------
 
 struct Location {
     std::string room;
@@ -66,14 +66,16 @@ struct Timetable {
     std::vector<Class> classes;
 };
 
+// ----------- INPUT DATA PARSER -------------
+
 class InputDataParser {
 private:
 public:
 	// Constructors
 	InputDataParser();
-	InputDataParser(json data);
-	InputDataParser(std::string input_file);
-	InputDataParser(std::filesystem::path input_path);
+	explicit InputDataParser(json data);
+	explicit InputDataParser(std::string input_file);
+	explicit InputDataParser(std::filesystem::path input_path);
 
 	InputDataParser(const InputDataParser& input_data_parser);
 	InputDataParser(InputDataParser&& input_data_parser) noexcept;
