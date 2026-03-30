@@ -1,0 +1,109 @@
+{
+  "constraints": [
+    {
+      "constraint_type": "minimize_gaps",
+      "min_break_duration": 15,
+      "sequence": 1,
+      "weight": 5,
+      "hard": true
+    },
+    {
+      "constraint_type": "group_preference",
+      "class_id": "120-ISI-1S-293",
+      "preferred_group": 8,
+      "sequence": 2,
+      "weight": 3,
+      "hard": false
+    },
+    {
+      "constraint_type": "group_preference",
+      "class_id": "120-ISI-1S-293",
+      "preferred_group": 3,
+      "sequence": 2,
+      "weight": 5,
+      "hard": false
+    },
+    {
+      "constraint_type": "lecturer_preference",
+      "class_id": "120-ISI-1S-293",
+      "preferred_lecturer": "Dr. Kowalski",
+      "sequence": 3,
+      "weight": 2,
+      "hard": false
+    },
+    {
+      "constraint_type": "maximize_single_attendance",
+      "class_id": "120-ISI-1S-293",
+      "sequence": 4,
+      "weight": 4,
+      "hard": true
+    },
+    {
+      "constraint_type": "maximize_total_attendance",
+      "sequence": 5,
+      "weight": 6
+    },
+    {
+      "constraint_type": "time_block",
+      "day": 1,
+      "start_time": 600,
+      "end_time": 900,
+      "sequence": 6,
+      "weight": 2,
+      "hard": true
+    },
+    {
+      "constraint_type": "time_block",
+      "date": "2024-10-07",
+      "start_time": 600,
+      "end_time": 900,
+      "sequence": 6,
+      "weight": 2,
+      "hard": true
+    },
+    {
+      "constraint_type": "prefer_edge_classes",
+      "class_id": "120-ISI-1S-293",
+      "position": "start",
+      "sequence": 2,
+      "weight": 2,
+      "hard": false
+    }
+  ],
+  "classes": [
+    {
+      "id": "120-ISI-1S-293",
+      "lecturer": "Dr. Kowalski",
+      "day": 1,
+      "week": "AB",
+      "location": {
+        "room": "4.07",
+        "building": "D2"
+      },
+      "group": 8,
+      "class_type": "CWL",
+      "start_time": 480,
+      "end_time": 570,
+      "sessions": [
+        {
+          "date": "2024-10-07",
+          "location": {
+            "room": "4.07",
+            "building": "D2"
+          },
+          "start_time": 480,
+          "end_time": 570
+        },
+        {
+          "date": "2024-10-14",
+          "location": {
+            "room": "4.07",
+            "building": "D2"
+          },
+          "start_time": 480,
+          "end_time": 570
+        }
+      ]
+    }
+  ]
+}

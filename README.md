@@ -34,4 +34,5 @@ Celem projektu jest znalezienie możliwie najlepszego kompromisu pomiędzy wymag
 - Maksymalizuj uczęszczanie na zajęcia (wszystkie w planie)
 - Blokowanie godzin w danych dniach (twarde lub miękkie)
 - Informowanie o kolizjach między grupami 
+- Możliwość żeby dane zajęcia były na końcu lub początku
 - All good solutions (best effort)

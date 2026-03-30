@@ -5,5 +5,5 @@
 #pragma once
 
 
-class solver {
+class Solver {
 };
