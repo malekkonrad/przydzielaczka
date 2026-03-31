@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "solver_version": "0.0.1",
+    "solved_at": "2024-10-01T09:14:32Z",
+    "duration_ms": 84,
+    "algorithm": "constraint_satisfaction",
+    "input_classes_total": 1,
+    "input_constraints_total": 10
+  },
+
+  "summary": {
+    "feasible": true,
+    "hard_constraints_satisfied": true,
+    "score": {
+      "total": 18.0,
+      "hard": 0.0,
+      "soft": 18.0
+    }
+  },
+
+  "results": [
+    {
+      "chosen_classes": [
+        {
+          "id": "120-ISI-1S-293",
+          "lecturer": "Dr. Kowalski",
+          "day": 1,
+          "week": "AB",
+          "location": {
+            "room": "4.07",
+            "building": "D2"
+          },
+          "group": 8,
+          "class_type": "CWL",
+          "start_time": 480,
+          "end_time": 570,
+          "sessions": [
+            {
+              "date": "2024-10-07",
+              "location": {
+                "room": "4.07",
+                "building": "D2"
+              },
+              "start_time": 480,
+              "end_time": 570
+            },
+            {
+              "date": "2024-10-14",
+              "location": {
+                "room": "4.07",
+                "building": "D2"
+              },
+              "start_time": 480,
+              "end_time": 570
+            }
+          ]
+        }
+      ],
+      "constraint_results": [
+        {
+          "constraint_type": "minimize_gaps",
+          "sequence": 1,
+          "weight": 5,
+          "hard": true,
+          "satisfied": true,
+          "score_achieved": 0.0,
+          "score_max": 0.0,
+          "details": "Only one class selected — no gaps possible."
+        },
+        {
+          "constraint_type": "group_preference",
+          "class_id": "120-ISI-1S-293",
+          "preferred_group": 8,
+          "sequence": 2,
+          "weight": 3,
+          "hard": false,
+          "satisfied": true,
+          "score_achieved": 3.0,
+          "score_max": 3.0,
+          "details": "Class 120-ISI-1S-293 is in group 8 — matches preferred group."
+        },
+        {
+          "constraint_type": "group_preference",
+          "class_id": "120-ISI-1S-293",
+          "preferred_group": 3,
+          "sequence": 2,
+          "weight": 5,
+          "hard": false,
+          "satisfied": false,
+          "score_achieved": 0.0,
+          "score_max": 5.0,
+          "details": "Class 120-ISI-1S-293 is in group 8, preferred group is 3."
+        },
+        {
+          "constraint_type": "lecturer_preference",
+          "class_id": "120-ISI-1S-293",
+          "preferred_lecturer": "Dr. Kowalski",
+          "sequence": 3,
+          "weight": 2,
+          "hard": false,
+          "satisfied": true,
+          "score_achieved": 2.0,
+          "score_max": 2.0,
+          "details": "Class 120-ISI-1S-293 is taught by Dr. Kowalski — matches preference."
+        },
+        {
+          "constraint_type": "maximize_single_attendance",
+          "class_id": "120-ISI-1S-293",
+          "sequence": 4,
+          "weight": 4,
+          "hard": true,
+          "satisfied": true,
+          "score_achieved": 0.0,
+          "score_max": 0.0,
+          "details": "Class 120-ISI-1S-293 is selected."
+        },
+        {
+          "constraint_type": "maximize_total_attendance",
+          "sequence": 5,
+          "weight": 6,
+          "hard": false,
+          "satisfied": true,
+          "score_achieved": 6.0,
+          "score_max": 6.0,
+          "details": "1 of 1 available classes selected (100%)."
+        },
+        {
+          "constraint_type": "time_block_day",
+          "day": 1,
+          "start_time": 600,
+          "end_time": 900,
+          "sequence": 6,
+          "weight": 2,
+          "hard": true,
+          "satisfied": true,
+          "score_achieved": 0.0,
+          "score_max": 0.0,
+          "details": "No selected class on Monday overlaps the blocked window 10:00–15:00. Class 120-ISI-1S-293 ends at 09:30."
+        },
+        {
+          "constraint_type": "time_block_date",
+          "date": "2024-10-07",
+          "start_time": 600,
+          "end_time": 900,
+          "sequence": 6,
+          "weight": 2,
+          "hard": true,
+          "satisfied": true,
+          "score_achieved": 0.0,
+          "score_max": 0.0,
+          "details": "Session on 2024-10-07 runs 08:00–09:30, does not overlap blocked window 10:00–15:00."
+        },
+        {
+          "constraint_type": "time_block",
+          "date": "2024-10-07",
+          "start_time": 600,
+          "end_time": 900,
+          "sequence": 6,
+          "weight": 2,
+          "hard": true,
+          "satisfied": true,
+          "score_achieved": 0.0,
+          "score_max": 0.0,
+          "details": "Session on 2024-10-07 runs 08:00–09:30, does not overlap blocked window 10:00–15:00."
+        },
+        {
+          "constraint_type": "prefer_edge_classes",
+          "class_id": "120-ISI-1S-293",
+          "position": "start",
+          "sequence": 2,
+          "weight": 2,
+          "hard": false,
+          "satisfied": true,
+          "score_achieved": 7.0,
+          "score_max": 7.0,
+          "details": "Class 120-ISI-1S-293 starts at 08:00 — first class of the day on Monday."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["meta", "summary", "results"],
+  "additionalProperties": false,
+
+  "definitions": {
+    "location": {
+      "type": "object",
+      "required": ["room", "building"],
+      "additionalProperties": false,
+      "properties": {
+        "room":     { "type": "string" },
+        "building": { "type": "string" }
+      }
+    },
+
+    "session": {
+      "type": "object",
+      "required": ["date", "location", "start_time", "end_time"],
+      "additionalProperties": false,
+      "properties": {
+        "date":       { "type": "string", "format": "date" },
+        "location":   { "$ref": "#/definitions/location" },
+        "start_time": { "type": "integer", "minimum": 0, "maximum": 1440 },
+        "end_time":   { "type": "integer", "minimum": 0, "maximum": 1440 }
+      }
+    },
+
+    "class": {
+      "type": "object",
+      "required": ["id", "lecturer", "day", "week", "location", "group", "class_type", "start_time", "end_time", "sessions"],
+      "additionalProperties": false,
+      "properties": {
+        "id":         { "type": "string" },
+        "lecturer":   { "type": "string" },
+        "day":        { "type": "integer", "minimum": 0, "maximum": 6 },
+        "week":       { "type": "string", "enum": ["A", "B", "AB"] },
+        "location":   { "$ref": "#/definitions/location" },
+        "group":      { "type": "integer" },
+        "class_type": { "type": "string" },
+        "start_time": { "type": "integer", "minimum": 0, "maximum": 1440 },
+        "end_time":   { "type": "integer", "minimum": 0, "maximum": 1440 },
+        "sessions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/session" }
+        }
+      }
+    },
+
+    "constraint_result": {
+      "type": "object",
+      "required": ["constraint_type", "sequence", "weight", "satisfied", "score_achieved", "score_max"],
+      "additionalProperties": false,
+      "properties": {
+        "constraint_type": {
+          "type": "string",
+          "enum": [
+            "minimize_gaps",
+            "group_preference",
+            "lecturer_preference",
+            "maximize_single_attendance",
+            "maximize_total_attendance",
+            "time_block",
+            "time_block_day",
+            "time_block_date",
+            "prefer_edge_classes"
+          ]
+        },
+        "sequence":       { "type": "integer", "minimum": 0 },
+        "weight":         { "type": "number",  "minimum": 0 },
+        "hard":           { "type": "boolean" },
+        "satisfied":      { "type": "boolean" },
+        "score_achieved": { "type": "number" },
+        "score_max":      { "type": "number",  "minimum": 0 },
+        "details":        { "type": "string" },
+
+        "class_id":           { "type": "string" },
+        "min_break_duration": { "type": "integer", "minimum": 0, "maximum": 1440 },
+        "preferred_group":    { "type": "integer" },
+        "preferred_lecturer": { "type": "string" },
+        "day":                { "type": "integer", "minimum": 0, "maximum": 6 },
+        "date":               { "type": "string", "format": "date" },
+        "start_time":         { "type": "integer", "minimum": 0, "maximum": 1440 },
+        "end_time":           { "type": "integer", "minimum": 0, "maximum": 1440 },
+        "position":           { "type": "string", "enum": ["start", "end"] }
+      },
+
+      "allOf": [
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "minimize_gaps" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["min_break_duration"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "group_preference" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["class_id", "preferred_group"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "lecturer_preference" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["class_id", "preferred_lecturer"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "maximize_single_attendance" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["class_id"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "time_block" } },
+            "required": ["constraint_type"]
+          },
+          "then": {
+            "required": ["start_time", "end_time"],
+            "anyOf": [
+              { "required": ["day"] },
+              { "required": ["date"] }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "time_block_day" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["day", "start_time", "end_time"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "time_block_date" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["date", "start_time", "end_time"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "prefer_edge_classes" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["class_id", "position"] }
+        }
+      ]
+    }
+  },
+
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["solver_version", "solved_at", "duration_ms", "algorithm", "input_classes_total", "input_constraints_total"],
+      "additionalProperties": false,
+      "properties": {
+        "solver_version":         { "type": "string" },
+        "solved_at":              { "type": "string", "format": "date-time" },
+        "duration_ms":            { "type": "integer", "minimum": 0 },
+        "algorithm":              { "type": "string" },
+        "input_classes_total":    { "type": "integer", "minimum": 0 },
+        "input_constraints_total":{ "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "summary": {
+      "type": "object",
+      "required": ["feasible", "hard_constraints_satisfied", "score"],
+      "additionalProperties": false,
+      "properties": {
+        "feasible":                  { "type": "boolean" },
+        "hard_constraints_satisfied":{ "type": "boolean" },
+        "score": {
+          "type": "object",
+          "required": ["total", "hard", "soft"],
+          "additionalProperties": false,
+          "properties": {
+            "total": { "type": "number" },
+            "hard":  { "type": "number" },
+            "soft":  { "type": "number" }
+          }
+        }
+      }
+    },
+
+    "results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["chosen_classes", "constraint_results"],
+        "additionalProperties": false,
+        "properties": {
+          "chosen_classes": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/class" }
+          },
+          "constraint_results": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/constraint_result" }
+          }
+        }
+      }
+    }
+  }
+}

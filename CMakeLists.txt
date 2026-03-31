@@ -19,13 +19,15 @@ option(BUILD_PYTHON_BINDINGS "Build Python bindings via pybind11" OFF)
 option(BUILD_WASM_BINDINGS "Build WebAssembly bindings" OFF)
 
 # --- Dependencies ---
-include(FetchContent)
+find_package(nlohmann_json CONFIG REQUIRED)
 
-# nlohmann/json integration
-FetchContent_Declare(json
-    URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+include(FetchContent)
+FetchContent_Declare(
+    json_schema_validator
+    GIT_REPOSITORY https://github.com/pboettch/json-schema-validator.git
+    GIT_TAG        2.3.0
 )
-FetchContent_MakeAvailable(json)
+FetchContent_MakeAvailable(json_schema_validator)
 
 # --- Subdirectories ---
 add_subdirectory(solver)

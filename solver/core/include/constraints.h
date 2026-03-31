@@ -4,6 +4,8 @@
 
 #pragma once
 
+class TimetableState;
 
-class Constraint {
+class Constraint
+{
 };

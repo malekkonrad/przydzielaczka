@@ -44,8 +44,17 @@
       "weight": 6
     },
     {
-      "constraint_type": "time_block",
+      "constraint_type": "time_block_day",
       "day": 1,
+      "start_time": 600,
+      "end_time": 900,
+      "sequence": 6,
+      "weight": 2,
+      "hard": true
+    },
+    {
+      "constraint_type": "time_block_date",
+      "date": "2024-10-07",
       "start_time": 600,
       "end_time": 900,
       "sequence": 6,

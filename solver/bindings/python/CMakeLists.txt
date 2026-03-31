@@ -1,13 +1,6 @@
 # solver/bindings/python/CMakeLists.txt
 
-# Use pybind11 via FetchContent
-include(FetchContent)
-
-FetchContent_Declare(
-    pybind11
-    URL https://github.com/pybind/pybind11/archive/refs/tags/v2.12.0.tar.gz
-)
-FetchContent_MakeAvailable(pybind11)
+find_package(pybind11 CONFIG REQUIRED)
 
 # Grab all the python cpp sources (e.g. module definition files)
 file(GLOB_RECURSE PYTHON_BINDING_SOURCES "*.cpp")

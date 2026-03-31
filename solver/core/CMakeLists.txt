@@ -5,7 +5,11 @@ file(GLOB_RECURSE CORE_SOURCES "src/*.cpp")
 
 # Define our main core library
 # Using STATIC or SHARED based on BUILD_SHARED_LIBS, or force STATIC
-add_library(solver_core STATIC ${CORE_SOURCES})
+add_library(solver_core STATIC ${CORE_SOURCES}
+        src/time_table_state.cpp
+        include/time_table_state.h
+        include/input_data_models.h
+        include/solver_data_models.h)
 
 # Specify include directories correctly
 # Public includes are available to anyone linking to solver_core
@@ -19,6 +23,13 @@ target_include_directories(solver_core PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Link dependencies (nlohmann_json)
-# If it's used in headers of solver_core, use PUBLIC, else PRIVATE. Let's assume PUBLIC.
-target_link_libraries(solver_core PUBLIC nlohmann_json::nlohmann_json)
+# Link dependencies
+target_link_libraries(solver_core PUBLIC
+    nlohmann_json::nlohmann_json
+    nlohmann_json_schema_validator
+)
+
+# Provide the schema path as a compile-time constant so the validator can load it
+target_compile_definitions(solver_core PRIVATE
+    INPUT_SCHEMA_PATH="${CMAKE_SOURCE_DIR}/shared/schemas/input.schema.json"
+)
