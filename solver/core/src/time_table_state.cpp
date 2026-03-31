@@ -4,6 +4,10 @@
 
 #include "time_table_state.h"
 
+#include <algorithm>
+#include <ostream>
+#include <vector>
+
 TimeTableState::TimeTableState(std::vector<int> chosen_ids)
     : chosen_ids_(chosen_ids.begin(), chosen_ids.end()) {}
 
@@ -35,4 +39,22 @@ int TimeTableState::size() const
 bool TimeTableState::is_empty() const
 {
     return chosen_ids_.empty();
+}
+
+// -------------------- STREAM --------------------
+
+std::ostream& operator<<(std::ostream& out, const TimeTableState& s)
+{
+    // Print IDs in sorted order for readability.
+    std::vector<int> ids(s.chosen_ids_.begin(), s.chosen_ids_.end());
+    std::sort(ids.begin(), ids.end());
+
+    out << "TimeTableState{ size=" << s.chosen_ids_.size() << ", chosen=[";
+    for (std::size_t i = 0; i < ids.size(); ++i)
+    {
+        if (i > 0) out << ", ";
+        out << ids[i];
+    }
+    out << "] }";
+    return out;
 }

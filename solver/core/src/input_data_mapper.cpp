@@ -4,8 +4,14 @@
 
 #include "input_data_mapper.h"
 
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <ostream>
+#include <string>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json-schema.hpp>
 
@@ -164,7 +170,7 @@ InputDataMapper::InputDataMapper(const TimeTableProblem& problem)
 }
 
 InputDataMapper::InputDataMapper(const InputDataMapper& other)
-    : timetable_(other.timetable_), problem_(other.problem_)
+    : timetable_(other.timetable_), problem_(other.problem_), solutions_(other.solutions_)
 {
 }
 
@@ -172,14 +178,17 @@ InputDataMapper& InputDataMapper::operator=(const InputDataMapper& other)
 {
     if (this != &other)
     {
-        timetable_ = other.timetable_;
-        problem_ = other.problem_;
+        timetable_  = other.timetable_;
+        problem_    = other.problem_;
+        solutions_  = other.solutions_;
     }
     return *this;
 }
 
 InputDataMapper::InputDataMapper(InputDataMapper&& other) noexcept
-    : timetable_(std::move(other.timetable_)), problem_(std::move(other.problem_))
+    : timetable_(std::move(other.timetable_))
+    , problem_(std::move(other.problem_))
+    , solutions_(std::move(other.solutions_))
 {
 }
 
@@ -187,8 +196,9 @@ InputDataMapper& InputDataMapper::operator=(InputDataMapper&& other) noexcept
 {
     if (this != &other)
     {
-        timetable_ = std::move(other.timetable_);
-        problem_ = std::move(other.problem_);
+        timetable_  = std::move(other.timetable_);
+        problem_    = std::move(other.problem_);
+        solutions_  = std::move(other.solutions_);
     }
     return *this;
 }
@@ -211,7 +221,11 @@ bool InputDataMapper::validate(const Json& data) const
     if (schema.empty())
         return false;
 
-    nlohmann::json_schema::json_validator validator;
+    // Provide a no-op format checker so the validator does not throw when the
+    // schema contains "format" keywords (e.g. "date", "date-time").
+    auto format_checker = [](const std::string& /*format*/, const std::string& /*value*/) {};
+
+    nlohmann::json_schema::json_validator validator(nullptr, format_checker);
     try
     {
         validator.set_root_schema(schema);
@@ -284,9 +298,11 @@ static Json constraint_result_to_json(const input_models::Constraint& c)
     return j;
 }
 
-Json InputDataMapper::get_solution(const TimeTableProblem& problem)
+Json InputDataMapper::get_solution(const TimeTableProblem& problem,
+                                   const std::vector<TimeTableState>& solutions)
 {
-    problem_ = problem;
+    problem_   = problem;
+    solutions_ = solutions;
     return get_solution();
 }
 
@@ -295,7 +311,7 @@ Json InputDataMapper::get_solution() const
     if (!problem_)
         return to_json();
 
-    const auto& solutions   = problem_->get_solutions();
+    const auto& solutions   = solutions_;
     const auto& all_classes = timetable_ ? timetable_->classes     : decltype(timetable_->classes){};
     const auto& constraints = timetable_ ? timetable_->constraints  : decltype(timetable_->constraints){};
 
@@ -321,18 +337,6 @@ Json InputDataMapper::get_solution() const
         });
     }
 
-    const int n_classes     = static_cast<int>(all_classes.size());
-    const int n_constraints = static_cast<int>(constraints.size());
-
-    Json meta = Json{
-        {"solver_version",          "0.0.1"},
-        {"solved_at",               ""},
-        {"duration_ms",             0},
-        {"algorithm",               ""},
-        {"input_classes_total",     n_classes},
-        {"input_constraints_total", n_constraints}
-    };
-
     Json summary = Json{
         {"feasible",                   !solutions.empty()},
         {"hard_constraints_satisfied", false},
@@ -343,7 +347,7 @@ Json InputDataMapper::get_solution() const
         }}
     };
 
-    return Json{{"meta", meta}, {"summary", summary}, {"results", results}};
+    return Json{{"summary", summary}, {"results", results}};
 }
 
 // -------------------- JSON ROUND-TRIP --------------------
@@ -367,4 +371,137 @@ Json InputDataMapper::to_json() const
 InputDataMapper InputDataMapper::from_json(const Json& data)
 {
     return InputDataMapper(data);
+}
+
+// -------------------- TIMETABLE DISPLAY --------------------
+
+// UTF-8 block characters used for the timetable cells.
+static const std::string CELL_FULL  = "\xe2\x96\x88"; // █  U+2588
+static const std::string CELL_LOWER = "\xe2\x96\x84"; // ▄  U+2584  (class starts next slot)
+static const std::string CELL_UPPER = "\xe2\x96\x80"; // ▀  U+2580  (class just ended)
+static const std::string CELL_EMPTY = "      ";        // 6 spaces
+
+static std::string make_class_cell(char abbr)
+{
+    // Pattern: ███X██  (6 visual columns, 16 bytes due to 3-byte UTF-8 block chars)
+    return CELL_FULL + CELL_FULL + CELL_FULL + abbr + CELL_FULL + CELL_FULL;
+}
+
+static std::string make_lower_row() { return CELL_LOWER + CELL_LOWER + CELL_LOWER
+                                           + CELL_LOWER + CELL_LOWER + CELL_LOWER; }
+static std::string make_upper_row() { return CELL_UPPER + CELL_UPPER + CELL_UPPER
+                                           + CELL_UPPER + CELL_UPPER + CELL_UPPER; }
+
+void InputDataMapper::print_timetable(const TimeTableState& state, std::ostream& out) const
+{
+    if (!timetable_) return;
+
+    const auto& all_classes = timetable_->classes;
+
+    // Collect pointers to chosen classes (IDs are treated as indices).
+    std::vector<const input_models::Class*> chosen;
+    for (const int id : state.get_chosen_ids())
+    {
+        if (id >= 0 && id < static_cast<int>(all_classes.size()))
+            chosen.push_back(&all_classes[id]);
+    }
+
+    static constexpr int SLOT      = 30;   // minutes per row
+    static constexpr int DAY_COUNT = 5;    // Mon–Fri
+    static constexpr int T_START   = 7  * 60;          // 7:00
+    static constexpr int T_END     = 21 * 60 + 30;     // 21:30
+
+    // Polish day names, exactly 6 visible columns each.
+    static const std::array<const char*, DAY_COUNT> DAY_NAMES = {
+        " pon  ", "wtorek", "\xc5\x9broda ", " czw  ", "pi\xc4\x85tek"
+        //         środa (ś = c5 9b)               piątek (ą = c4 85)
+    };
+
+    // Returns the first chosen class active at minute T on the given day and week letter.
+    auto find_active = [&](int T, int day, char week) -> const input_models::Class*
+    {
+        for (const auto* cls : chosen)
+        {
+            if (cls->day != day) continue;
+            if (cls->week.find(week) == std::string::npos) continue;
+            if (cls->start_time <= T && cls->end_time > T)
+                return cls;
+        }
+        return nullptr;
+    };
+
+    // True if any chosen class on this day/week starts strictly within (T, T+SLOT].
+    auto next_starts = [&](int T, int day, char week) -> bool
+    {
+        for (const auto* cls : chosen)
+        {
+            if (cls->day != day) continue;
+            if (cls->week.find(week) == std::string::npos) continue;
+            if (cls->start_time > T && cls->start_time <= T + SLOT)
+                return true;
+        }
+        return false;
+    };
+
+    // Render one 6-column cell for time slot [T, T+SLOT).
+    auto render_cell = [&](int T, int day, char week) -> std::string
+    {
+        if (const auto* cls = find_active(T, day, week))
+        {
+            const char abbr = cls->class_type.empty()
+                ? '?'
+                : static_cast<char>(std::toupper(static_cast<unsigned char>(cls->class_type[0])));
+            return make_class_cell(abbr);
+        }
+
+        if (next_starts(T, day, week))
+            return make_lower_row();   // ▄▄▄▄▄▄  class starts next slot
+
+        // Class ended at T (was active one slot earlier)?
+        if (T >= SLOT && find_active(T - SLOT, day, week))
+            return make_upper_row();   // ▀▀▀▀▀▀  class just ended
+
+        return CELL_EMPTY;
+    };
+
+    // ---- Header ----
+    out << "    A";
+    for (int d = 0; d < DAY_COUNT; ++d) out << "|" << DAY_NAMES[d];
+    out << "|    B";
+    for (int d = 0; d < DAY_COUNT; ++d) out << "|" << DAY_NAMES[d];
+    out << "|\n";
+
+    // ---- Time rows ----
+    for (int T = T_START; T < T_END; T += SLOT)
+    {
+        char time_buf[6];
+        std::snprintf(time_buf, sizeof(time_buf), "%2d:%02d", T / 60, T % 60);
+
+        // Week A
+        out << time_buf;
+        for (int d = 0; d < DAY_COUNT; ++d)
+            out << "|" << render_cell(T, d, 'A');
+        out << "|";
+
+        // Week B (same time label, right half)
+        out << time_buf;
+        for (int d = 0; d < DAY_COUNT; ++d)
+            out << "|" << render_cell(T, d, 'B');
+        out << "|\n";
+    }
+}
+
+// -------------------- STREAM --------------------
+
+std::ostream& operator<<(std::ostream& out, const InputDataMapper& m)
+{
+    int n_classes     = m.timetable_ ? static_cast<int>(m.timetable_->classes.size())     : 0;
+    int n_constraints = m.timetable_ ? static_cast<int>(m.timetable_->constraints.size()) : 0;
+    int n_solutions   = static_cast<int>(m.solutions_.size());
+
+    out << "InputDataMapper{ classes=" << n_classes
+        << ", constraints=" << n_constraints
+        << ", solutions=" << n_solutions
+        << " }";
+    return out;
 }

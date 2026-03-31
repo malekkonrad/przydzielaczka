@@ -62,15 +62,6 @@
       "hard": true
     },
     {
-      "constraint_type": "time_block",
-      "date": "2024-10-07",
-      "start_time": 600,
-      "end_time": 900,
-      "sequence": 6,
-      "weight": 2,
-      "hard": true
-    },
-    {
       "constraint_type": "prefer_edge_classes",
       "class_id": "120-ISI-1S-293",
       "position": "start",

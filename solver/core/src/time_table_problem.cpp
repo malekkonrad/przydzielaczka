@@ -5,6 +5,7 @@
 #include "time_table_problem.h"
 
 #include <algorithm>
+#include <ostream>
 #include <optional>
 #include <variant>
 
@@ -49,11 +50,6 @@ const std::vector<ConstraintVariant>& TimeTableProblem::get_constraints() const
     return constraints_;
 }
 
-const std::vector<TimeTableState>& TimeTableProblem::get_solutions() const
-{
-    return solutions_;
-}
-
 // -------------------- QUERIES --------------------
 
 const Class* TimeTableProblem::find_class(const int id) const
@@ -94,4 +90,13 @@ bool TimeTableProblem::is_valid() const
     }
 
     return true;
+}
+
+// -------------------- STREAM --------------------
+
+std::ostream& operator<<(std::ostream& out, const TimeTableProblem& p)
+{
+    out << "TimeTableProblem{ classes=" << p.classes_.size()
+        << ", constraints=" << p.constraints_.size() << " }";
+    return out;
 }
