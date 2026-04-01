@@ -41,9 +41,9 @@ public:
 	DataMapper& parse(const Json& data);
 	DataMapper& parse(const std::string& input_file);
 	DataMapper& parse(const std::filesystem::path& input_path);
-	[[nodiscard]] const TimeTableProblem& get_problem() const;
+	[[nodiscard]] const TimeTableProblem& get_problem();
 
-	[[nodiscard]] Json get_solution(const std::vector<TimeTableState>& solutions) const;
+	[[nodiscard]] Json get_solution(const std::vector<TimeTableState>& solutions);
 	[[nodiscard]] Json get_solution() const;
 
 	// Prints a two-week (A/B) ASCII timetable for the given solution to `out`.
@@ -76,6 +76,7 @@ private:
 	[[nodiscard]] std::optional<int> find_lecturer(const std::string& lecturer) const;
 	[[nodiscard]] std::optional<int> find_day(int day) const;
 	[[nodiscard]] std::optional<int> find_date(const std::string& date) const;
+	[[nodiscard]] std::optional<int> find_time(int time) const;
 
 	std::optional<input_models::Timetable> timetable_ = std::nullopt;
 	std::optional<TimeTableProblem> problem_ = std::nullopt;

@@ -135,18 +135,18 @@ static Json constraint_to_json(const input_models::Constraint& c)
     Json j;
     j["constraint_type"] = c.type;
     j["sequence"] = c.sequence;
-    if (c.weight) j["weight"] = *c.weight;
-    if (c.hard) j["hard"] = *c.hard;
-    if (c.class_id) j["class_id"] = *c.class_id;
-    if (c.min_break_duration) j["min_break_duration"] = *c.min_break_duration;
-    if (c.preferred_group) j["preferred_group"] = *c.preferred_group;
-    if (c.preferred_lecturer) j["preferred_lecturer"] = *c.preferred_lecturer;
-    if (c.day) j["day"] = *c.day;
-    if (c.date) j["date"] = *c.date;
-    if (c.start_time) j["start_time"] = *c.start_time;
-    if (c.end_time) j["end_time"] = *c.end_time;
-    if (c.position) j["position"] = *c.position;
-    if (c.slack) j["slack"] = *c.slack;
+    if (c.weight) j["weight"] = c.weight.value();
+    if (c.hard) j["hard"] = c.hard.value();
+    if (c.class_id) j["class_id"] = c.class_id.value();
+    if (c.min_break_duration) j["min_break_duration"] = c.min_break_duration.value();
+    if (c.preferred_group) j["preferred_group"] = c.preferred_group.value();
+    if (c.preferred_lecturer) j["preferred_lecturer"] = c.preferred_lecturer.value();
+    if (c.day) j["day"] = c.day.value();
+    if (c.date) j["date"] = c.date.value();
+    if (c.start_time) j["start_time"] = c.start_time.value();
+    if (c.end_time) j["end_time"] = c.end_time.value();
+    if (c.position) j["position"] = c.position.value();
+    if (c.slack) j["slack"] = c.slack.value();
     return j;
 }
 
@@ -237,7 +237,7 @@ bool DataMapper::validate(const Json& data)
             std::cerr << "InputDataMapper: could not open schema: " << INPUT_SCHEMA_PATH << '\n';
             return Json{};
         }
-        return Json::parse(file);
+        return Json::parse(file); // TODO wtf
     }();
 
     if (schema.empty())
@@ -308,6 +308,20 @@ int DataMapper::map_class_id_and_class_type(const std::string& class_id,
     return id;
 }
 
+int DataMapper::map_group(const int group)
+{
+    const auto it = group_mapper_.find(group);
+    if (it != group_mapper_.end())
+    {
+        return it->second;
+    }
+
+    const int id = static_cast<int>(group_mapper_.size());
+    group_mapper_[group] = id;
+    group_demapper_[id] = group;
+    return id;
+}
+
 int DataMapper::map_date(const std::string& date)
 {
     const auto it = date_mapper_.find(date);
@@ -321,7 +335,15 @@ int DataMapper::map_date(const std::string& date)
 
 int DataMapper::map_day(const int day)
 {
-    return day; // already 0-indexed in the input
+    const auto it = day_mapper_.find(day);
+    if (it != day_mapper_.end())
+    {
+        return it->second;
+    }
+
+    const int id = static_cast<int>(day_mapper_.size());
+    day_mapper_[day] = id;
+    return id;
 }
 
 int DataMapper::map_time(const int time)
@@ -377,6 +399,16 @@ DataMapper::demap_class_id_and_class_type(const int id) const
     return {"", ""};
 }
 
+int DataMapper::demap_group(const int group) const
+{
+    const auto it = group_demapper_.find(group);
+    if (it != group_demapper_.end())
+    {
+        return it->second;
+    }
+    return 0;
+}
+
 // -------------------- HELPERS ------------------------
 
 std::optional<int>
@@ -386,6 +418,16 @@ DataMapper::find_class_id_and_class_type(const std::string& class_id,
     const auto key = std::make_tuple(class_id, class_type);
     const auto it = class_id_mapper_.find(key);
     if (it != class_id_mapper_.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+std::optional<int> DataMapper::find_group(const int group) const
+{
+    const auto it = group_mapper_.find(group);
+    if (it != group_mapper_.end())
     {
         return it->second;
     }
@@ -402,9 +444,14 @@ std::optional<int> DataMapper::find_lecturer(const std::string& lecturer) const
     return std::nullopt;
 }
 
-std::optional<int> DataMapper::find_day(int day) const
+std::optional<int> DataMapper::find_day(const int day) const
 {
-    return day;
+    const auto it = day_mapper_.find(day);
+    if (it != day_mapper_.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
 }
 
 std::optional<int> DataMapper::find_date(const std::string& date) const
@@ -415,6 +462,11 @@ std::optional<int> DataMapper::find_date(const std::string& date) const
         return it->second;
     }
     return std::nullopt;
+}
+
+std::optional<int> DataMapper::find_time(const int time) const
+{
+    return time;
 }
 
 // -------------------- MAP CLASSES --------------------
@@ -470,6 +522,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
 
     for (const auto& c : timetable_->constraints)
     {
+        const int sequence = c.sequence;
         const double weight = c.weight.value_or(1.0);
         const bool hard = c.hard.value_or(false);
         const int slack = c.slack.value_or(0);
@@ -477,84 +530,161 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
         if (c.type == "minimize_gaps")
         {
             constraints.push_back(solver_models::MinimizeGapsConstraint{
-                c.sequence, weight, hard, slack,
+                sequence, weight, hard, slack,
                 c.min_break_duration.value_or(0)
             });
         }
         else if (c.type == "group_preference" && c.class_id && c.class_type && c.preferred_group)
         {
-            const std::optional<int> cid = find_class_id_and_class_type(*c.class_id, *c.class_type);
+            const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid)
             {
                 constraints.push_back(solver_models::GroupPreferenceConstraint{
-                    c.sequence, weight, hard, slack,
+                    sequence, weight, hard, slack,
                     cid.value(),
                     c.preferred_group.value()
                 });
-            } else
+            }
+            else
             {
-                std::cerr << "Could not find mapped class for: " << *c.class_id << " with type: " << *c.class_type << std::endl;
+                std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
             }
         }
         else if (c.type == "lecturer_preference" && c.class_id && c.class_type && c.preferred_lecturer)
         {
-            const std::optional<int> lecturer_id = find_lecturer(*c.preferred_lecturer);
-            const std::optional<int> cid = find_class_id_and_class_type(*c.class_id, *c.class_type);
+            const std::optional<int> lecturer_id = find_lecturer(c.preferred_lecturer.value());
+            const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid && lecturer_id)
             {
                 constraints.push_back(solver_models::LecturerPreferenceConstraint{
-                    c.sequence, weight, hard, slack,
+                    sequence, weight, hard, slack,
                     cid.value(),
                     lecturer_id.value()
                 });
             }
+            else
+            {
+                if (!cid)
+                {
+                    std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+                }
+                if (!lecturer_id)
+                {
+                    std::cerr << "Could not find mapped lecturer for: " << c.preferred_lecturer.value() << std::endl;
+                }
+            }
         }
         else if (c.type == "maximize_single_attendance" && c.class_id && c.class_type)
         {
-            const std::optional<int> cid = find_class_id_and_class_type(*c.class_id, *c.class_type);
+            const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid)
             {
                 constraints.push_back(solver_models::MaximizeSingleAttendanceConstraint{
-                    c.sequence, weight, hard, slack,
+                    sequence, weight, hard, slack,
                     cid.value()
                 });
+            }
+            else
+            {
+                std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
             }
         }
         else if (c.type == "maximize_total_attendance")
         {
             constraints.push_back(solver_models::MaximizeTotalAttendanceConstraint{
-                c.sequence, weight, hard, slack
+                sequence, weight, hard, slack
             });
         }
         else if (c.type == "time_block_day" && c.start_time && c.end_time && c.day)
         {
-            constraints.push_back(solver_models::TimeBlockDayConstraint{
-                c.sequence, weight, hard, slack,
-                map_time(c.start_time.value()),
-                map_time(c.end_time.value()),
-                map_day(c.day.value())
-            });
+            const std::optional<int> start_time = find_time(c.start_time.value());
+            const std::optional<int> end_time = find_time(c.end_time.value());
+            const std::optional<int> day = find_day(c.day.value());
+            if (start_time && end_time && day)
+            {
+                constraints.push_back(solver_models::TimeBlockDayConstraint{
+                    sequence, weight, hard, slack,
+                    start_time.value(),
+                    end_time.value(),
+                    day.value()
+                });
+            }
+            else
+            {
+                if (!start_time)
+                {
+                    std::cerr << "Could not find mapped time for: " << c.start_time.value() << std::endl;
+                }
+                if (!end_time)
+                {
+                    std::cerr << "Could not find mapped time for: " << c.end_time.value() << std::endl;
+                }
+                if (!day)
+                {
+                    std::cerr << "Could not find mapped day for: " << c.day.value() << std::endl;
+                }
+            }
         }
-        else if (c.type == "time_block_date" && c.date)
+        else if (c.type == "time_block_date" && c.start_time && c.end_time && c.date)
         {
+            const std::optional<int> start_time = find_time(c.start_time.value());
+            const std::optional<int> end_time = find_time(c.end_time.value());
+            const std::optional<int> date = find_date(c.date.value());
+            if (start_time && end_time && date)
+            {
             constraints.push_back(solver_models::TimeBlockDateConstraint{
-                c.sequence, weight, hard, slack,
-                map_time(c.start_time.value_or(0)),
-                map_time(c.end_time.value_or(0)),
-                map_date(*c.date)
+                sequence, weight, hard, slack,
+                start_time.value(),
+                end_time.value(),
+                date.value()
             });
+            }
+            else
+            {
+                if (!start_time)
+                {
+                    std::cerr << "Could not find mapped time for: " << c.start_time.value() << std::endl;
+                }
+                if (!end_time)
+                {
+                    std::cerr << "Could not find mapped time for: " << c.end_time.value() << std::endl;
+                }
+                if (!date)
+                {
+                    std::cerr << "Could not find mapped date for: " << c.date.value() << std::endl;
+                }
+            }
         }
-        else if (c.type == "prefer_edge_classes" && c.class_id)
+        else if (c.type == "prefer_edge_classes" && c.class_id && c.class_type && c.position)
         {
-            solver_models::EdgePosition pos = solver_models::EdgePosition::Start;
-            if (c.position && *c.position == "end")
+            std::optional<solver_models::EdgePosition> pos = std::nullopt;
+            if (c.position.value() == "end")
+            {
                 pos = solver_models::EdgePosition::End;
-
-            for (int cid : find_class_int_ids(*c.class_id))
+            }
+            else if (c.position.value() == "start")
+            {
+                pos = solver_models::EdgePosition::Start;
+            }
+            const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
+            if (cid && pos)
             {
                 constraints.push_back(solver_models::PreferEdgeClassesConstraint{
-                    c.sequence, weight, hard, slack, cid, pos
+                    sequence, weight, hard, slack,
+                    cid.value(),
+                    pos.value()
                 });
+            }
+            else
+            {
+                if (!cid)
+                {
+                    std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+                }
+                if (!pos)
+                {
+                    std::cerr << "Could not find mapped position for: " << c.position.value() << std::endl;
+                }
             }
         }
     }
@@ -566,8 +696,10 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
 
 const TimeTableProblem& DataMapper::get_problem()
 {
-    if (!problem_.has_value() && timetable_.has_value())
+    if (!problem_ && timetable_)
+    {
         problem_ = TimeTableProblem(map_classes(), map_constraints());
+    }
 
     return problem_.value();
 }
@@ -595,7 +727,9 @@ Json DataMapper::get_solution(const std::vector<TimeTableState>& solutions)
 Json DataMapper::get_solution() const
 {
     if (!problem_)
+    {
         return Json{};
+    }
 
     const auto& solutions = solutions_;
     const auto& all_classes = timetable_ ? timetable_->classes : decltype(timetable_->classes){};
@@ -607,15 +741,17 @@ Json DataMapper::get_solution() const
     {
         // Demap int IDs → string class_id + class_type, then find the full input class.
         Json chosen = Json::array();
-        for (const int id : state.get_chosen_ids())
+        for (const auto& [class_id, group] : state.get_groups())
         {
-            auto [class_id_str, class_type_str] = demap_class_id_and_class_type(id);
+            auto [class_id_str, class_type_str] = demap_class_id_and_class_type(class_id);
             if (class_id_str.empty())
-                continue;
-
-            for (const auto& c : all_classes)
             {
-                if (c.id == class_id_str && c.class_type == class_type_str)
+                continue;
+            }
+
+            for (const auto& c : all_classes) // TODO maybe change to map ???
+            {
+                if (c.group == group && c.id == class_id_str && c.class_type == class_type_str)
                 {
                     chosen.push_back(class_to_json(c));
                     break;

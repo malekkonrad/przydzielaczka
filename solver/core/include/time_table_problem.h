@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include <data_models.h>
+
 #include <iosfwd>
 #include <vector>
-
-#include "solver_data_models.h"
 
 class TimeTableProblem
 {
