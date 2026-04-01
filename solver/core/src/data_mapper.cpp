@@ -227,18 +227,20 @@ DataMapper& DataMapper::operator=(DataMapper&& other) noexcept
 
 // -------------------- VALIDATION --------------------
 
+static Json load_schema()
+{
+    std::ifstream file(INPUT_SCHEMA_PATH);
+    if (!file.is_open())
+    {
+        std::cerr << "InputDataMapper: could not open schema\n";
+        return Json{};
+    }
+    return Json::parse(file); // weird clangd bug
+}
+
 bool DataMapper::validate(const Json& data)
 {
-    static const Json schema = []() -> Json
-    {
-        std::ifstream file(INPUT_SCHEMA_PATH);
-        if (!file.is_open())
-        {
-            std::cerr << "InputDataMapper: could not open schema: " << INPUT_SCHEMA_PATH << '\n';
-            return Json{};
-        }
-        return Json::parse(file); // TODO wtf
-    }();
+    static Json schema = load_schema();
 
     if (schema.empty())
         return false;
@@ -749,7 +751,7 @@ Json DataMapper::get_solution() const
                 continue;
             }
 
-            for (const auto& c : all_classes) // TODO maybe change to map ???
+            for (const auto& c : all_classes)
             {
                 if (c.group == group && c.id == class_id_str && c.class_type == class_type_str)
                 {
@@ -783,6 +785,8 @@ Json DataMapper::get_solution() const
 }
 
 // -------------------- TIMETABLE DISPLAY --------------------
+
+// TODO display
 
 // UTF-8 block characters used for the timetable cells.
 static const std::string CELL_FULL  = "\xe2\x96\x88"; // █  U+2588
@@ -913,9 +917,9 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
 
 std::ostream& operator<<(std::ostream& out, const DataMapper& m)
 {
-    int n_classes     = m.timetable_ ? static_cast<int>(m.timetable_->classes.size())     : 0;
-    int n_constraints = m.timetable_ ? static_cast<int>(m.timetable_->constraints.size()) : 0;
-    int n_solutions   = static_cast<int>(m.solutions_.size());
+    const int n_classes = m.timetable_ ? static_cast<int>(m.timetable_->classes.size())     : 0;
+    const int n_constraints = m.timetable_ ? static_cast<int>(m.timetable_->constraints.size()) : 0;
+    const int n_solutions = static_cast<int>(m.solutions_.size());
 
     out << "InputDataMapper{ classes=" << n_classes
         << ", constraints=" << n_constraints
