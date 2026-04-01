@@ -4,26 +4,34 @@
 
 #pragma once
 
-#include "i_solver.h"
-
 #include <time_table_problem.h>
 #include <time_table_state.h>
 
-// SolverBase<Evaluator> sits between ISolver and concrete solvers.
-// It constructs the evaluator and exposes it to subclasses.
-// All conflict checking and scoring goes through the evaluator.
+#include <vector>
+
+// SolverBase<Evaluator> is the base for concrete solvers.
+// It owns the problem reference, constructs the evaluator, and exposes both
+// to subclasses. All conflict checking and scoring goes through the evaluator.
 //
 // Evaluator must provide:
 //   explicit Evaluator(const TimeTableProblem&);
 //   bool   has_conflict(int candidate_id, const TimeTableState&) const;
 //   double score(const TimeTableState&) const;
 template<typename Evaluator>
-class SolverBase : public ISolver
+class SolverBase
 {
 public:
     explicit SolverBase(const TimeTableProblem& problem)
-        : ISolver(problem), evaluator_(problem) {}
+        : problem_(problem), evaluator_(problem) {}
+
+    virtual ~SolverBase() = default;
+
+    SolverBase(const SolverBase&)            = delete;
+    SolverBase& operator=(const SolverBase&) = delete;
+
+    virtual std::vector<TimeTableState> solve(int max_solutions = 10) = 0;
 
 protected:
+    const TimeTableProblem& problem_;
     Evaluator evaluator_;
 };

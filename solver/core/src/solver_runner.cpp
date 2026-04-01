@@ -5,7 +5,9 @@
 #include "solver_runner.h"
 #include "constraints.h"
 #include "input_data_mapper.h"
-#include "solver.h"
+#include "simple_solver.h"
+#include "constraint_evaluator.h"
+#include "policies/int_time_policy.h"
 
 #include <chrono>
 #include <ctime>
@@ -35,9 +37,7 @@ Json SolverRunner::run(const Json& input, bool verbose) const
     const int n_classes     = static_cast<int>(problem.get_classes().size());
     const int n_constraints = static_cast<int>(problem.get_constraints().size());
 
-    Solver solver(problem);
-    if (verbose)
-        std::cout << solver << "\n";
+    SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem);
 
     const auto t_start = Clock::now();
     std::vector<TimeTableState> solutions = solver.solve(max_solutions_);
