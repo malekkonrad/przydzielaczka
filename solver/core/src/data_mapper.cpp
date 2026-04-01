@@ -2,7 +2,7 @@
 // Created by mateu on 30.03.2026.
 //
 
-#include "input_data_mapper.h"
+#include "data_mapper.h"
 
 #include <algorithm>
 #include <array>
@@ -149,29 +149,29 @@ static Json constraint_to_json(const input_models::Constraint& c)
 
 // -------------------- CONSTRUCTORS --------------------
 
-InputDataMapper::InputDataMapper() = default;
+DataMapper::DataMapper() = default;
 
-InputDataMapper::InputDataMapper(const Json& data)
+DataMapper::DataMapper(const Json& data)
 {
     parse(data);
 }
 
-InputDataMapper::InputDataMapper(const std::string& input_file)
+DataMapper::DataMapper(const std::string& input_file)
 {
     parse(input_file);
 }
 
-InputDataMapper::InputDataMapper(const std::filesystem::path& input_path)
+DataMapper::DataMapper(const std::filesystem::path& input_path)
 {
     parse(input_path);
 }
 
-InputDataMapper::InputDataMapper(const TimeTableProblem& problem)
+DataMapper::DataMapper(const TimeTableProblem& problem)
 {
     parse(problem);
 }
 
-InputDataMapper::InputDataMapper(const InputDataMapper& other)
+DataMapper::DataMapper(const DataMapper& other)
     : timetable_(other.timetable_)
     , problem_(other.problem_)
     , solutions_(other.solutions_)
@@ -187,7 +187,7 @@ InputDataMapper::InputDataMapper(const InputDataMapper& other)
 {
 }
 
-InputDataMapper& InputDataMapper::operator=(const InputDataMapper& other)
+DataMapper& DataMapper::operator=(const DataMapper& other)
 {
     if (this != &other)
     {
@@ -207,7 +207,7 @@ InputDataMapper& InputDataMapper::operator=(const InputDataMapper& other)
     return *this;
 }
 
-InputDataMapper::InputDataMapper(InputDataMapper&& other) noexcept
+DataMapper::DataMapper(DataMapper&& other) noexcept
     : timetable_(std::move(other.timetable_))
     , problem_(std::move(other.problem_))
     , solutions_(std::move(other.solutions_))
@@ -223,7 +223,7 @@ InputDataMapper::InputDataMapper(InputDataMapper&& other) noexcept
 {
 }
 
-InputDataMapper& InputDataMapper::operator=(InputDataMapper&& other) noexcept
+DataMapper& DataMapper::operator=(DataMapper&& other) noexcept
 {
     if (this != &other)
     {
@@ -245,7 +245,7 @@ InputDataMapper& InputDataMapper::operator=(InputDataMapper&& other) noexcept
 
 // -------------------- VALIDATION --------------------
 
-bool InputDataMapper::validate(const Json& data)
+bool DataMapper::validate(const Json& data)
 {
     static const Json schema = []() -> Json
     {
@@ -281,7 +281,7 @@ bool InputDataMapper::validate(const Json& data)
 
 // -------------------- PARSE: JSON → Timetable --------------------
 
-InputDataMapper& InputDataMapper::parse(const Json& data)
+DataMapper& DataMapper::parse(const Json& data)
 {
     if (!validate(data))
         return *this;
@@ -290,12 +290,12 @@ InputDataMapper& InputDataMapper::parse(const Json& data)
     return *this;
 }
 
-InputDataMapper& InputDataMapper::parse(const std::string& input_file)
+DataMapper& DataMapper::parse(const std::string& input_file)
 {
     return parse(std::filesystem::path(input_file));
 }
 
-InputDataMapper& InputDataMapper::parse(const std::filesystem::path& input_path)
+DataMapper& DataMapper::parse(const std::filesystem::path& input_path)
 {
     std::ifstream file(input_path);
     if (!file.is_open())
@@ -310,7 +310,7 @@ InputDataMapper& InputDataMapper::parse(const std::filesystem::path& input_path)
 
 // -------------------- PARSE: Problem/State → Timetable --------------------
 
-InputDataMapper& InputDataMapper::parse(const TimeTableProblem& problem)
+DataMapper& DataMapper::parse(const TimeTableProblem& problem)
 {
     problem_ = problem;
     return *this;
@@ -318,13 +318,15 @@ InputDataMapper& InputDataMapper::parse(const TimeTableProblem& problem)
 
 // -------------------- MAPPERS --------------------
 
-int InputDataMapper::map_class_id_and_class_type(const std::string& class_id,
+int DataMapper::map_class_id_and_class_type(const std::string& class_id,
                                                   const std::string& class_type)
 {
-    auto key = std::make_pair(class_id, class_type);
+    auto key = std::make_tuple(class_id, class_type);
     auto it = class_id_mapper_.find(key);
     if (it != class_id_mapper_.end())
+    {
         return it->second;
+    }
 
     int id = static_cast<int>(class_id_mapper_.size());
     class_id_mapper_[key]   = id;
@@ -332,7 +334,7 @@ int InputDataMapper::map_class_id_and_class_type(const std::string& class_id,
     return id;
 }
 
-solver_models::TimeTableDate InputDataMapper::map_date(const std::string& date)
+solver_models::TimeTableDate DataMapper::map_date(const std::string& date)
 {
     auto it = date_mapper_.find(date);
     if (it != date_mapper_.end())
@@ -344,17 +346,17 @@ solver_models::TimeTableDate InputDataMapper::map_date(const std::string& date)
     return id;
 }
 
-solver_models::TimeTableDay InputDataMapper::map_day(int day)
+solver_models::TimeTableDay DataMapper::map_day(int day)
 {
     return day; // already 0-indexed in the input
 }
 
-solver_models::TimeTableTime InputDataMapper::map_time(int time)
+solver_models::TimeTableTime DataMapper::map_time(int time)
 {
     return time; // minutes from midnight, no conversion needed
 }
 
-solver_models::TimeTableWeek InputDataMapper::map_week(const std::string& week)
+solver_models::TimeTableWeek DataMapper::map_week(const std::string& week)
 {
     auto it = week_mapper_.find(week);
     if (it != week_mapper_.end())
@@ -367,7 +369,7 @@ solver_models::TimeTableWeek InputDataMapper::map_week(const std::string& week)
     return result;
 }
 
-int InputDataMapper::map_location(const input_models::Location& location)
+int DataMapper::map_location(const input_models::Location& location)
 {
     std::string key = location.room + '|' + location.building;
     auto it = location_mapper_.find(key);
@@ -380,7 +382,7 @@ int InputDataMapper::map_location(const input_models::Location& location)
     return id;
 }
 
-int InputDataMapper::map_lecturer(const std::string& lecturer)
+int DataMapper::map_lecturer(const std::string& lecturer)
 {
     auto it = lecturer_mapper_.find(lecturer);
     if (it != lecturer_mapper_.end())
@@ -395,7 +397,7 @@ int InputDataMapper::map_lecturer(const std::string& lecturer)
 // -------------------- DEMAPPERS --------------------
 
 std::pair<std::string, std::string>
-InputDataMapper::demap_class_id_and_class_type(int id) const
+DataMapper::demap_class_id_and_class_type(int id) const
 {
     auto it = class_id_demapper_.find(id);
     if (it != class_id_demapper_.end())
@@ -403,7 +405,7 @@ InputDataMapper::demap_class_id_and_class_type(int id) const
     return {"", ""};
 }
 
-std::string InputDataMapper::demap_date(solver_models::TimeTableDate date) const
+std::string DataMapper::demap_date(solver_models::TimeTableDate date) const
 {
     auto it = date_demapper_.find(date);
     if (it != date_demapper_.end())
@@ -411,17 +413,17 @@ std::string InputDataMapper::demap_date(solver_models::TimeTableDate date) const
     return "";
 }
 
-int InputDataMapper::demap_day(solver_models::TimeTableDay day) const
+int DataMapper::demap_day(solver_models::TimeTableDay day) const
 {
     return day;
 }
 
-int InputDataMapper::demap_time(solver_models::TimeTableTime time) const
+int DataMapper::demap_time(solver_models::TimeTableTime time) const
 {
     return time;
 }
 
-std::string InputDataMapper::demap_week(solver_models::TimeTableWeek week) const
+std::string DataMapper::demap_week(solver_models::TimeTableWeek week) const
 {
     std::string result;
     if (week.test(0)) result += 'A';
@@ -429,7 +431,7 @@ std::string InputDataMapper::demap_week(solver_models::TimeTableWeek week) const
     return result;
 }
 
-input_models::Location InputDataMapper::demap_location(int location) const
+input_models::Location DataMapper::demap_location(int location) const
 {
     auto it = location_demapper_.find(location);
     if (it != location_demapper_.end())
@@ -437,7 +439,7 @@ input_models::Location InputDataMapper::demap_location(int location) const
     return {"", ""};
 }
 
-std::string InputDataMapper::demap_lecturer(int lecturer) const
+std::string DataMapper::demap_lecturer(int lecturer) const
 {
     auto it = lecturer_demapper_.find(lecturer);
     if (it != lecturer_demapper_.end())
@@ -447,7 +449,7 @@ std::string InputDataMapper::demap_lecturer(int lecturer) const
 
 // -------------------- HELPER --------------------
 
-std::vector<int> InputDataMapper::find_class_int_ids(const std::string& class_id_str) const
+std::vector<int> DataMapper::find_class_int_ids(const std::string& class_id_str) const
 {
     std::vector<int> ids;
     for (const auto& [key, id] : class_id_mapper_)
@@ -460,7 +462,7 @@ std::vector<int> InputDataMapper::find_class_int_ids(const std::string& class_id
 
 // -------------------- MAP CLASSES --------------------
 
-std::vector<solver_models::Class> InputDataMapper::map_classes()
+std::vector<solver_models::Class> DataMapper::map_classes()
 {
     if (!timetable_)
         return {};
@@ -497,7 +499,7 @@ std::vector<solver_models::Class> InputDataMapper::map_classes()
 
 // -------------------- MAP CONSTRAINTS --------------------
 
-std::vector<solver_models::ConstraintVariant> InputDataMapper::map_constraints()
+std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
 {
     if (!timetable_)
         return {};
@@ -591,7 +593,7 @@ std::vector<solver_models::ConstraintVariant> InputDataMapper::map_constraints()
 
 // -------------------- GET PROBLEM --------------------
 
-const TimeTableProblem& InputDataMapper::get_problem()
+const TimeTableProblem& DataMapper::get_problem()
 {
     if (!problem_.has_value() && timetable_.has_value())
         problem_ = TimeTableProblem(map_classes(), map_constraints());
@@ -613,13 +615,13 @@ static Json constraint_result_to_json(const input_models::Constraint& c)
     return j;
 }
 
-Json InputDataMapper::get_solution(const std::vector<TimeTableState>& solutions)
+Json DataMapper::get_solution(const std::vector<TimeTableState>& solutions)
 {
     solutions_ = solutions;
     return get_solution();
 }
 
-Json InputDataMapper::get_solution() const
+Json DataMapper::get_solution() const
 {
     if (!problem_)
         return Json{};
@@ -692,7 +694,7 @@ static std::string make_lower_row() { return CELL_LOWER + CELL_LOWER + CELL_LOWE
 static std::string make_upper_row() { return CELL_UPPER + CELL_UPPER + CELL_UPPER
                                            + CELL_UPPER + CELL_UPPER + CELL_UPPER; }
 
-void InputDataMapper::print_timetable(const TimeTableState& state, std::ostream& out) const
+void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out) const
 {
     if (!timetable_) return;
 
@@ -802,7 +804,7 @@ void InputDataMapper::print_timetable(const TimeTableState& state, std::ostream&
 
 // -------------------- STREAM --------------------
 
-std::ostream& operator<<(std::ostream& out, const InputDataMapper& m)
+std::ostream& operator<<(std::ostream& out, const DataMapper& m)
 {
     int n_classes     = m.timetable_ ? static_cast<int>(m.timetable_->classes.size())     : 0;
     int n_constraints = m.timetable_ ? static_cast<int>(m.timetable_->constraints.size()) : 0;

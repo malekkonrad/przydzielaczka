@@ -5,25 +5,31 @@
 #pragma once
 
 #include <iosfwd>
-#include <unordered_set>
-#include <vector>
 
 class TimeTableState
 {
 public:
     TimeTableState() = default;
-    explicit TimeTableState(std::vector<int> chosen_ids);
+    explicit TimeTableState(const std::unordered_map<int, int>& groups);
 
-    void add(int class_id);
+    TimeTableState(const TimeTableState& other) = default;
+    TimeTableState& operator=(const TimeTableState& other) = default;
+    TimeTableState(const TimeTableState&& other) noexcept;
+    TimeTableState& operator=(const TimeTableState&& other) noexcept;
+    ~TimeTableState() = default;
+
+    void add(int class_id, int group);
     void remove(int class_id);
+    void remove(int class_id, int group);
 
     [[nodiscard]] bool contains(int class_id) const;
-    [[nodiscard]] const std::unordered_set<int>& get_chosen_ids() const;
-    [[nodiscard]] int size() const;
+    [[nodiscard]] bool contains(int class_id, int group) const;
+    [[nodiscard]] const std::unordered_map<int, int>& get_groups() const;
+    [[nodiscard]] size_t size() const;
     [[nodiscard]] bool is_empty() const;
 
     friend std::ostream& operator<<(std::ostream& out, const TimeTableState& s);
 
 private:
-    std::unordered_set<int> chosen_ids_;
+    std::unordered_map<int, int> groups_;
 };

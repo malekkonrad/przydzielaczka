@@ -2,43 +2,78 @@
 // Created by mateu on 31.03.2026.
 //
 
-#include "time_table_state.h"
+#include <time_table_state.h>
 
 #include <algorithm>
 #include <ostream>
 #include <vector>
 
-TimeTableState::TimeTableState(std::vector<int> chosen_ids)
-    : chosen_ids_(chosen_ids.begin(), chosen_ids.end()) {}
-
-void TimeTableState::add(const int class_id)
+TimeTableState::TimeTableState(const std::unordered_map<int, int>& groups)
+    : groups_(groups)
 {
-    chosen_ids_.insert(class_id);
+}
+
+TimeTableState::TimeTableState(const TimeTableState&& other) noexcept
+    : groups_(std::move(other.groups_))
+{
+}
+
+TimeTableState& TimeTableState::operator=(const TimeTableState&& other) noexcept
+{
+    if (this != &other)
+    {
+        groups_ = std::move(other.groups_);
+    }
+    return *this;
+}
+
+void TimeTableState::add(const int class_id, const int group)
+{
+    groups_[class_id] = group;
 }
 
 void TimeTableState::remove(const int class_id)
 {
-    chosen_ids_.erase(class_id);
+    groups_.erase(class_id);
+}
+
+void TimeTableState::remove(const int class_id, const int group)
+{
+    const auto found = groups_.find(class_id);
+    if (found != groups_.end())
+    {
+        groups_.erase(found->first);
+    }
 }
 
 bool TimeTableState::contains(const int class_id) const
 {
-    return chosen_ids_.contains(class_id);
+    return groups_.contains(class_id);
 }
 
-const std::unordered_set<int>& TimeTableState::get_chosen_ids() const
+bool TimeTableState::contains(const int class_id, const int group) const
 {
-    return chosen_ids_;
+    const auto found = groups_.find(class_id);
+    if (found == groups_.end())
+    {
+        return false;
+    }
+    return found->second == group;
 }
 
-int TimeTableState::size() const
+const std::unordered_map<int, int>& TimeTableState::get_groups() const
 {
-    return static_cast<int>(chosen_ids_.size());
+    return groups_;
+}
+
+size_t TimeTableState::size() const
+{
+    return groups_.size();
 }
 
 bool TimeTableState::is_empty() const
 {
-    return chosen_ids_.empty();
+    return groups_.empty();
 }
 
 // -------------------- STREAM --------------------
@@ -46,14 +81,14 @@ bool TimeTableState::is_empty() const
 std::ostream& operator<<(std::ostream& out, const TimeTableState& s)
 {
     // Print IDs in sorted order for readability.
-    std::vector<int> ids(s.chosen_ids_.begin(), s.chosen_ids_.end());
-    std::sort(ids.begin(), ids.end());
+    std::vector<std::pair<int, int>> ids(s.groups_.begin(), s.groups_.end());
+    std::ranges::sort(ids, [](auto& left, auto& right){return left.first < right.first;});
 
-    out << "TimeTableState{ size=" << s.chosen_ids_.size() << ", chosen=[";
-    for (std::size_t i = 0; i < ids.size(); ++i)
+    out << "TimeTableState{ size=" << s.groups_.size() << ", chosen=[";
+    for (std::size_t i = 0; i < ids.size(); i++)
     {
         if (i > 0) out << ", ";
-        out << ids[i];
+        out << ids[i].first << ":" << ids[i].second;
     }
     out << "] }";
     return out;

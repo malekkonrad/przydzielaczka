@@ -9,10 +9,10 @@ file(GLOB_RECURSE CORE_SOURCES "core/src/*.cpp")
 add_library(solver_core STATIC ${CORE_SOURCES}
         core/src/time_table_state.cpp
         core/include/time_table_state.h
-        core/include/input_data_models.h
-        core/include/solver_data_models.h
+        core/include/data_models.h
         solvers/simple_solver.cpp
-        solvers/simple_solver.h)
+        solvers/simple_solver.h
+        utils/tuple_string_hash.h)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC

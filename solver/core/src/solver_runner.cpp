@@ -4,7 +4,7 @@
 
 #include "solver_runner.h"
 #include "constraints.h"
-#include "input_data_mapper.h"
+#include "data_mapper.h"
 #include "simple_solver.h"
 #include "constraint_evaluator.h"
 #include "policies/int_time_policy.h"
@@ -31,7 +31,7 @@ SolverRunner::SolverRunner(int max_solutions)
 
 Json SolverRunner::run(const Json& input, bool verbose) const
 {
-    InputDataMapper mapper(input);
+    DataMapper mapper(input);
     TimeTableProblem problem = mapper.get_problem();
 
     const int n_classes     = static_cast<int>(problem.get_classes().size());
