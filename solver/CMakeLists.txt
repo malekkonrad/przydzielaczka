@@ -17,6 +17,7 @@ add_library(solver_core STATIC ${CORE_SOURCES}
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/core/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/utils>
     $<INSTALL_INTERFACE:include>
 )
 

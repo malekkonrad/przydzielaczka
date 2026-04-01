@@ -87,6 +87,10 @@
             "enum": ["start", "end"]
           },
 
+          "class_type": {
+            "type": "string"
+          },
+
           "slack": {
             "type": "integer",
             "minimum": 0
@@ -109,7 +113,7 @@
               "required": ["constraint_type"]
             },
             "then": {
-              "required": ["class_id", "preferred_group"]
+              "required": ["class_id", "preferred_group", "class_type"]
             }
           },
           {
@@ -118,7 +122,7 @@
               "required": ["constraint_type"]
             },
             "then": {
-              "required": ["class_id", "preferred_lecturer"]
+              "required": ["class_id", "preferred_lecturer", "class_type"]
             }
           },
           {
@@ -127,7 +131,7 @@
               "required": ["constraint_type"]
             },
             "then": {
-              "required": ["class_id"]
+              "required": ["class_id", "class_type"]
             }
           },
           {

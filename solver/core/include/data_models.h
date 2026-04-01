@@ -48,6 +48,7 @@ namespace input_models
         std::optional<double> weight;
         std::optional<bool> hard;
         std::optional<std::string> class_id;
+        std::optional<std::string> class_type;
 
         std::optional<int> min_break_duration;
         std::optional<int> preferred_group;

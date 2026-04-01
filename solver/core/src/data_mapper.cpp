@@ -2,7 +2,8 @@
 // Created by mateu on 30.03.2026.
 //
 
-#include "data_mapper.h"
+#include <data_mapper.h>
+#include <tuple_string_hash.h>
 
 #include <algorithm>
 #include <array>
@@ -111,7 +112,9 @@ static Json class_to_json(const input_models::Class& c)
 {
     Json sessions = Json::array();
     for (const auto& s : c.sessions)
+    {
         sessions.push_back(session_to_json(s));
+    }
 
     return Json{
         {"id", c.id},
@@ -166,24 +169,15 @@ DataMapper::DataMapper(const std::filesystem::path& input_path)
     parse(input_path);
 }
 
-DataMapper::DataMapper(const TimeTableProblem& problem)
-{
-    parse(problem);
-}
-
 DataMapper::DataMapper(const DataMapper& other)
     : timetable_(other.timetable_)
     , problem_(other.problem_)
     , solutions_(other.solutions_)
     , class_id_mapper_(other.class_id_mapper_)
     , date_mapper_(other.date_mapper_)
-    , week_mapper_(other.week_mapper_)
     , location_mapper_(other.location_mapper_)
     , lecturer_mapper_(other.lecturer_mapper_)
     , class_id_demapper_(other.class_id_demapper_)
-    , date_demapper_(other.date_demapper_)
-    , location_demapper_(other.location_demapper_)
-    , lecturer_demapper_(other.lecturer_demapper_)
 {
 }
 
@@ -196,13 +190,9 @@ DataMapper& DataMapper::operator=(const DataMapper& other)
         solutions_           = other.solutions_;
         class_id_mapper_     = other.class_id_mapper_;
         date_mapper_         = other.date_mapper_;
-        week_mapper_         = other.week_mapper_;
         location_mapper_     = other.location_mapper_;
         lecturer_mapper_     = other.lecturer_mapper_;
         class_id_demapper_   = other.class_id_demapper_;
-        date_demapper_       = other.date_demapper_;
-        location_demapper_   = other.location_demapper_;
-        lecturer_demapper_   = other.lecturer_demapper_;
     }
     return *this;
 }
@@ -213,13 +203,9 @@ DataMapper::DataMapper(DataMapper&& other) noexcept
     , solutions_(std::move(other.solutions_))
     , class_id_mapper_(std::move(other.class_id_mapper_))
     , date_mapper_(std::move(other.date_mapper_))
-    , week_mapper_(std::move(other.week_mapper_))
     , location_mapper_(std::move(other.location_mapper_))
     , lecturer_mapper_(std::move(other.lecturer_mapper_))
     , class_id_demapper_(std::move(other.class_id_demapper_))
-    , date_demapper_(std::move(other.date_demapper_))
-    , location_demapper_(std::move(other.location_demapper_))
-    , lecturer_demapper_(std::move(other.lecturer_demapper_))
 {
 }
 
@@ -232,13 +218,9 @@ DataMapper& DataMapper::operator=(DataMapper&& other) noexcept
         solutions_           = std::move(other.solutions_);
         class_id_mapper_     = std::move(other.class_id_mapper_);
         date_mapper_         = std::move(other.date_mapper_);
-        week_mapper_         = std::move(other.week_mapper_);
         location_mapper_     = std::move(other.location_mapper_);
         lecturer_mapper_     = std::move(other.lecturer_mapper_);
         class_id_demapper_   = std::move(other.class_id_demapper_);
-        date_demapper_       = std::move(other.date_demapper_);
-        location_demapper_   = std::move(other.location_demapper_);
-        lecturer_demapper_   = std::move(other.lecturer_demapper_);
     }
     return *this;
 }
@@ -308,156 +290,131 @@ DataMapper& DataMapper::parse(const std::filesystem::path& input_path)
     return parse(j);
 }
 
-// -------------------- PARSE: Problem/State → Timetable --------------------
-
-DataMapper& DataMapper::parse(const TimeTableProblem& problem)
-{
-    problem_ = problem;
-    return *this;
-}
-
 // -------------------- MAPPERS --------------------
 
 int DataMapper::map_class_id_and_class_type(const std::string& class_id,
-                                                  const std::string& class_type)
+                                            const std::string& class_type)
 {
-    auto key = std::make_tuple(class_id, class_type);
-    auto it = class_id_mapper_.find(key);
+    const auto key = std::make_tuple(class_id, class_type);
+    const auto it = class_id_mapper_.find(key);
     if (it != class_id_mapper_.end())
     {
         return it->second;
     }
 
-    int id = static_cast<int>(class_id_mapper_.size());
-    class_id_mapper_[key]   = id;
-    class_id_demapper_[id]  = key;
+    const int id = static_cast<int>(class_id_mapper_.size());
+    class_id_mapper_[key] = id;
+    class_id_demapper_[id] = key;
     return id;
 }
 
-solver_models::TimeTableDate DataMapper::map_date(const std::string& date)
+int DataMapper::map_date(const std::string& date)
 {
-    auto it = date_mapper_.find(date);
+    const auto it = date_mapper_.find(date);
     if (it != date_mapper_.end())
         return it->second;
 
-    int id = static_cast<int>(date_mapper_.size());
-    date_mapper_[date]   = id;
-    date_demapper_[id]   = date;
+    const int id = static_cast<int>(date_mapper_.size());
+    date_mapper_[date] = id;
     return id;
 }
 
-solver_models::TimeTableDay DataMapper::map_day(int day)
+int DataMapper::map_day(const int day)
 {
     return day; // already 0-indexed in the input
 }
 
-solver_models::TimeTableTime DataMapper::map_time(int time)
+int DataMapper::map_time(const int time)
 {
     return time; // minutes from midnight, no conversion needed
 }
 
-solver_models::TimeTableWeek DataMapper::map_week(const std::string& week)
+std::bitset<2> DataMapper::map_week(const std::string& week)
 {
-    auto it = week_mapper_.find(week);
-    if (it != week_mapper_.end())
-        return it->second;
-
-    solver_models::TimeTableWeek result;
+    std::bitset<2> result;
     if (week.find('A') != std::string::npos) result.set(0);
     if (week.find('B') != std::string::npos) result.set(1);
-    week_mapper_[week] = result;
     return result;
 }
 
 int DataMapper::map_location(const input_models::Location& location)
 {
-    std::string key = location.room + '|' + location.building;
-    auto it = location_mapper_.find(key);
+    const auto key = std::make_tuple(location.room, location.building);
+    const auto it = location_mapper_.find(key);
     if (it != location_mapper_.end())
+    {
         return it->second;
+    }
 
-    int id = static_cast<int>(location_mapper_.size());
-    location_mapper_[key]   = id;
-    location_demapper_[id]  = location;
+    const int id = static_cast<int>(location_mapper_.size());
+    location_mapper_[key] = id;
     return id;
 }
 
 int DataMapper::map_lecturer(const std::string& lecturer)
 {
-    auto it = lecturer_mapper_.find(lecturer);
+    const auto it = lecturer_mapper_.find(lecturer);
     if (it != lecturer_mapper_.end())
+    {
         return it->second;
+    }
 
     int id = static_cast<int>(lecturer_mapper_.size());
-    lecturer_mapper_[lecturer]  = id;
-    lecturer_demapper_[id]      = lecturer;
+    lecturer_mapper_[lecturer] = id;
     return id;
 }
 
 // -------------------- DEMAPPERS --------------------
 
-std::pair<std::string, std::string>
-DataMapper::demap_class_id_and_class_type(int id) const
+std::tuple<std::string, std::string>
+DataMapper::demap_class_id_and_class_type(const int id) const
 {
-    auto it = class_id_demapper_.find(id);
+    const auto it = class_id_demapper_.find(id);
     if (it != class_id_demapper_.end())
+    {
         return it->second;
+    }
     return {"", ""};
 }
 
-std::string DataMapper::demap_date(solver_models::TimeTableDate date) const
+// -------------------- HELPERS ------------------------
+
+std::optional<int>
+DataMapper::find_class_id_and_class_type(const std::string& class_id,
+                                         const std::string& class_type) const
 {
-    auto it = date_demapper_.find(date);
-    if (it != date_demapper_.end())
+    const auto key = std::make_tuple(class_id, class_type);
+    const auto it = class_id_mapper_.find(key);
+    if (it != class_id_mapper_.end())
+    {
         return it->second;
-    return "";
+    }
+    return std::nullopt;
 }
 
-int DataMapper::demap_day(solver_models::TimeTableDay day) const
+std::optional<int> DataMapper::find_lecturer(const std::string& lecturer) const
+{
+    const auto it = lecturer_mapper_.find(lecturer);
+    if (it != lecturer_mapper_.end())
+    {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+std::optional<int> DataMapper::find_day(int day) const
 {
     return day;
 }
 
-int DataMapper::demap_time(solver_models::TimeTableTime time) const
+std::optional<int> DataMapper::find_date(const std::string& date) const
 {
-    return time;
-}
-
-std::string DataMapper::demap_week(solver_models::TimeTableWeek week) const
-{
-    std::string result;
-    if (week.test(0)) result += 'A';
-    if (week.test(1)) result += 'B';
-    return result;
-}
-
-input_models::Location DataMapper::demap_location(int location) const
-{
-    auto it = location_demapper_.find(location);
-    if (it != location_demapper_.end())
-        return it->second;
-    return {"", ""};
-}
-
-std::string DataMapper::demap_lecturer(int lecturer) const
-{
-    auto it = lecturer_demapper_.find(lecturer);
-    if (it != lecturer_demapper_.end())
-        return it->second;
-    return "";
-}
-
-// -------------------- HELPER --------------------
-
-std::vector<int> DataMapper::find_class_int_ids(const std::string& class_id_str) const
-{
-    std::vector<int> ids;
-    for (const auto& [key, id] : class_id_mapper_)
+    const auto it = date_mapper_.find(date);
+    if (it != date_mapper_.end())
     {
-        if (key.first == class_id_str)
-            ids.push_back(id);
+        return it->second;
     }
-    return ids;
+    return std::nullopt;
 }
 
 // -------------------- MAP CLASSES --------------------
@@ -465,7 +422,9 @@ std::vector<int> DataMapper::find_class_int_ids(const std::string& class_id_str)
 std::vector<solver_models::Class> DataMapper::map_classes()
 {
     if (!timetable_)
+    {
         return {};
+    }
 
     std::vector<solver_models::Class> classes;
     classes.reserve(timetable_->classes.size());
@@ -502,69 +461,81 @@ std::vector<solver_models::Class> DataMapper::map_classes()
 std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
 {
     if (!timetable_)
+    {
         return {};
+    }
 
     std::vector<solver_models::ConstraintVariant> constraints;
+    constraints.reserve(timetable_->constraints.size());
 
     for (const auto& c : timetable_->constraints)
     {
-        double weight = c.weight.value_or(1.0);
-        bool   hard   = c.hard.value_or(false);
+        const double weight = c.weight.value_or(1.0);
+        const bool hard = c.hard.value_or(false);
+        const int slack = c.slack.value_or(0);
 
-        int slack = c.slack.value_or(0);
-
-        if (c.type == "MinimizeGaps")
+        if (c.type == "minimize_gaps")
         {
             constraints.push_back(solver_models::MinimizeGapsConstraint{
                 c.sequence, weight, hard, slack,
                 c.min_break_duration.value_or(0)
             });
         }
-        else if (c.type == "GroupPreference" && c.class_id)
+        else if (c.type == "group_preference" && c.class_id && c.class_type && c.preferred_group)
         {
-            for (int cid : find_class_int_ids(*c.class_id))
+            const std::optional<int> cid = find_class_id_and_class_type(*c.class_id, *c.class_type);
+            if (cid)
             {
                 constraints.push_back(solver_models::GroupPreferenceConstraint{
-                    c.sequence, weight, hard, slack, cid,
-                    c.preferred_group.value_or(0)
+                    c.sequence, weight, hard, slack,
+                    cid.value(),
+                    c.preferred_group.value()
                 });
+            } else
+            {
+                std::cerr << "Could not find mapped class for: " << *c.class_id << " with type: " << *c.class_type << std::endl;
             }
         }
-        else if (c.type == "LecturerPreference" && c.class_id && c.preferred_lecturer)
+        else if (c.type == "lecturer_preference" && c.class_id && c.class_type && c.preferred_lecturer)
         {
-            int lecturer_id = map_lecturer(*c.preferred_lecturer);
-            for (int cid : find_class_int_ids(*c.class_id))
+            const std::optional<int> lecturer_id = find_lecturer(*c.preferred_lecturer);
+            const std::optional<int> cid = find_class_id_and_class_type(*c.class_id, *c.class_type);
+            if (cid && lecturer_id)
             {
                 constraints.push_back(solver_models::LecturerPreferenceConstraint{
-                    c.sequence, weight, hard, slack, cid, lecturer_id
+                    c.sequence, weight, hard, slack,
+                    cid.value(),
+                    lecturer_id.value()
                 });
             }
         }
-        else if (c.type == "MaximizeSingleAttendance" && c.class_id)
+        else if (c.type == "maximize_single_attendance" && c.class_id && c.class_type)
         {
-            for (int cid : find_class_int_ids(*c.class_id))
+            const std::optional<int> cid = find_class_id_and_class_type(*c.class_id, *c.class_type);
+            if (cid)
             {
                 constraints.push_back(solver_models::MaximizeSingleAttendanceConstraint{
-                    c.sequence, weight, hard, slack, cid
+                    c.sequence, weight, hard, slack,
+                    cid.value()
                 });
             }
         }
-        else if (c.type == "MaximizeTotalAttendance")
+        else if (c.type == "maximize_total_attendance")
         {
             constraints.push_back(solver_models::MaximizeTotalAttendanceConstraint{
                 c.sequence, weight, hard, slack
             });
         }
-        else if (c.type == "TimeBlockDay")
+        else if (c.type == "time_block_day" && c.start_time && c.end_time && c.day)
         {
             constraints.push_back(solver_models::TimeBlockDayConstraint{
                 c.sequence, weight, hard, slack,
-                map_time(c.start_time.value_or(0)),
-                map_time(c.end_time.value_or(0)),
-                map_day(c.day.value_or(0))
+                map_time(c.start_time.value()),
+                map_time(c.end_time.value()),
+                map_day(c.day.value())
             });
         }
-        else if (c.type == "TimeBlockDate" && c.date)
+        else if (c.type == "time_block_date" && c.date)
         {
             constraints.push_back(solver_models::TimeBlockDateConstraint{
                 c.sequence, weight, hard, slack,
@@ -573,7 +544,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
                 map_date(*c.date)
             });
         }
-        else if (c.type == "PreferEdgeClasses" && c.class_id)
+        else if (c.type == "prefer_edge_classes" && c.class_id)
         {
             solver_models::EdgePosition pos = solver_models::EdgePosition::Start;
             if (c.position && *c.position == "end")

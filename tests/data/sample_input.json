@@ -11,6 +11,7 @@
     {
       "constraint_type": "group_preference",
       "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
       "preferred_group": 8,
       "sequence": 2,
       "weight": 3,
@@ -20,6 +21,7 @@
     {
       "constraint_type": "group_preference",
       "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
       "preferred_group": 3,
       "sequence": 2,
       "weight": 5,
@@ -29,6 +31,7 @@
     {
       "constraint_type": "lecturer_preference",
       "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
       "preferred_lecturer": "Dr. Kowalski",
       "sequence": 3,
       "weight": 2,
@@ -38,6 +41,7 @@
     {
       "constraint_type": "maximize_single_attendance",
       "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
       "sequence": 4,
       "weight": 4,
       "hard": true,
