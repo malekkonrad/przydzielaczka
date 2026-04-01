@@ -59,7 +59,7 @@ Json SolverRunner::run(const Json& input, bool verbose) const
                   << duration_ms << " ms\n";
     }
 
-    Json result         = mapper.get_solution(problem, solutions);
+    Json result         = mapper.get_solution(solutions);
     result["meta"]      = build_meta(duration_ms, n_classes, n_constraints);
 
     return result;

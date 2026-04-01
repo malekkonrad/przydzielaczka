@@ -78,6 +78,7 @@ static input_models::Constraint parse_constraint(const Json& j)
     c.start_time = get_opt<int>(j, "start_time");
     c.end_time = get_opt<int>(j, "end_time");
     c.position = get_opt<std::string>(j, "position");
+    c.slack = get_opt<int>(j, "slack");
     return c;
 }
 
@@ -142,6 +143,7 @@ static Json constraint_to_json(const input_models::Constraint& c)
     if (c.start_time) j["start_time"] = *c.start_time;
     if (c.end_time) j["end_time"] = *c.end_time;
     if (c.position) j["position"] = *c.position;
+    if (c.slack) j["slack"] = *c.slack;
     return j;
 }
 
@@ -170,7 +172,18 @@ InputDataMapper::InputDataMapper(const TimeTableProblem& problem)
 }
 
 InputDataMapper::InputDataMapper(const InputDataMapper& other)
-    : timetable_(other.timetable_), problem_(other.problem_), solutions_(other.solutions_)
+    : timetable_(other.timetable_)
+    , problem_(other.problem_)
+    , solutions_(other.solutions_)
+    , class_id_mapper_(other.class_id_mapper_)
+    , date_mapper_(other.date_mapper_)
+    , week_mapper_(other.week_mapper_)
+    , location_mapper_(other.location_mapper_)
+    , lecturer_mapper_(other.lecturer_mapper_)
+    , class_id_demapper_(other.class_id_demapper_)
+    , date_demapper_(other.date_demapper_)
+    , location_demapper_(other.location_demapper_)
+    , lecturer_demapper_(other.lecturer_demapper_)
 {
 }
 
@@ -178,9 +191,18 @@ InputDataMapper& InputDataMapper::operator=(const InputDataMapper& other)
 {
     if (this != &other)
     {
-        timetable_  = other.timetable_;
-        problem_    = other.problem_;
-        solutions_  = other.solutions_;
+        timetable_           = other.timetable_;
+        problem_             = other.problem_;
+        solutions_           = other.solutions_;
+        class_id_mapper_     = other.class_id_mapper_;
+        date_mapper_         = other.date_mapper_;
+        week_mapper_         = other.week_mapper_;
+        location_mapper_     = other.location_mapper_;
+        lecturer_mapper_     = other.lecturer_mapper_;
+        class_id_demapper_   = other.class_id_demapper_;
+        date_demapper_       = other.date_demapper_;
+        location_demapper_   = other.location_demapper_;
+        lecturer_demapper_   = other.lecturer_demapper_;
     }
     return *this;
 }
@@ -189,6 +211,15 @@ InputDataMapper::InputDataMapper(InputDataMapper&& other) noexcept
     : timetable_(std::move(other.timetable_))
     , problem_(std::move(other.problem_))
     , solutions_(std::move(other.solutions_))
+    , class_id_mapper_(std::move(other.class_id_mapper_))
+    , date_mapper_(std::move(other.date_mapper_))
+    , week_mapper_(std::move(other.week_mapper_))
+    , location_mapper_(std::move(other.location_mapper_))
+    , lecturer_mapper_(std::move(other.lecturer_mapper_))
+    , class_id_demapper_(std::move(other.class_id_demapper_))
+    , date_demapper_(std::move(other.date_demapper_))
+    , location_demapper_(std::move(other.location_demapper_))
+    , lecturer_demapper_(std::move(other.lecturer_demapper_))
 {
 }
 
@@ -196,16 +227,25 @@ InputDataMapper& InputDataMapper::operator=(InputDataMapper&& other) noexcept
 {
     if (this != &other)
     {
-        timetable_  = std::move(other.timetable_);
-        problem_    = std::move(other.problem_);
-        solutions_  = std::move(other.solutions_);
+        timetable_           = std::move(other.timetable_);
+        problem_             = std::move(other.problem_);
+        solutions_           = std::move(other.solutions_);
+        class_id_mapper_     = std::move(other.class_id_mapper_);
+        date_mapper_         = std::move(other.date_mapper_);
+        week_mapper_         = std::move(other.week_mapper_);
+        location_mapper_     = std::move(other.location_mapper_);
+        lecturer_mapper_     = std::move(other.lecturer_mapper_);
+        class_id_demapper_   = std::move(other.class_id_demapper_);
+        date_demapper_       = std::move(other.date_demapper_);
+        location_demapper_   = std::move(other.location_demapper_);
+        lecturer_demapper_   = std::move(other.lecturer_demapper_);
     }
     return *this;
 }
 
 // -------------------- VALIDATION --------------------
 
-bool InputDataMapper::validate(const Json& data) const
+bool InputDataMapper::validate(const Json& data)
 {
     static const Json schema = []() -> Json
     {
@@ -229,7 +269,7 @@ bool InputDataMapper::validate(const Json& data) const
     try
     {
         validator.set_root_schema(schema);
-        validator.validate(data);
+        validator.validate(data); // NOLINT: we just need to validate schema
         return true;
     }
     catch (const std::exception& e)
@@ -276,12 +316,287 @@ InputDataMapper& InputDataMapper::parse(const TimeTableProblem& problem)
     return *this;
 }
 
+// -------------------- MAPPERS --------------------
+
+int InputDataMapper::map_class_id_and_class_type(const std::string& class_id,
+                                                  const std::string& class_type)
+{
+    auto key = std::make_pair(class_id, class_type);
+    auto it = class_id_mapper_.find(key);
+    if (it != class_id_mapper_.end())
+        return it->second;
+
+    int id = static_cast<int>(class_id_mapper_.size());
+    class_id_mapper_[key]   = id;
+    class_id_demapper_[id]  = key;
+    return id;
+}
+
+solver_models::TimeTableDate InputDataMapper::map_date(const std::string& date)
+{
+    auto it = date_mapper_.find(date);
+    if (it != date_mapper_.end())
+        return it->second;
+
+    int id = static_cast<int>(date_mapper_.size());
+    date_mapper_[date]   = id;
+    date_demapper_[id]   = date;
+    return id;
+}
+
+solver_models::TimeTableDay InputDataMapper::map_day(int day)
+{
+    return day; // already 0-indexed in the input
+}
+
+solver_models::TimeTableTime InputDataMapper::map_time(int time)
+{
+    return time; // minutes from midnight, no conversion needed
+}
+
+solver_models::TimeTableWeek InputDataMapper::map_week(const std::string& week)
+{
+    auto it = week_mapper_.find(week);
+    if (it != week_mapper_.end())
+        return it->second;
+
+    solver_models::TimeTableWeek result;
+    if (week.find('A') != std::string::npos) result.set(0);
+    if (week.find('B') != std::string::npos) result.set(1);
+    week_mapper_[week] = result;
+    return result;
+}
+
+int InputDataMapper::map_location(const input_models::Location& location)
+{
+    std::string key = location.room + '|' + location.building;
+    auto it = location_mapper_.find(key);
+    if (it != location_mapper_.end())
+        return it->second;
+
+    int id = static_cast<int>(location_mapper_.size());
+    location_mapper_[key]   = id;
+    location_demapper_[id]  = location;
+    return id;
+}
+
+int InputDataMapper::map_lecturer(const std::string& lecturer)
+{
+    auto it = lecturer_mapper_.find(lecturer);
+    if (it != lecturer_mapper_.end())
+        return it->second;
+
+    int id = static_cast<int>(lecturer_mapper_.size());
+    lecturer_mapper_[lecturer]  = id;
+    lecturer_demapper_[id]      = lecturer;
+    return id;
+}
+
+// -------------------- DEMAPPERS --------------------
+
+std::pair<std::string, std::string>
+InputDataMapper::demap_class_id_and_class_type(int id) const
+{
+    auto it = class_id_demapper_.find(id);
+    if (it != class_id_demapper_.end())
+        return it->second;
+    return {"", ""};
+}
+
+std::string InputDataMapper::demap_date(solver_models::TimeTableDate date) const
+{
+    auto it = date_demapper_.find(date);
+    if (it != date_demapper_.end())
+        return it->second;
+    return "";
+}
+
+int InputDataMapper::demap_day(solver_models::TimeTableDay day) const
+{
+    return day;
+}
+
+int InputDataMapper::demap_time(solver_models::TimeTableTime time) const
+{
+    return time;
+}
+
+std::string InputDataMapper::demap_week(solver_models::TimeTableWeek week) const
+{
+    std::string result;
+    if (week.test(0)) result += 'A';
+    if (week.test(1)) result += 'B';
+    return result;
+}
+
+input_models::Location InputDataMapper::demap_location(int location) const
+{
+    auto it = location_demapper_.find(location);
+    if (it != location_demapper_.end())
+        return it->second;
+    return {"", ""};
+}
+
+std::string InputDataMapper::demap_lecturer(int lecturer) const
+{
+    auto it = lecturer_demapper_.find(lecturer);
+    if (it != lecturer_demapper_.end())
+        return it->second;
+    return "";
+}
+
+// -------------------- HELPER --------------------
+
+std::vector<int> InputDataMapper::find_class_int_ids(const std::string& class_id_str) const
+{
+    std::vector<int> ids;
+    for (const auto& [key, id] : class_id_mapper_)
+    {
+        if (key.first == class_id_str)
+            ids.push_back(id);
+    }
+    return ids;
+}
+
+// -------------------- MAP CLASSES --------------------
+
+std::vector<solver_models::Class> InputDataMapper::map_classes()
+{
+    if (!timetable_)
+        return {};
+
+    std::vector<solver_models::Class> classes;
+    classes.reserve(timetable_->classes.size());
+
+    for (const auto& c : timetable_->classes)
+    {
+        solver_models::Class sc;
+        sc.id        = map_class_id_and_class_type(c.id, c.class_type);
+        sc.lecturer  = map_lecturer(c.lecturer);
+        sc.day       = map_day(c.day);
+        sc.week      = map_week(c.week);
+        sc.location  = map_location(c.location);
+        sc.group     = c.group;
+        sc.start_time = map_time(c.start_time);
+        sc.end_time   = map_time(c.end_time);
+
+        for (const auto& s : c.sessions)
+        {
+            solver_models::Session ss;
+            ss.date       = map_date(s.date);
+            ss.location   = map_location(s.location);
+            ss.start_time = map_time(s.start_time);
+            ss.end_time   = map_time(s.end_time);
+            sc.sessions.push_back(ss);
+        }
+
+        classes.push_back(sc);
+    }
+    return classes;
+}
+
+// -------------------- MAP CONSTRAINTS --------------------
+
+std::vector<solver_models::ConstraintVariant> InputDataMapper::map_constraints()
+{
+    if (!timetable_)
+        return {};
+
+    std::vector<solver_models::ConstraintVariant> constraints;
+
+    for (const auto& c : timetable_->constraints)
+    {
+        double weight = c.weight.value_or(1.0);
+        bool   hard   = c.hard.value_or(false);
+
+        int slack = c.slack.value_or(0);
+
+        if (c.type == "MinimizeGaps")
+        {
+            constraints.push_back(solver_models::MinimizeGapsConstraint{
+                c.sequence, weight, hard, slack,
+                c.min_break_duration.value_or(0)
+            });
+        }
+        else if (c.type == "GroupPreference" && c.class_id)
+        {
+            for (int cid : find_class_int_ids(*c.class_id))
+            {
+                constraints.push_back(solver_models::GroupPreferenceConstraint{
+                    c.sequence, weight, hard, slack, cid,
+                    c.preferred_group.value_or(0)
+                });
+            }
+        }
+        else if (c.type == "LecturerPreference" && c.class_id && c.preferred_lecturer)
+        {
+            int lecturer_id = map_lecturer(*c.preferred_lecturer);
+            for (int cid : find_class_int_ids(*c.class_id))
+            {
+                constraints.push_back(solver_models::LecturerPreferenceConstraint{
+                    c.sequence, weight, hard, slack, cid, lecturer_id
+                });
+            }
+        }
+        else if (c.type == "MaximizeSingleAttendance" && c.class_id)
+        {
+            for (int cid : find_class_int_ids(*c.class_id))
+            {
+                constraints.push_back(solver_models::MaximizeSingleAttendanceConstraint{
+                    c.sequence, weight, hard, slack, cid
+                });
+            }
+        }
+        else if (c.type == "MaximizeTotalAttendance")
+        {
+            constraints.push_back(solver_models::MaximizeTotalAttendanceConstraint{
+                c.sequence, weight, hard, slack
+            });
+        }
+        else if (c.type == "TimeBlockDay")
+        {
+            constraints.push_back(solver_models::TimeBlockDayConstraint{
+                c.sequence, weight, hard, slack,
+                map_time(c.start_time.value_or(0)),
+                map_time(c.end_time.value_or(0)),
+                map_day(c.day.value_or(0))
+            });
+        }
+        else if (c.type == "TimeBlockDate" && c.date)
+        {
+            constraints.push_back(solver_models::TimeBlockDateConstraint{
+                c.sequence, weight, hard, slack,
+                map_time(c.start_time.value_or(0)),
+                map_time(c.end_time.value_or(0)),
+                map_date(*c.date)
+            });
+        }
+        else if (c.type == "PreferEdgeClasses" && c.class_id)
+        {
+            solver_models::EdgePosition pos = solver_models::EdgePosition::Start;
+            if (c.position && *c.position == "end")
+                pos = solver_models::EdgePosition::End;
+
+            for (int cid : find_class_int_ids(*c.class_id))
+            {
+                constraints.push_back(solver_models::PreferEdgeClassesConstraint{
+                    c.sequence, weight, hard, slack, cid, pos
+                });
+            }
+        }
+    }
+
+    return constraints;
+}
+
 // -------------------- GET PROBLEM --------------------
 
-TimeTableProblem InputDataMapper::get_problem()
+const TimeTableProblem& InputDataMapper::get_problem()
 {
-    // TimeTableProblem not yet defined
-    return TimeTableProblem{};
+    if (!problem_.has_value() && timetable_.has_value())
+        problem_ = TimeTableProblem(map_classes(), map_constraints());
+
+    return problem_.value();
 }
 
 // -------------------- GET SOLUTION --------------------
@@ -298,10 +613,8 @@ static Json constraint_result_to_json(const input_models::Constraint& c)
     return j;
 }
 
-Json InputDataMapper::get_solution(const TimeTableProblem& problem,
-                                   const std::vector<TimeTableState>& solutions)
+Json InputDataMapper::get_solution(const std::vector<TimeTableState>& solutions)
 {
-    problem_   = problem;
     solutions_ = solutions;
     return get_solution();
 }
@@ -309,22 +622,32 @@ Json InputDataMapper::get_solution(const TimeTableProblem& problem,
 Json InputDataMapper::get_solution() const
 {
     if (!problem_)
-        return to_json();
+        return Json{};
 
-    const auto& solutions   = solutions_;
-    const auto& all_classes = timetable_ ? timetable_->classes     : decltype(timetable_->classes){};
-    const auto& constraints = timetable_ ? timetable_->constraints  : decltype(timetable_->constraints){};
+    const auto& solutions = solutions_;
+    const auto& all_classes = timetable_ ? timetable_->classes : decltype(timetable_->classes){};
+    const auto& constraints = timetable_ ? timetable_->constraints : decltype(timetable_->constraints){};
 
     // Build one result entry per solution
     Json results = Json::array();
     for (const auto& state : solutions)
     {
-        // Map chosen int IDs → input_models::Class by treating the ID as an index
+        // Demap int IDs → string class_id + class_type, then find the full input class.
         Json chosen = Json::array();
         for (const int id : state.get_chosen_ids())
         {
-            if (id >= 0 && id < static_cast<int>(all_classes.size()))
-                chosen.push_back(class_to_json(all_classes[id]));
+            auto [class_id_str, class_type_str] = demap_class_id_and_class_type(id);
+            if (class_id_str.empty())
+                continue;
+
+            for (const auto& c : all_classes)
+            {
+                if (c.id == class_id_str && c.class_type == class_type_str)
+                {
+                    chosen.push_back(class_to_json(c));
+                    break;
+                }
+            }
         }
 
         Json constraint_results = Json::array();
@@ -348,29 +671,6 @@ Json InputDataMapper::get_solution() const
     };
 
     return Json{{"summary", summary}, {"results", results}};
-}
-
-// -------------------- JSON ROUND-TRIP --------------------
-
-Json InputDataMapper::to_json() const
-{
-    if (!timetable_)
-        return Json{};
-
-    Json constraints = Json::array();
-    for (const auto& c : timetable_->constraints)
-        constraints.push_back(constraint_to_json(c));
-
-    Json classes = Json::array();
-    for (const auto& cl : timetable_->classes)
-        classes.push_back(class_to_json(cl));
-
-    return Json{{"constraints", constraints}, {"classes", classes}};
-}
-
-InputDataMapper InputDataMapper::from_json(const Json& data)
-{
-    return InputDataMapper(data);
 }
 
 // -------------------- TIMETABLE DISPLAY --------------------
@@ -398,12 +698,21 @@ void InputDataMapper::print_timetable(const TimeTableState& state, std::ostream&
 
     const auto& all_classes = timetable_->classes;
 
-    // Collect pointers to chosen classes (IDs are treated as indices).
+    // Demap int IDs → string class_id + class_type, then find the full input class.
     std::vector<const input_models::Class*> chosen;
     for (const int id : state.get_chosen_ids())
     {
-        if (id >= 0 && id < static_cast<int>(all_classes.size()))
-            chosen.push_back(&all_classes[id]);
+        auto [class_id_str, class_type_str] = demap_class_id_and_class_type(id);
+        if (class_id_str.empty())
+            continue;
+        for (const auto& c : all_classes)
+        {
+            if (c.id == class_id_str && c.class_type == class_type_str)
+            {
+                chosen.push_back(&c);
+                break;
+            }
+        }
     }
 
     static constexpr int SLOT      = 30;   // minutes per row
@@ -412,7 +721,7 @@ void InputDataMapper::print_timetable(const TimeTableState& state, std::ostream&
     static constexpr int T_END     = 21 * 60 + 30;     // 21:30
 
     // Polish day names, exactly 6 visible columns each.
-    static const std::array<const char*, DAY_COUNT> DAY_NAMES = {
+    static constexpr std::array<const char*, DAY_COUNT> DAY_NAMES = {
         " pon  ", "wtorek", "\xc5\x9broda ", " czw  ", "pi\xc4\x85tek"
         //         środa (ś = c5 9b)               piątek (ą = c4 85)
     };

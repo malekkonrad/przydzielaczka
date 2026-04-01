@@ -5,7 +5,8 @@
       "min_break_duration": 15,
       "sequence": 1,
       "weight": 5,
-      "hard": true
+      "hard": true,
+      "slack": 0
     },
     {
       "constraint_type": "group_preference",
@@ -13,7 +14,8 @@
       "preferred_group": 8,
       "sequence": 2,
       "weight": 3,
-      "hard": false
+      "hard": false,
+      "slack": 0
     },
     {
       "constraint_type": "group_preference",
@@ -21,7 +23,8 @@
       "preferred_group": 3,
       "sequence": 2,
       "weight": 5,
-      "hard": false
+      "hard": false,
+      "slack": 0
     },
     {
       "constraint_type": "lecturer_preference",
@@ -29,19 +32,22 @@
       "preferred_lecturer": "Dr. Kowalski",
       "sequence": 3,
       "weight": 2,
-      "hard": false
+      "hard": false,
+      "slack": 0
     },
     {
       "constraint_type": "maximize_single_attendance",
       "class_id": "120-ISI-1S-293",
       "sequence": 4,
       "weight": 4,
-      "hard": true
+      "hard": true,
+      "slack": 0
     },
     {
       "constraint_type": "maximize_total_attendance",
       "sequence": 5,
-      "weight": 6
+      "weight": 6,
+      "slack": 0
     },
     {
       "constraint_type": "time_block_day",
@@ -50,7 +56,8 @@
       "end_time": 900,
       "sequence": 6,
       "weight": 2,
-      "hard": true
+      "hard": true,
+      "slack": 0
     },
     {
       "constraint_type": "time_block_date",
@@ -59,7 +66,8 @@
       "end_time": 900,
       "sequence": 6,
       "weight": 2,
-      "hard": true
+      "hard": true,
+      "slack": 0
     },
     {
       "constraint_type": "prefer_edge_classes",
@@ -67,7 +75,8 @@
       "position": "start",
       "sequence": 2,
       "weight": 2,
-      "hard": false
+      "hard": false,
+      "slack": 0
     }
   ],
   "classes": [

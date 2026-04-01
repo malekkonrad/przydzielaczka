@@ -9,7 +9,9 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         src/time_table_state.cpp
         include/time_table_state.h
         include/input_data_models.h
-        include/solver_data_models.h)
+        include/solver_data_models.h
+        ../solvers/simple_solver.cpp
+        ../solvers/simple_solver.h)
 
 # Specify include directories correctly
 # Public includes are available to anyone linking to solver_core

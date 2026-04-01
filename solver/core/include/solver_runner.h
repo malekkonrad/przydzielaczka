@@ -24,9 +24,9 @@ class SolverRunner
 public:
     explicit SolverRunner(int max_solutions = 10);
 
-    [[nodiscard]] nlohmann::json run(const nlohmann::json& input,              bool verbose = false) const;
-    [[nodiscard]] nlohmann::json run(const std::filesystem::path& input_path,  bool verbose = false) const;
-    [[nodiscard]] nlohmann::json run(const std::string& input_path,            bool verbose = false) const;
+    [[nodiscard]] Json run(const Json& input, bool verbose = false) const;
+    [[nodiscard]] Json run(const std::filesystem::path& input_path, bool verbose = false) const;
+    [[nodiscard]] Json run(const std::string& input_path, bool verbose = false) const;
 
     friend std::ostream& operator<<(std::ostream& out, const SolverRunner& r);
 
@@ -34,7 +34,7 @@ private:
     int max_solutions_;
 
     // Builds the "meta" object added to the output JSON.
-    [[nodiscard]] static nlohmann::json build_meta(
+    [[nodiscard]] static Json build_meta(
         long long duration_ms,
         int n_classes,
         int n_constraints

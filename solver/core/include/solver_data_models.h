@@ -55,6 +55,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         int min_break;
     };
 
@@ -63,6 +64,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         int class_id;
         int preferred_group;
     };
@@ -72,6 +74,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         int class_id;
         int lecturer;
     };
@@ -81,6 +84,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         TimeTableTime start_time;
         TimeTableTime end_time;
         TimeTableDay day;
@@ -91,6 +95,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         TimeTableTime start_time;
         TimeTableTime end_time;
         TimeTableDate date;
@@ -101,6 +106,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         int class_id;
         EdgePosition position;
     };
@@ -110,6 +116,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
         int class_id;
     };
 
@@ -118,6 +125,7 @@ namespace solver_models
         int sequence;
         double weight;
         bool hard;
+        int slack;
     };
 
     using ConstraintVariant = std::variant<

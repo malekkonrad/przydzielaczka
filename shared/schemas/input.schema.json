@@ -85,6 +85,11 @@
           "position": {
             "type": "string",
             "enum": ["start", "end"]
+          },
+
+          "slack": {
+            "type": "integer",
+            "minimum": 0
           }
         },
 

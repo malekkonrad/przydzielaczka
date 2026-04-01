@@ -58,6 +58,7 @@ namespace input_models
         std::optional<int> end_time;
 
         std::optional<std::string> position;
+        std::optional<int> slack;
     };
 
     struct Timetable
