@@ -7,7 +7,7 @@
 #include <string>
 #include <tuple>
 
-// Hash for unordered_map keyed on pair<string,string>
+// Hash for unordered_map keyed on tuple<string,string>
 template<>
 struct std::hash<std::tuple<std::string, std::string>>
 {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "solver_data_models.h"
+#include "data_models.h"
 #include "time_table_state.h"
 
 class TimeTableProblem;

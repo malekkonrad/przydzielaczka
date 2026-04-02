@@ -5,7 +5,7 @@
 #pragma once
 
 #include <constraints.h>
-#include <solver_data_models.h>
+#include <data_models.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
 
@@ -54,12 +54,12 @@ public:
         const InternalClass* candidate = find(candidate_id);
         if (!candidate) return false;
 
-        for (const int id : state.get_chosen_ids())
-        {
-            const InternalClass* other = find(id);
-            if (other && overlaps(*candidate, *other))
-                return true;
-        }
+        // for (const int id : state.get_chosen_ids())
+        // {
+        //     const InternalClass* other = find(id);
+        //     if (other && overlaps(*candidate, *other))
+        //         return true;
+        // }
         return false;
     }
 
@@ -75,7 +75,7 @@ private:
         int id;
         int lecturer;
         int day;
-        solver_models::TimeTableWeek week;
+        std::bitset<2> week;
         int location;
         int group;
         int start_min;  // original int times kept for gap/edge scoring

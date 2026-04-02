@@ -12,7 +12,7 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         core/include/data_models.h
         solvers/simple_solver.cpp
         solvers/simple_solver.h
-        utils/tuple_string_hash.h)
+        utils/tuple_hash.h)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC

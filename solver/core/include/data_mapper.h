@@ -10,7 +10,7 @@
 
 #include <nlohmann/json_fwd.hpp>
 
-#include <tuple_string_hash.h>
+#include <tuple_hash.h>
 
 #include <filesystem>
 #include <iostream>
@@ -31,6 +31,7 @@ public:
 	explicit DataMapper(const Json& data);
 	explicit DataMapper(const std::string& input_file);
 	explicit DataMapper(const std::filesystem::path& input_path);
+	explicit DataMapper(const char* input_path);
 
 	DataMapper(const DataMapper& other);
 	DataMapper& operator=(const DataMapper& other);
@@ -41,7 +42,8 @@ public:
 	DataMapper& parse(const Json& data);
 	DataMapper& parse(const std::string& input_file);
 	DataMapper& parse(const std::filesystem::path& input_path);
-	[[nodiscard]] const TimeTableProblem& get_problem();
+	DataMapper& parse(const char* input_file);
+	const TimeTableProblem& get_problem();
 
 	[[nodiscard]] Json get_solution(const std::vector<TimeTableState>& solutions);
 	[[nodiscard]] Json get_solution() const;
@@ -55,10 +57,11 @@ private:
 	[[nodiscard]] static bool validate(const Json& data);
 
 	// Mappers: domain value -> solver int id
+	[[nodiscard]] TimeTableProblem map_problem();
 	[[nodiscard]] std::vector<solver_models::Class> map_classes();
 	[[nodiscard]] std::vector<solver_models::ConstraintVariant> map_constraints();
 	[[nodiscard]] int map_class_id_and_class_type(const std::string& class_id, const std::string& class_type);
-	[[nodiscard]] int map_group(int group);
+	[[nodiscard]] int map_group(int class_id, int group);
 	[[nodiscard]] int map_date(const std::string& date);
 	[[nodiscard]] int map_day(int day);
 	[[nodiscard]] int map_time(int time);
@@ -68,11 +71,10 @@ private:
 
 	// Demappers: solver int id -> domain value
 	[[nodiscard]] std::tuple<std::string, std::string> demap_class_id_and_class_type(int id) const;
-	[[nodiscard]] int demap_group(int group) const;
 
 	// Helpers
 	[[nodiscard]] std::optional<int> find_class_id_and_class_type(const std::string& class_id, const std::string& class_type) const;
-	[[nodiscard]] std::optional<int> find_group(int group) const;
+	[[nodiscard]] std::optional<int> find_group(int class_id, int group) const;
 	[[nodiscard]] std::optional<int> find_lecturer(const std::string& lecturer) const;
 	[[nodiscard]] std::optional<int> find_day(int day) const;
 	[[nodiscard]] std::optional<int> find_date(const std::string& date) const;
@@ -84,7 +86,7 @@ private:
 
 	// Forward maps (mappers)
 	std::unordered_map<std::tuple<std::string, std::string>, int> class_id_mapper_;
-	std::unordered_map<int, int> group_mapper_;
+	std::unordered_map<int, std::unordered_map<int, int>> group_mapper_;
 	std::unordered_map<int, int> day_mapper_;
 	std::unordered_map<std::string, int> date_mapper_;
 	std::unordered_map<std::tuple<std::string, std::string>, int> location_mapper_;
@@ -92,5 +94,5 @@ private:
 
 	// Reverse maps (demappers)
 	std::unordered_map<int, std::tuple<std::string, std::string>> class_id_demapper_;
-	std::unordered_map<int, int> group_demapper_;
+	std::unordered_map<int, std::unordered_map<int, int>> group_demapper_;
 };

@@ -21,12 +21,12 @@ static double eval(const MinimizeGapsConstraint& c,
                    const TimeTableProblem& problem)
 {
     // Group chosen classes by day, then penalize gaps larger than min_break.
-    std::map<TimeTableDay, std::vector<const Class*>> by_day;
-    for (int id : state.get_chosen_ids())
-    {
-        const Class* cls = problem.find_class(id);
-        if (cls) by_day[cls->day].push_back(cls);
-    }
+    std::map<int, std::vector<const Class*>> by_day;
+    // for (int id : state.get_chosen_ids())
+    // {
+    //     const Class* cls = problem.find_class(id);
+    //     if (cls) by_day[cls->day].push_back(cls);
+    // }
 
     double penalty = 0.0;
     for (auto& [day, classes] : by_day)
@@ -86,14 +86,14 @@ static double eval(const TimeBlockDayConstraint& c,
                    const TimeTableProblem& problem)
 {
     double penalty = 0.0;
-    for (int id : state.get_chosen_ids())
-    {
-        const Class* cls = problem.find_class(id);
-        if (!cls || cls->day != c.day) continue;
-        // Overlapping time intervals: [cls->start, cls->end) ∩ [c.start, c.end)
-        if (cls->start_time < c.end_time && c.start_time < cls->end_time)
-            penalty += 1.0;
-    }
+    // for (int id : state.get_chosen_ids())
+    // {
+    //     const Class* cls = problem.find_class(id);
+    //     if (!cls || cls->day != c.day) continue;
+    //     // Overlapping time intervals: [cls->start, cls->end) ∩ [c.start, c.end)
+    //     if (cls->start_time < c.end_time && c.start_time < cls->end_time)
+    //         penalty += 1.0;
+    // }
     return penalty;
 }
 
@@ -102,20 +102,20 @@ static double eval(const TimeBlockDateConstraint& c,
                    const TimeTableProblem& problem)
 {
     double penalty = 0.0;
-    for (int id : state.get_chosen_ids())
-    {
-        const Class* cls = problem.find_class(id);
-        if (!cls) continue;
-        for (const auto& session : cls->sessions)
-        {
-            if (session.date != c.date) continue;
-            if (session.start_time < c.end_time && c.start_time < session.end_time)
-            {
-                penalty += 1.0;
-                break; // count the class once, not once per session
-            }
-        }
-    }
+    // for (int id : state.get_chosen_ids())
+    // {
+    //     const Class* cls = problem.find_class(id);
+    //     if (!cls) continue;
+    //     for (const auto& session : cls->sessions)
+    //     {
+    //         if (session.date != c.date) continue;
+    //         if (session.start_time < c.end_time && c.start_time < session.end_time)
+    //         {
+    //             penalty += 1.0;
+    //             break; // count the class once, not once per session
+    //         }
+    //     }
+    // }
     return penalty;
 }
 
@@ -130,13 +130,13 @@ static double eval(const PreferEdgeClassesConstraint& c,
     // Find the earliest start and latest end among chosen classes on the same day.
     int earliest = cls->start_time;
     int latest   = cls->end_time;
-    for (int id : state.get_chosen_ids())
-    {
-        const Class* other = problem.find_class(id);
-        if (!other || other->day != cls->day) continue;
-        earliest = std::min(earliest, other->start_time);
-        latest   = std::max(latest,   other->end_time);
-    }
+    // for (int id : state.get_chosen_ids())
+    // {
+    //     const Class* other = problem.find_class(id);
+    //     if (!other || other->day != cls->day) continue;
+    //     earliest = std::min(earliest, other->start_time);
+    //     latest   = std::max(latest,   other->end_time);
+    // }
 
     if (c.position == EdgePosition::Start && cls->start_time == earliest) return 0.0;
     if (c.position == EdgePosition::End   && cls->end_time   == latest)   return 0.0;

@@ -3,7 +3,7 @@
 //
 
 #include <data_mapper.h>
-#include <tuple_string_hash.h>
+#include <tuple_hash.h>
 
 #include <algorithm>
 #include <array>
@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <ostream>
 #include <string>
 #include <nlohmann/json.hpp>
@@ -169,6 +170,11 @@ DataMapper::DataMapper(const std::filesystem::path& input_path)
     parse(input_path);
 }
 
+DataMapper::DataMapper(const char* input_path)
+{
+    parse(input_path);
+}
+
 DataMapper::DataMapper(const DataMapper& other)
     : timetable_(other.timetable_)
     , problem_(other.problem_)
@@ -279,6 +285,11 @@ DataMapper& DataMapper::parse(const std::string& input_file)
     return parse(std::filesystem::path(input_file));
 }
 
+DataMapper& DataMapper::parse(const char* input_file)
+{
+    return parse(std::filesystem::path(input_file));
+}
+
 DataMapper& DataMapper::parse(const std::filesystem::path& input_path)
 {
     std::ifstream file(input_path);
@@ -310,18 +321,26 @@ int DataMapper::map_class_id_and_class_type(const std::string& class_id,
     return id;
 }
 
-int DataMapper::map_group(const int group)
+int DataMapper::map_group(const int class_id, const int group)
 {
-    const auto it = group_mapper_.find(group);
-    if (it != group_mapper_.end())
+    const auto class_it = group_mapper_.find(class_id);
+    if (class_it != group_mapper_.end())
     {
-        return it->second;
+        const auto groups = class_it->second;
+        const auto it = groups.find(group);
+        if (it != groups.end())
+        {
+            return it->second;
+        }
+        const auto id = static_cast<int>(groups.size());
+        group_mapper_[class_id][group] = id;
+        group_demapper_[class_id][id] = group;
+        return id;
     }
 
-    const int id = static_cast<int>(group_mapper_.size());
-    group_mapper_[group] = id;
-    group_demapper_[id] = group;
-    return id;
+    group_mapper_[class_id][group] = 0;
+    group_demapper_[class_id][0] = group;
+    return 0;
 }
 
 int DataMapper::map_date(const std::string& date)
@@ -401,16 +420,6 @@ DataMapper::demap_class_id_and_class_type(const int id) const
     return {"", ""};
 }
 
-int DataMapper::demap_group(const int group) const
-{
-    const auto it = group_demapper_.find(group);
-    if (it != group_demapper_.end())
-    {
-        return it->second;
-    }
-    return 0;
-}
-
 // -------------------- HELPERS ------------------------
 
 std::optional<int>
@@ -426,12 +435,16 @@ DataMapper::find_class_id_and_class_type(const std::string& class_id,
     return std::nullopt;
 }
 
-std::optional<int> DataMapper::find_group(const int group) const
+std::optional<int> DataMapper::find_group(const int class_id, const int group) const
 {
-    const auto it = group_mapper_.find(group);
-    if (it != group_mapper_.end())
+    const auto groups = group_demapper_.find(class_id);
+    if (groups != group_demapper_.end())
     {
-        return it->second;
+        const auto it = groups->second.find(group);
+        if (it != groups->second.end())
+        {
+            return it->second;
+        }
     }
     return std::nullopt;
 }
@@ -473,6 +486,13 @@ std::optional<int> DataMapper::find_time(const int time) const
 
 // -------------------- MAP CLASSES --------------------
 
+TimeTableProblem DataMapper::map_problem()
+{
+    auto classes = map_classes();
+    auto constraints = map_constraints();
+    return TimeTableProblem(std::move(classes), std::move(constraints));
+}
+
 std::vector<solver_models::Class> DataMapper::map_classes()
 {
     if (!timetable_)
@@ -491,7 +511,7 @@ std::vector<solver_models::Class> DataMapper::map_classes()
         sc.day       = map_day(c.day);
         sc.week      = map_week(c.week);
         sc.location  = map_location(c.location);
-        sc.group     = c.group;
+        sc.group     = map_group(sc.id, c.group);
         sc.start_time = map_time(c.start_time);
         sc.end_time   = map_time(c.end_time);
 
@@ -700,7 +720,7 @@ const TimeTableProblem& DataMapper::get_problem()
 {
     if (!problem_ && timetable_)
     {
-        problem_ = TimeTableProblem(map_classes(), map_constraints());
+        problem_ = map_problem();
     }
 
     return problem_.value();
@@ -751,9 +771,17 @@ Json DataMapper::get_solution() const
                 continue;
             }
 
+            const auto demapped_group = find_group(class_id, group);
+
+            if (!demapped_group)
+            {
+                std::cerr << "Unable to find group: " << group << " in class: " << class_id << std::endl;
+                continue;
+            }
+
             for (const auto& c : all_classes)
             {
-                if (c.group == group && c.id == class_id_str && c.class_type == class_type_str)
+                if (c.group == demapped_group && c.id == class_id_str && c.class_type == class_type_str)
                 {
                     chosen.push_back(class_to_json(c));
                     break;
@@ -786,41 +814,25 @@ Json DataMapper::get_solution() const
 
 // -------------------- TIMETABLE DISPLAY --------------------
 
-// TODO display
-
-// UTF-8 block characters used for the timetable cells.
-static const std::string CELL_FULL  = "\xe2\x96\x88"; // █  U+2588
-static const std::string CELL_LOWER = "\xe2\x96\x84"; // ▄  U+2584  (class starts next slot)
-static const std::string CELL_UPPER = "\xe2\x96\x80"; // ▀  U+2580  (class just ended)
-static const std::string CELL_EMPTY = "      ";        // 6 spaces
-
-static std::string make_class_cell(char abbr)
-{
-    // Pattern: ███X██  (6 visual columns, 16 bytes due to 3-byte UTF-8 block chars)
-    return CELL_FULL + CELL_FULL + CELL_FULL + abbr + CELL_FULL + CELL_FULL;
-}
-
-static std::string make_lower_row() { return CELL_LOWER + CELL_LOWER + CELL_LOWER
-                                           + CELL_LOWER + CELL_LOWER + CELL_LOWER; }
-static std::string make_upper_row() { return CELL_UPPER + CELL_UPPER + CELL_UPPER
-                                           + CELL_UPPER + CELL_UPPER + CELL_UPPER; }
-
 void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out) const
 {
-    if (!timetable_) return;
+    // honestly could not be bothered checking this logis, maybe later
+    if (!timetable_ || !problem_)
+        return;
 
     const auto& all_classes = timetable_->classes;
 
-    // Demap int IDs → string class_id + class_type, then find the full input class.
+    // --- Collect chosen classes ---
     std::vector<const input_models::Class*> chosen;
-    for (const int id : state.get_chosen_ids())
+    for (const auto& [class_id, group] : state.get_groups())
     {
-        auto [class_id_str, class_type_str] = demap_class_id_and_class_type(id);
-        if (class_id_str.empty())
+        const auto [cid_str, ctype_str] = demap_class_id_and_class_type(class_id);
+        if (cid_str.empty())
             continue;
+        const auto orig_group = find_group(class_id, group);
         for (const auto& c : all_classes)
         {
-            if (c.id == class_id_str && c.class_type == class_type_str)
+            if (c.group == orig_group && c.id == cid_str && c.class_type == ctype_str)
             {
                 chosen.push_back(&c);
                 break;
@@ -828,88 +840,226 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
         }
     }
 
-    static constexpr int SLOT      = 30;   // minutes per row
-    static constexpr int DAY_COUNT = 5;    // Mon–Fri
-    static constexpr int T_START   = 7  * 60;          // 7:00
-    static constexpr int T_END     = 21 * 60 + 30;     // 21:30
-
-    // Polish day names, exactly 6 visible columns each.
-    static constexpr std::array<const char*, DAY_COUNT> DAY_NAMES = {
-        " pon  ", "wtorek", "\xc5\x9broda ", " czw  ", "pi\xc4\x85tek"
-        //         środa (ś = c5 9b)               piątek (ą = c4 85)
+    // --- ANSI 256-color palette (distinct background colors) ---
+    static const std::array<int, 16> PALETTE = {
+        196, 82, 226, 21, 201, 51, 208, 46, 105, 87, 203, 118, 129, 214, 39, 198
     };
+    static const std::string RESET = "\033[0m";
 
-    // Returns the first chosen class active at minute T on the given day and week letter.
-    auto find_active = [&](int T, int day, char week) -> const input_models::Class*
+    // Assign a unique ANSI 256-color index to each (class_id, class_type) pair.
+    std::map<std::pair<std::string, std::string>, int> class_color;
     {
+        int idx = 0;
         for (const auto* cls : chosen)
         {
-            if (cls->day != day) continue;
-            if (cls->week.find(week) == std::string::npos) continue;
-            if (cls->start_time <= T && cls->end_time > T)
-                return cls;
+            auto key = std::make_pair(cls->id, cls->class_type);
+            if (!class_color.count(key))
+                class_color[key] = PALETTE[idx++ % static_cast<int>(PALETTE.size())];
         }
+    }
+
+    auto fg_code = [&](const input_models::Class* cls) -> std::string
+    {
+        return "\033[38;5;" + std::to_string(class_color.at({cls->id, cls->class_type})) + "m";
+    };
+    auto bg_code = [&](const input_models::Class* cls) -> std::string
+    {
+        return "\033[48;5;" + std::to_string(class_color.at({cls->id, cls->class_type})) + "m";
+    };
+
+    static constexpr int SLOT      = 30;
+    static constexpr int HALF      = 15;
+    static constexpr int DAY_COUNT = 5;
+    static constexpr int T_START   = 7  * 60;
+    static constexpr int T_END     = 21 * 60 + 30;
+    static constexpr int CELL_W    = 6;
+
+    static constexpr std::array<const char*, DAY_COUNT> DAY_NAMES = {
+        " pon  ", "wtorek", "środa ", " czw  ", "piątek"
+    };
+
+    // n repetitions of ▀ (U+2580) or ▄ (U+2584)
+    auto upper_blocks = [](int n) -> std::string
+    {
+        std::string s; s.reserve(n * 3);
+        for (int i = 0; i < n; ++i) s += "\xe2\x96\x80";
+        return s;
+    };
+    auto lower_blocks = [](int n) -> std::string
+    {
+        std::string s; s.reserve(n * 3);
+        for (int i = 0; i < n; ++i) s += "\xe2\x96\x84";
+        return s;
+    };
+
+    // --- Lane assignment: greedy interval coloring so overlapping classes
+    //     are displayed side-by-side, each in its own fixed-width lane. ---
+    struct LaneEntry { const input_models::Class* cls; int lane; };
+    std::map<std::pair<int, int>, std::vector<LaneEntry>> lane_map;
+
+    for (int d = 0; d < DAY_COUNT; ++d)
+    for (int wi = 0; wi < 2; ++wi)
+    {
+        char week = wi ? 'B' : 'A';
+        std::vector<const input_models::Class*> day_cls;
+        for (const auto* cls : chosen)
+        {
+            if (cls->day != d) continue;
+            if (cls->week.find(week) == std::string::npos) continue;
+            day_cls.push_back(cls);
+        }
+        std::sort(day_cls.begin(), day_cls.end(), [](const auto* a, const auto* b)
+        {
+            if (a->start_time != b->start_time) return a->start_time < b->start_time;
+            return a->id < b->id;
+        });
+
+        std::vector<int> lane_ends;
+        std::vector<LaneEntry> entries;
+        for (const auto* cls : day_cls)
+        {
+            int lane = -1;
+            for (int i = 0; i < static_cast<int>(lane_ends.size()); ++i)
+            {
+                if (lane_ends[i] <= cls->start_time)
+                {
+                    lane = i;
+                    lane_ends[i] = cls->end_time;
+                    break;
+                }
+            }
+            if (lane == -1)
+            {
+                lane = static_cast<int>(lane_ends.size());
+                lane_ends.push_back(cls->end_time);
+            }
+            entries.push_back({cls, lane});
+        }
+        lane_map[{d, wi}] = std::move(entries);
+    }
+
+    auto n_lanes = [&](int d, int wi) -> int
+    {
+        int n = 0;
+        for (const auto& e : lane_map.at({d, wi}))
+            n = std::max(n, e.lane + 1);
+        return std::max(n, 1);
+    };
+
+    auto get_lane_cls = [&](int T, int d, int wi, int lane) -> const input_models::Class*
+    {
+        for (const auto& e : lane_map.at({d, wi}))
+            if (e.lane == lane && e.cls->start_time <= T && e.cls->end_time > T)
+                return e.cls;
+        return nullptr;
+    };
+    auto get_lane_cls_ending_at = [&](int T, int d, int wi, int lane) -> const input_models::Class*
+    {
+        for (const auto& e : lane_map.at({d, wi}))
+            if (e.lane == lane && e.cls->end_time == T)
+                return e.cls;
+        return nullptr;
+    };
+    auto get_lane_cls_starting_at = [&](int T, int d, int wi, int lane) -> const input_models::Class*
+    {
+        for (const auto& e : lane_map.at({d, wi}))
+            if (e.lane == lane && e.cls->start_time == T)
+                return e.cls;
         return nullptr;
     };
 
-    // True if any chosen class on this day/week starts strictly within (T, T+SLOT].
-    auto next_starts = [&](int T, int day, char week) -> bool
+    // Render one lane cell (CELL_W visual columns) for time slot [T, T+SLOT).
+    // 15-min transitions use Unicode half-block characters:
+    //   ▀ fg=class color  → upper 15 min occupied by that class
+    //   ▄ fg=class color  → lower 15 min occupied by that class
+    //   When both halves belong to different classes, ▀ is drawn with
+    //   the ending class as foreground and the starting class as background.
+    auto render_lane = [&](int T, int d, int wi, int lane) -> std::string
     {
-        for (const auto* cls : chosen)
+        const auto* active      = get_lane_cls(T, d, wi, lane);
+        const auto* just_ended  = get_lane_cls_ending_at(T, d, wi, lane);
+        const auto* starts_half = get_lane_cls_starting_at(T + HALF, d, wi, lane);
+
+        if (active)
         {
-            if (cls->day != day) continue;
-            if (cls->week.find(week) == std::string::npos) continue;
-            if (cls->start_time > T && cls->start_time <= T + SLOT)
-                return true;
+            if (active->end_time == T + HALF)
+            {
+                if (starts_half)
+                    return bg_code(starts_half) + fg_code(active) + upper_blocks(CELL_W) + RESET;
+                return fg_code(active) + upper_blocks(CELL_W) + RESET;
+            }
+            return bg_code(active) + std::string(CELL_W, ' ') + RESET;
         }
-        return false;
+
+        if (just_ended && starts_half)
+            return bg_code(starts_half) + fg_code(just_ended) + upper_blocks(CELL_W) + RESET;
+        if (just_ended)
+            return fg_code(just_ended) + upper_blocks(CELL_W) + RESET;
+        if (starts_half)
+            return fg_code(starts_half) + lower_blocks(CELL_W) + RESET;
+
+        return std::string(CELL_W, ' ');
     };
 
-    // Render one 6-column cell for time slot [T, T+SLOT).
-    auto render_cell = [&](int T, int day, char week) -> std::string
+    auto render_day = [&](int T, int d, int wi) -> std::string
     {
-        if (const auto* cls = find_active(T, day, week))
-        {
-            const char abbr = cls->class_type.empty()
-                ? '?'
-                : static_cast<char>(std::toupper(static_cast<unsigned char>(cls->class_type[0])));
-            return make_class_cell(abbr);
-        }
-
-        if (next_starts(T, day, week))
-            return make_lower_row();   // ▄▄▄▄▄▄  class starts next slot
-
-        // Class ended at T (was active one slot earlier)?
-        if (T >= SLOT && find_active(T - SLOT, day, week))
-            return make_upper_row();   // ▀▀▀▀▀▀  class just ended
-
-        return CELL_EMPTY;
+        std::string s;
+        for (int l = 0; l < n_lanes(d, wi); ++l)
+            s += render_lane(T, d, wi, l);
+        return s;
     };
 
-    // ---- Header ----
-    out << "    A";
-    for (int d = 0; d < DAY_COUNT; ++d) out << "|" << DAY_NAMES[d];
-    out << "|    B";
-    for (int d = 0; d < DAY_COUNT; ++d) out << "|" << DAY_NAMES[d];
+    // Pad day name (always 6 visual columns) to column visual width.
+    auto pad_day = [](const char* name, int col_w) -> std::string
+    {
+        std::string s(name);
+        int extra = col_w - 6; // all DAY_NAMES are exactly 6 visual columns
+        if (extra > 0) s.append(extra, ' ');
+        return s;
+    };
+
+    // --- Header ---
+    out << "     A";
+    for (int d = 0; d < DAY_COUNT; ++d)
+        out << "|" << pad_day(DAY_NAMES[d], n_lanes(d, 0) * CELL_W);
+    out << "|     B";
+    for (int d = 0; d < DAY_COUNT; ++d)
+        out << "|" << pad_day(DAY_NAMES[d], n_lanes(d, 1) * CELL_W);
     out << "|\n";
 
-    // ---- Time rows ----
+    // --- Time rows ---
     for (int T = T_START; T < T_END; T += SLOT)
     {
-        char time_buf[6];
-        std::snprintf(time_buf, sizeof(time_buf), "%2d:%02d", T / 60, T % 60);
+        char buf[6];
+        std::snprintf(buf, sizeof(buf), "%2d:%02d", T / 60, T % 60);
 
-        // Week A
-        out << time_buf;
+        out << buf;
         for (int d = 0; d < DAY_COUNT; ++d)
-            out << "|" << render_cell(T, d, 'A');
+            out << "|" << render_day(T, d, 0);
         out << "|";
 
-        // Week B (same time label, right half)
-        out << time_buf;
+        out << buf;
         for (int d = 0; d < DAY_COUNT; ++d)
-            out << "|" << render_cell(T, d, 'B');
+            out << "|" << render_day(T, d, 1);
         out << "|\n";
+    }
+
+    // --- Legend ---
+    out << "\n";
+    for (const auto& [key, color_val] : class_color)
+    {
+        const auto& [cid, ctype] = key;
+        std::string lecturer;
+        for (const auto* cls : chosen)
+        {
+            if (cls->id == cid && cls->class_type == ctype)
+            {
+                lecturer = cls->lecturer;
+                break;
+            }
+        }
+        out << "\033[48;5;" << color_val << "m" << std::string(CELL_W, ' ') << RESET
+            << "  " << cid << "  [" << ctype << "]  " << lecturer << "\n";
     }
 }
 
