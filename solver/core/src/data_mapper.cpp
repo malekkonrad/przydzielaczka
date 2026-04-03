@@ -551,7 +551,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
 
         if (c.type == "minimize_gaps")
         {
-            constraints.push_back(solver_models::MinimizeGapsConstraint{
+            constraints.emplace_back(solver_models::MinimizeGapsConstraint{
                 sequence, weight, hard, slack,
                 c.min_break_duration.value_or(0)
             });
@@ -561,7 +561,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid)
             {
-                constraints.push_back(solver_models::GroupPreferenceConstraint{
+                constraints.emplace_back(solver_models::GroupPreferenceConstraint{
                     sequence, weight, hard, slack,
                     cid.value(),
                     c.preferred_group.value()
@@ -578,7 +578,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid && lecturer_id)
             {
-                constraints.push_back(solver_models::LecturerPreferenceConstraint{
+                constraints.emplace_back(solver_models::LecturerPreferenceConstraint{
                     sequence, weight, hard, slack,
                     cid.value(),
                     lecturer_id.value()
@@ -601,7 +601,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid)
             {
-                constraints.push_back(solver_models::MaximizeSingleAttendanceConstraint{
+                constraints.emplace_back(solver_models::MaximizeSingleAttendanceConstraint{
                     sequence, weight, hard, slack,
                     cid.value()
                 });
@@ -613,7 +613,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
         }
         else if (c.type == "maximize_total_attendance")
         {
-            constraints.push_back(solver_models::MaximizeTotalAttendanceConstraint{
+            constraints.emplace_back(solver_models::MaximizeTotalAttendanceConstraint{
                 sequence, weight, hard, slack
             });
         }
@@ -624,7 +624,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             const std::optional<int> day = find_day(c.day.value());
             if (start_time && end_time && day)
             {
-                constraints.push_back(solver_models::TimeBlockDayConstraint{
+                constraints.emplace_back(solver_models::TimeBlockDayConstraint{
                     sequence, weight, hard, slack,
                     start_time.value(),
                     end_time.value(),
@@ -654,7 +654,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             const std::optional<int> date = find_date(c.date.value());
             if (start_time && end_time && date)
             {
-            constraints.push_back(solver_models::TimeBlockDateConstraint{
+            constraints.emplace_back(solver_models::TimeBlockDateConstraint{
                 sequence, weight, hard, slack,
                 start_time.value(),
                 end_time.value(),
@@ -691,7 +691,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid && pos)
             {
-                constraints.push_back(solver_models::PreferEdgeClassesConstraint{
+                constraints.emplace_back(solver_models::PreferEdgeClassesConstraint{
                     sequence, weight, hard, slack,
                     cid.value(),
                     pos.value()
@@ -818,7 +818,9 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
 {
     // honestly could not be bothered checking this logis, maybe later
     if (!timetable_ || !problem_)
+    {
         return;
+    }
 
     const auto& all_classes = timetable_->classes;
 
@@ -904,7 +906,7 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
         std::vector<const input_models::Class*> day_cls;
         for (const auto* cls : chosen)
         {
-            if (cls->day != d) continue;
+            if ((cls->day - 1) != d) continue;
             if (cls->week.find(week) == std::string::npos) continue;
             day_cls.push_back(cls);
         }
@@ -1019,10 +1021,10 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
     };
 
     // --- Header ---
-    out << "     A";
+    out << "    A";
     for (int d = 0; d < DAY_COUNT; ++d)
         out << "|" << pad_day(DAY_NAMES[d], n_lanes(d, 0) * CELL_W);
-    out << "|     B";
+    out << "|    B";
     for (int d = 0; d < DAY_COUNT; ++d)
         out << "|" << pad_day(DAY_NAMES[d], n_lanes(d, 1) * CELL_W);
     out << "|\n";

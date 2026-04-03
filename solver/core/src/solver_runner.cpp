@@ -29,10 +29,10 @@ SolverRunner::SolverRunner(int max_solutions)
 
 // -------------------- PUBLIC --------------------
 
-Json SolverRunner::run(const Json& input, bool verbose) const
+Json SolverRunner::run(const Json& input, const bool verbose) const
 {
     DataMapper mapper(input);
-    TimeTableProblem problem = mapper.get_problem();
+    const TimeTableProblem& problem = mapper.get_problem();
 
     const int n_classes     = static_cast<int>(problem.get_classes().size());
     const int n_constraints = static_cast<int>(problem.get_constraints().size());
@@ -40,7 +40,7 @@ Json SolverRunner::run(const Json& input, bool verbose) const
     SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem);
 
     const auto t_start = Clock::now();
-    std::vector<TimeTableState> solutions = solver.solve(max_solutions_);
+    const std::vector<TimeTableState> solutions = solver.solve(max_solutions_);
     const auto t_end = Clock::now();
 
     const long long duration_ms =
@@ -65,7 +65,7 @@ Json SolverRunner::run(const Json& input, bool verbose) const
     return result;
 }
 
-Json SolverRunner::run(const std::filesystem::path& input_path, bool verbose) const
+Json SolverRunner::run(const std::filesystem::path& input_path, const bool verbose) const
 {
     std::ifstream file(input_path);
     if (!file.is_open())
@@ -73,7 +73,7 @@ Json SolverRunner::run(const std::filesystem::path& input_path, bool verbose) co
     return run(Json::parse(file), verbose);
 }
 
-Json SolverRunner::run(const std::string& input_path, bool verbose) const
+Json SolverRunner::run(const std::string& input_path, const bool verbose) const
 {
     return run(std::filesystem::path(input_path), verbose);
 }

@@ -6,19 +6,23 @@
 
 #include <algorithm>
 #include <ostream>
-#include <vector>
 
-TimeTableState::TimeTableState(const std::unordered_map<int, int>& groups)
-    : groups_(groups)
+// -------------------- CONSTRUCTORS --------------------
+
+template<size_t ClassSize>
+TimeTableState<ClassSize>::TimeTableState(std::array<int, ClassSize> groups)
+    : groups_(std::move(groups))
 {
 }
 
-TimeTableState::TimeTableState(const TimeTableState&& other) noexcept
+template<size_t ClassSize>
+TimeTableState<ClassSize>::TimeTableState(const TimeTableState&& other) noexcept
     : groups_(std::move(other.groups_))
 {
 }
 
-TimeTableState& TimeTableState::operator=(const TimeTableState&& other) noexcept
+template<size_t ClassSize>
+TimeTableState<ClassSize>& TimeTableState<ClassSize>::operator=(TimeTableState&& other) noexcept
 {
     if (this != &other)
     {
@@ -27,68 +31,76 @@ TimeTableState& TimeTableState::operator=(const TimeTableState&& other) noexcept
     return *this;
 }
 
-void TimeTableState::add(const int class_id, const int group)
+// -------------------- MUTATORS --------------------
+
+template<size_t ClassSize>
+void TimeTableState<ClassSize>::assign(const int class_id, const int group)
 {
-    groups_[class_id] = group;
+    groups_[static_cast<size_t>(class_id)] = group;
 }
 
-void TimeTableState::remove(const int class_id)
+template<size_t ClassSize>
+void TimeTableState<ClassSize>::unassign(const int class_id)
 {
-    groups_.erase(class_id);
+    groups_[static_cast<size_t>(class_id)] = -1;
 }
 
-void TimeTableState::remove(const int class_id, const int group)
+// -------------------- ACCESSORS --------------------
+
+template<size_t ClassSize>
+bool TimeTableState<ClassSize>::is_assigned(const int class_id) const
 {
-    const auto found = groups_.find(class_id);
-    if (found != groups_.end())
-    {
-        groups_.erase(found->first);
-    }
+    return groups_[static_cast<size_t>(class_id)] >= 0;
 }
 
-bool TimeTableState::contains(const int class_id) const
+template<size_t ClassSize>
+bool TimeTableState<ClassSize>::is_assigned(const int class_id, const int group) const
 {
-    return groups_.contains(class_id);
+    return groups_[static_cast<size_t>(class_id)] == group;
 }
 
-bool TimeTableState::contains(const int class_id, const int group) const
-{
-    const auto found = groups_.find(class_id);
-    if (found == groups_.end())
-    {
-        return false;
-    }
-    return found->second == group;
-}
-
-const std::unordered_map<int, int>& TimeTableState::get_groups() const
+template<size_t ClassSize>
+const std::array<int, ClassSize>& TimeTableState<ClassSize>::get_groups() const
 {
     return groups_;
 }
 
-size_t TimeTableState::size() const
+template<size_t ClassSize>
+size_t TimeTableState<ClassSize>::size() const
 {
-    return groups_.size();
+    return ClassSize;
 }
 
-bool TimeTableState::is_empty() const
+template<size_t ClassSize>
+size_t TimeTableState<ClassSize>::filled() const
 {
-    return groups_.empty();
+    return static_cast<size_t>(
+        std::count_if(groups_.begin(), groups_.end(), [](int g) { return g >= 0; }));
+}
+
+template<size_t ClassSize>
+bool TimeTableState<ClassSize>::is_empty() const
+{
+    return filled() == 0;
 }
 
 // -------------------- STREAM --------------------
 
-std::ostream& operator<<(std::ostream& out, const TimeTableState& s)
+// Uses get_groups() (public) so no private access is required.
+template<size_t ClassSize>
+std::ostream& operator<<(std::ostream& out, const TimeTableState<ClassSize>& s)
 {
-    // Print IDs in sorted order for readability.
-    std::vector<std::pair<int, int>> ids(s.groups_.begin(), s.groups_.end());
-    std::ranges::sort(ids, [](auto& left, auto& right){return left.first < right.first;});
-
-    out << "TimeTableState{ size=" << s.groups_.size() << ", chosen=[";
-    for (std::size_t i = 0; i < ids.size(); i++)
+    out << "TimeTableState{ size=" << ClassSize << ", filled=[";
+    const auto& groups = s.get_groups();
+    bool first = true;
+    for (size_t i = 0; i < ClassSize; ++i)
     {
-        if (i > 0) out << ", ";
-        out << ids[i].first << ":" << ids[i].second;
+        if (groups[i] != -1)
+        {
+            if (!first) out << ", ";
+            out << i << ":" << groups[i];
+            first = false;
+        }
     }
     out << "] }";
     return out;

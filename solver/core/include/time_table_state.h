@@ -6,30 +6,31 @@
 
 #include <iosfwd>
 
+template<size_t ClassSize>
 class TimeTableState
 {
 public:
     TimeTableState() = default;
-    explicit TimeTableState(const std::unordered_map<int, int>& groups);
+    explicit TimeTableState(std::array<int, ClassSize> groups);
 
     TimeTableState(const TimeTableState& other) = default;
     TimeTableState& operator=(const TimeTableState& other) = default;
     TimeTableState(const TimeTableState&& other) noexcept;
-    TimeTableState& operator=(const TimeTableState&& other) noexcept;
+    TimeTableState& operator=(TimeTableState&& other) noexcept;
     ~TimeTableState() = default;
 
-    void add(int class_id, int group);
-    void remove(int class_id);
-    void remove(int class_id, int group);
+    void assign(int class_id, int group);
+    void unassign(int class_id);
 
-    [[nodiscard]] bool contains(int class_id) const;
-    [[nodiscard]] bool contains(int class_id, int group) const;
-    [[nodiscard]] const std::unordered_map<int, int>& get_groups() const;
+    [[nodiscard]] bool is_assigned(int class_id) const;
+    [[nodiscard]] bool is_assigned(int class_id, int group) const;
+    [[nodiscard]] const std::array<int, ClassSize>& get_groups() const;
     [[nodiscard]] size_t size() const;
+    [[nodiscard]] size_t filled() const;
     [[nodiscard]] bool is_empty() const;
 
     friend std::ostream& operator<<(std::ostream& out, const TimeTableState& s);
 
 private:
-    std::unordered_map<int, int> groups_;
+    std::array<int, ClassSize> groups_;
 };

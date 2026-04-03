@@ -10,35 +10,45 @@
 #include "data_mapper.h"
 #include "solver_runner.h"
 
-int main(int argc, char* argv[])
+void test_print(const std::string& input_file_name)
 {
-    auto mapper = DataMapper("../../../../tests/data/classes_2526_L_ISI.json");
+    auto mapper = DataMapper(input_file_name);
     mapper.get_problem();
 
     auto state = TimeTableState();
-    // state.add(0, 0);
-    // state.add(0, 1);
-    state.add(0, 2);
-    state.add(0, 3);
+    for (int i = 0; i < 51; i++)
+    {
+        state.add(i, 0);
+    }
 
     mapper.print_timetable(state);
+}
 
-    // // Use path from command line, or fall back to the bundled sample file.
-    // const std::string input_path = (argc > 1) ? argv[1] : SAMPLE_INPUT_PATH;
-    //
-    // std::cout << "Input: " << input_path << "\n";
-    //
-    // SolverRunner runner(5);
-    // std::cout << runner << "\n\n";
-    //
-    // // Run the full pipeline with verbose output:
-    // //   - prints Solver info
-    // //   - prints an ASCII timetable for every solution found
-    // //   - prints timing summary
-    // const nlohmann::json result = runner.run(input_path, /*verbose=*/true);
-    //
-    // std::cout << "\n--- JSON result ---\n"
-    //           << result.dump(2) << "\n";
+void test_simple_solver(const std::string& input_file_name)
+{
+    // Use path from command line, or fall back to the bundled sample file.
+
+    std::cout << "Input: " << input_file_name << "\n";
+
+    SolverRunner runner(5);
+    std::cout << runner << "\n\n";
+
+    // Run the full pipeline with verbose output:
+    //   - prints Solver info
+    //   - prints an ASCII timetable for every solution found
+    //   - prints timing summary
+    const nlohmann::json result = runner.run(input_file_name, /*verbose=*/true);
+
+    std::cout << "\n--- JSON result ---\n"
+              << result.dump(2) << "\n";
+}
+
+int main(int argc, char* argv[])
+{
+    const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI.json";
+
+    // test_print(input_file_name);
+    test_simple_solver(input_file_name);
 
     return 0;
 }

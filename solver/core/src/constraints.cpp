@@ -29,18 +29,18 @@ static double eval(const MinimizeGapsConstraint& c,
     // }
 
     double penalty = 0.0;
-    for (auto& [day, classes] : by_day)
-    {
-        std::sort(classes.begin(), classes.end(),
-            [](const Class* a, const Class* b) { return a->start_time < b->start_time; });
-
-        for (std::size_t i = 1; i < classes.size(); ++i)
-        {
-            int gap = classes[i]->start_time - classes[i - 1]->end_time;
-            if (gap > c.min_break)
-                penalty += static_cast<double>(gap - c.min_break);
-        }
-    }
+    // for (auto& [day, classes] : by_day)
+    // {
+    //     std::sort(classes.begin(), classes.end(),
+    //         [](const Class* a, const Class* b) { return a->start_time < b->start_time; });
+    //
+    //     for (std::size_t i = 1; i < classes.size(); ++i)
+    //     {
+    //         int gap = classes[i]->start_time - classes[i - 1]->end_time;
+    //         if (gap > c.min_break)
+    //             penalty += static_cast<double>(gap - c.min_break);
+    //     }
+    // }
     return penalty;
 }
 
@@ -48,20 +48,22 @@ static double eval(const GroupPreferenceConstraint& c,
                    const TimeTableState& state,
                    const TimeTableProblem& problem)
 {
-    if (!state.contains(c.class_id)) return 0.0;
-    const Class* cls = problem.find_class(c.class_id);
-    if (!cls) return 0.0;
-    return cls->group == c.preferred_group ? 0.0 : 1.0;
+    // if (!state.contains(c.class_id)) return 0.0;
+    // const Class* cls = problem.find_class(c.class_id);
+    // if (!cls) return 0.0;
+    // return cls->group == c.preferred_group ? 0.0 : 1.0;
+    return 0.0;
 }
 
 static double eval(const LecturerPreferenceConstraint& c,
                    const TimeTableState& state,
                    const TimeTableProblem& problem)
 {
-    if (!state.contains(c.class_id)) return 0.0;
-    const Class* cls = problem.find_class(c.class_id);
-    if (!cls) return 0.0;
-    return cls->lecturer == c.lecturer ? 0.0 : 1.0;
+    // if (!state.contains(c.class_id)) return 0.0;
+    // const Class* cls = problem.find_class(c.class_id);
+    // if (!cls) return 0.0;
+    // return cls->lecturer == c.lecturer ? 0.0 : 1.0;
+    return 0.0;
 }
 
 static double eval(const MaximizeSingleAttendanceConstraint& c,
@@ -123,23 +125,23 @@ static double eval(const PreferEdgeClassesConstraint& c,
                    const TimeTableState& state,
                    const TimeTableProblem& problem)
 {
-    if (!state.contains(c.class_id)) return 0.0;
-    const Class* cls = problem.find_class(c.class_id);
-    if (!cls) return 0.0;
-
-    // Find the earliest start and latest end among chosen classes on the same day.
-    int earliest = cls->start_time;
-    int latest   = cls->end_time;
-    // for (int id : state.get_chosen_ids())
-    // {
-    //     const Class* other = problem.find_class(id);
-    //     if (!other || other->day != cls->day) continue;
-    //     earliest = std::min(earliest, other->start_time);
-    //     latest   = std::max(latest,   other->end_time);
-    // }
-
-    if (c.position == EdgePosition::Start && cls->start_time == earliest) return 0.0;
-    if (c.position == EdgePosition::End   && cls->end_time   == latest)   return 0.0;
+    // if (!state.contains(c.class_id)) return 0.0;
+    // const Class* cls = problem.find_class(c.class_id);
+    // if (!cls) return 0.0;
+    //
+    // // Find the earliest start and latest end among chosen classes on the same day.
+    // int earliest = cls->start_time;
+    // int latest   = cls->end_time;
+    // // for (int id : state.get_chosen_ids())
+    // // {
+    // //     const Class* other = problem.find_class(id);
+    // //     if (!other || other->day != cls->day) continue;
+    // //     earliest = std::min(earliest, other->start_time);
+    // //     latest   = std::max(latest,   other->end_time);
+    // // }
+    //
+    // if (c.position == EdgePosition::Start && cls->start_time == earliest) return 0.0;
+    // if (c.position == EdgePosition::End   && cls->end_time   == latest)   return 0.0;
     return 1.0;
 }
 
