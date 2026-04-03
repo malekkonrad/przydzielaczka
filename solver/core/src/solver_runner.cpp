@@ -24,8 +24,10 @@ using Clock = std::chrono::steady_clock;
 
 // -------------------- CONSTRUCTORS --------------------
 
-SolverRunner::SolverRunner(int max_solutions)
-    : max_solutions_(max_solutions) {}
+SolverRunner::SolverRunner(const int max_solutions)
+    : max_solutions_(max_solutions)
+{
+}
 
 // -------------------- PUBLIC --------------------
 
@@ -37,10 +39,14 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     const int n_classes     = static_cast<int>(problem.get_classes().size());
     const int n_constraints = static_cast<int>(problem.get_constraints().size());
 
-    SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem);
+    solver::config config;
+    config.max_solutions = static_cast<size_t>(max_solutions_);
+    config.verbose = true;
+    // TODO add some selector
+    SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem, config);
 
     const auto t_start = Clock::now();
-    const std::vector<TimeTableState> solutions = solver.solve(max_solutions_);
+    const std::vector<TimeTableState> solutions = solver.solve();
     const auto t_end = Clock::now();
 
     const long long duration_ms =

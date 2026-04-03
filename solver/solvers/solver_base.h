@@ -6,8 +6,10 @@
 
 #include <time_table_problem.h>
 #include <time_table_state.h>
+#include "solver_config.h"
 
 #include <vector>
+
 
 // SolverBase<Evaluator> is the base for concrete solvers.
 // It owns the problem reference, constructs the evaluator, and exposes both
@@ -21,17 +23,18 @@ template<typename Evaluator>
 class SolverBase
 {
 public:
-    explicit SolverBase(const TimeTableProblem& problem)
-        : problem_(problem), evaluator_(problem) {}
+    explicit SolverBase(const TimeTableProblem& problem, const solver::config& config)
+        : problem_(problem), config_(config), evaluator_(problem) {}
 
     virtual ~SolverBase() = default;
 
     SolverBase(const SolverBase&)            = delete;
     SolverBase& operator=(const SolverBase&) = delete;
 
-    virtual std::vector<TimeTableState> solve(int max_solutions = 10) = 0;
+    virtual std::vector<TimeTableState> solve() = 0;
 
 protected:
     const TimeTableProblem& problem_;
+    const solver::config& config_;
     Evaluator evaluator_;
 };

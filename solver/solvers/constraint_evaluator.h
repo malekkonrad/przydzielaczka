@@ -28,38 +28,32 @@ public:
     explicit ConstraintEvaluator(const TimeTableProblem& problem)
         : problem_(problem)
     {
-        const auto& src = problem_.get_classes();
-        classes_.reserve(src.size());
-        for (std::size_t i = 0; i < src.size(); ++i)
+        const auto& classes = problem_.get_classes();
+        const auto& groups = problem_.get_max_group();
+        classes_.resize(groups.size());
+        for (int i = 0; i < groups.size(); i++)
         {
-            const auto& c = src[i];
-            classes_.push_back({
-                c.id,
-                c.lecturer,
-                c.day,
-                c.week,
-                c.location,
-                c.group,
-                c.start_time,
-                c.end_time,
-                TimePolicy::encode(c.start_time, c.end_time)
-            });
-            id_to_index_[c.id] = static_cast<int>(i);
+            classes_[i].resize(groups[i] + 1);
+        }
+        for (const auto& clazz : classes)
+        {
+            classes_[clazz.id][clazz.group] = clazz;
         }
     }
 
     // True if candidate_id would time-conflict with any class already in state.
-    [[nodiscard]] bool has_conflict(int candidate_id, const TimeTableState& state) const
+    [[nodiscard]] bool has_conflict(const int class_id, const int group, const TimeTableState& state) const
     {
-        const InternalClass* candidate = find(candidate_id);
-        if (!candidate) return false;
-
-        // for (const int id : state.get_chosen_ids())
-        // {
-        //     const InternalClass* other = find(id);
-        //     if (other && overlaps(*candidate, *other))
-        //         return true;
-        // }
+        const auto& assigned_classes = state.get_assigned_classes();
+        const auto& groups = state.get_groups();
+        for (const int assigned_class_id : assigned_classes)
+        {
+            const int assigned_group = groups[assigned_class_id];
+            if (class_id != assigned_class_id && overlaps(class_id, group, assigned_class_id, assigned_group))
+            {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -70,34 +64,26 @@ public:
     }
 
 private:
-    struct InternalClass
-    {
-        int id;
-        int lecturer;
-        int day;
-        std::bitset<2> week;
-        int location;
-        int group;
-        int start_min;  // original int times kept for gap/edge scoring
-        int end_min;
-        typename TimePolicy::TimeType time;  // policy-encoded interval
-    };
+    const TimeTableProblem& problem_;
+    std::vector<std::vector<solver_models::Class>> classes_;
 
-    const TimeTableProblem&            problem_;
-    std::vector<InternalClass>         classes_;
-    std::unordered_map<int, int>       id_to_index_;  // class id → index in classes_
-
-    [[nodiscard]] const InternalClass* find(int id) const
+    [[nodiscard]] bool overlaps(const int class_id_a, const int group_a, const int class_id_b, const int group_b) const
     {
-        const auto it = id_to_index_.find(id);
-        if (it == id_to_index_.end()) return nullptr;
-        return &classes_[it->second];
-    }
-
-    [[nodiscard]] static bool overlaps(const InternalClass& a, const InternalClass& b)
-    {
-        if (a.day != b.day)           return false;
-        if ((a.week & b.week).none()) return false;
-        return TimePolicy::overlaps_time(a.time, b.time);
+        const auto& class_a = classes_[class_id_a][group_a];
+        const auto& class_b = classes_[class_id_b][group_b];
+        if (class_a.day != class_b.day)
+        {
+            return false;
+        }
+        if (!(class_a.week & class_b.week).any())
+        {
+            return false;
+        }
+        if (class_a.end_time <= class_b.start_time
+            || class_b.end_time <= class_a.start_time)
+        {
+            return false;
+        }
+        return true;
     }
 };

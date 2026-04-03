@@ -4,18 +4,17 @@
 
 #pragma once
 
-#include <iosfwd>
+#include <vector>
 
-template<size_t ClassSize>
 class TimeTableState
 {
 public:
-    TimeTableState() = default;
-    explicit TimeTableState(std::array<int, ClassSize> groups);
+    explicit TimeTableState(size_t size);
+    explicit TimeTableState(std::vector<int> groups);
 
     TimeTableState(const TimeTableState& other) = default;
     TimeTableState& operator=(const TimeTableState& other) = default;
-    TimeTableState(const TimeTableState&& other) noexcept;
+    TimeTableState(TimeTableState&& other) noexcept;
     TimeTableState& operator=(TimeTableState&& other) noexcept;
     ~TimeTableState() = default;
 
@@ -24,7 +23,8 @@ public:
 
     [[nodiscard]] bool is_assigned(int class_id) const;
     [[nodiscard]] bool is_assigned(int class_id, int group) const;
-    [[nodiscard]] const std::array<int, ClassSize>& get_groups() const;
+    [[nodiscard]] const std::vector<int>& get_groups() const;
+    [[nodiscard]] const std::vector<int>& get_assigned_classes() const;
     [[nodiscard]] size_t size() const;
     [[nodiscard]] size_t filled() const;
     [[nodiscard]] bool is_empty() const;
@@ -32,5 +32,5 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const TimeTableState& s);
 
 private:
-    std::array<int, ClassSize> groups_;
+    std::vector<int> groups_;
 };

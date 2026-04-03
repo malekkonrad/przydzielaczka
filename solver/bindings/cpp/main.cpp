@@ -13,12 +13,12 @@
 void test_print(const std::string& input_file_name)
 {
     auto mapper = DataMapper(input_file_name);
-    mapper.get_problem();
+    const TimeTableProblem& problem = mapper.get_problem();
 
-    auto state = TimeTableState();
-    for (int i = 0; i < 51; i++)
+    auto state = TimeTableState{problem.class_size()};
+    for (int i = 0; i < state.size(); i++)
     {
-        state.add(i, 0);
+        state.assign(i, 0);
     }
 
     mapper.print_timetable(state);
@@ -39,8 +39,8 @@ void test_simple_solver(const std::string& input_file_name)
     //   - prints timing summary
     const nlohmann::json result = runner.run(input_file_name, /*verbose=*/true);
 
-    std::cout << "\n--- JSON result ---\n"
-              << result.dump(2) << "\n";
+    // std::cout << "\n--- JSON result ---\n"
+    //           << result.dump(2) << "\n";
 }
 
 int main(int argc, char* argv[])

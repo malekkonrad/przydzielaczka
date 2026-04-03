@@ -532,7 +532,7 @@ std::vector<solver_models::Class> DataMapper::map_classes()
 
 // -------------------- MAP CONSTRAINTS --------------------
 
-std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
+std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() const
 {
     if (!timetable_)
     {
@@ -763,8 +763,10 @@ Json DataMapper::get_solution() const
     {
         // Demap int IDs → string class_id + class_type, then find the full input class.
         Json chosen = Json::array();
-        for (const auto& [class_id, group] : state.get_groups())
+        const auto& groups = state.get_groups();
+        for (int class_id = 0; class_id < groups.size(); class_id++)
         {
+            const int group = groups[class_id];
             auto [class_id_str, class_type_str] = demap_class_id_and_class_type(class_id);
             if (class_id_str.empty())
             {
@@ -826,8 +828,10 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
 
     // --- Collect chosen classes ---
     std::vector<const input_models::Class*> chosen;
-    for (const auto& [class_id, group] : state.get_groups())
+    const auto& groups = state.get_groups();
+    for (int class_id = 0; class_id < groups.size(); class_id++)
     {
+        const int group = groups[class_id];
         const auto [cid_str, ctype_str] = demap_class_id_and_class_type(class_id);
         if (cid_str.empty())
             continue;
@@ -855,7 +859,7 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
         for (const auto* cls : chosen)
         {
             auto key = std::make_pair(cls->id, cls->class_type);
-            if (!class_color.count(key))
+            if (!class_color.contains(key))
                 class_color[key] = PALETTE[idx++ % static_cast<int>(PALETTE.size())];
         }
     }
@@ -1000,7 +1004,7 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
         if (starts_half)
             return fg_code(starts_half) + lower_blocks(CELL_W) + RESET;
 
-        return std::string(CELL_W, ' ');
+        return std::string(CELL_W, ' '); // NOLINT
     };
 
     auto render_day = [&](int T, int d, int wi) -> std::string

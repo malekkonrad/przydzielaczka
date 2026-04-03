@@ -70,7 +70,7 @@ static double eval(const MaximizeSingleAttendanceConstraint& c,
                    const TimeTableState& state,
                    const TimeTableProblem& /*problem*/)
 {
-    return state.contains(c.class_id) ? 0.0 : 1.0;
+    return state.is_assigned(c.class_id) ? 0.0 : 1.0;
 }
 
 static double eval(const MaximizeTotalAttendanceConstraint& /*c*/,

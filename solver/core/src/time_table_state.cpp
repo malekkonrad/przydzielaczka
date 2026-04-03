@@ -6,23 +6,26 @@
 
 #include <algorithm>
 #include <ostream>
+#include <vector>
 
 // -------------------- CONSTRUCTORS --------------------
 
-template<size_t ClassSize>
-TimeTableState<ClassSize>::TimeTableState(std::array<int, ClassSize> groups)
+TimeTableState::TimeTableState(const size_t size)
+    : groups_(size, -1)
+{
+}
+
+TimeTableState::TimeTableState(std::vector<int> groups)
     : groups_(std::move(groups))
 {
 }
 
-template<size_t ClassSize>
-TimeTableState<ClassSize>::TimeTableState(const TimeTableState&& other) noexcept
+TimeTableState::TimeTableState(TimeTableState&& other) noexcept
     : groups_(std::move(other.groups_))
 {
 }
 
-template<size_t ClassSize>
-TimeTableState<ClassSize>& TimeTableState<ClassSize>::operator=(TimeTableState&& other) noexcept
+TimeTableState& TimeTableState::operator=(TimeTableState&& other) noexcept
 {
     if (this != &other)
     {
@@ -33,69 +36,75 @@ TimeTableState<ClassSize>& TimeTableState<ClassSize>::operator=(TimeTableState&&
 
 // -------------------- MUTATORS --------------------
 
-template<size_t ClassSize>
-void TimeTableState<ClassSize>::assign(const int class_id, const int group)
+void TimeTableState::assign(const int class_id, const int group)
 {
     groups_[static_cast<size_t>(class_id)] = group;
 }
 
-template<size_t ClassSize>
-void TimeTableState<ClassSize>::unassign(const int class_id)
+void TimeTableState::unassign(const int class_id)
 {
     groups_[static_cast<size_t>(class_id)] = -1;
 }
 
 // -------------------- ACCESSORS --------------------
 
-template<size_t ClassSize>
-bool TimeTableState<ClassSize>::is_assigned(const int class_id) const
+bool TimeTableState::is_assigned(const int class_id) const
 {
     return groups_[static_cast<size_t>(class_id)] >= 0;
 }
 
-template<size_t ClassSize>
-bool TimeTableState<ClassSize>::is_assigned(const int class_id, const int group) const
+bool TimeTableState::is_assigned(const int class_id, const int group) const
 {
     return groups_[static_cast<size_t>(class_id)] == group;
 }
 
-template<size_t ClassSize>
-const std::array<int, ClassSize>& TimeTableState<ClassSize>::get_groups() const
+const std::vector<int>& TimeTableState::get_groups() const
 {
     return groups_;
 }
 
-template<size_t ClassSize>
-size_t TimeTableState<ClassSize>::size() const
+const std::vector<int>& TimeTableState::get_assigned_classes() const
 {
-    return ClassSize;
+    thread_local std::vector<int> classes;
+    classes.clear();
+
+    const int groups_size = static_cast<int>(groups_.size());
+    for (int class_id = 0; class_id < groups_size; class_id++)
+    {
+        if (is_assigned(class_id))
+        {
+            classes.emplace_back(class_id);
+        }
+    }
+    return classes;
 }
 
-template<size_t ClassSize>
-size_t TimeTableState<ClassSize>::filled() const
+size_t TimeTableState::size() const
+{
+    return groups_.size();
+}
+
+size_t TimeTableState::filled() const
 {
     return static_cast<size_t>(
         std::count_if(groups_.begin(), groups_.end(), [](int g) { return g >= 0; }));
 }
 
-template<size_t ClassSize>
-bool TimeTableState<ClassSize>::is_empty() const
+bool TimeTableState::is_empty() const
 {
     return filled() == 0;
 }
 
 // -------------------- STREAM --------------------
 
-// Uses get_groups() (public) so no private access is required.
-template<size_t ClassSize>
-std::ostream& operator<<(std::ostream& out, const TimeTableState<ClassSize>& s)
+std::ostream& operator<<(std::ostream& out, const TimeTableState& s)
 {
-    out << "TimeTableState{ size=" << ClassSize << ", filled=[";
     const auto& groups = s.get_groups();
+    out << "TimeTableState{ size=" << groups.size() << ", filled=[";
     bool first = true;
-    for (size_t i = 0; i < ClassSize; ++i)
+    for (size_t i = 0; i < groups.size(); ++i)
     {
-        if (groups[i] != -1)
+        if (groups[i] >= 0)
         {
             if (!first) out << ", ";
             out << i << ":" << groups[i];

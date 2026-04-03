@@ -59,7 +59,7 @@ private:
 	// Mappers: domain value -> solver int id
 	[[nodiscard]] TimeTableProblem map_problem();
 	[[nodiscard]] std::vector<solver_models::Class> map_classes();
-	[[nodiscard]] std::vector<solver_models::ConstraintVariant> map_constraints();
+	[[nodiscard]] std::vector<solver_models::ConstraintVariant> map_constraints() const;
 	[[nodiscard]] int map_class_id_and_class_type(const std::string& class_id, const std::string& class_type);
 	[[nodiscard]] int map_group(int class_id, int group);
 	[[nodiscard]] int map_date(const std::string& date);
