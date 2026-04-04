@@ -63,6 +63,11 @@ const std::vector<int>& TimeTableState::get_groups() const
     return groups_;
 }
 
+int TimeTableState::get_group(const int class_id) const
+{
+    return groups_[static_cast<size_t>(class_id)];
+}
+
 const std::vector<int>& TimeTableState::get_assigned_classes() const
 {
     thread_local std::vector<int> classes;

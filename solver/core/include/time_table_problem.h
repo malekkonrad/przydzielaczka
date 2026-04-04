@@ -29,9 +29,10 @@ public:
     [[nodiscard]] int get_max_group(int class_id) const;
     [[nodiscard]] const std::vector<std::vector<solver_models::Class>>& get_classes() const;
     [[nodiscard]] const std::vector<solver_models::Class>& get_groups(int class_id) const;
-    [[nodiscard]] const solver_models::Class& get_class(int class_id, int group) const;
+    [[nodiscard]] const solver_models::Class& get_group(int class_id, int group) const;
     [[nodiscard]] const std::vector<solver_models::ConstraintVariant>& get_constraints() const;
-    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_constraints(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_previous_constraints(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_hard_constraints(int sequence) const;
     [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_goals(int sequence) const;
 
     friend std::ostream& operator<<(std::ostream& out, const TimeTableProblem& p);

@@ -56,12 +56,12 @@ private:
                                   const TimeTableState& state,
                                   const TimeTableProblem& problem)
     {
-        const auto& candidate = problem.get_class(class_id, group);
+        const auto& candidate = problem.get_group(class_id, group);
         for (const int other_id : state.get_assigned_classes())
         {
             if (other_id == class_id) continue;
             const int other_group = state.get_groups()[other_id];
-            if (overlaps(candidate, problem.get_class(other_id, other_group)))
+            if (overlaps(candidate, problem.get_group(other_id, other_group)))
                 return true;
         }
         return false;
@@ -160,33 +160,38 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
     for (int seq = 0; seq < n_passes; ++seq)
     {
         if (verbose)
-            std::cout << "\n=== Sequence " << seq << " ===\n";
+        {
+            std::cout << "\n=== Sequence " << seq << " ===" << std::endl;
+        }
 
+        const auto& previous_constraints = problem_.get_previous_constraints(seq);
+        const auto& hard_constraints = problem_.get_hard_constraints(seq);
         std::vector<TimeTableState> found;
         TimeTableState current(n_classes);
 
-        std::function<void(int)> backtrack = [&](int depth)
+        std::function<void(int)> backtrack = [&](const int depth)
         {
             if (depth == n_classes)
             {
-                // Leaf checks — constraint pruning happens here in the baseline.
-                if (seq < n_seqs)
-                {
-                    if (violates_hard(current, problem_, seq)) return;
-                    if (!satisfies_context(current, problem_, context, seq)) return;
-                }
                 found.push_back(current);
                 return;
             }
 
             const int class_id = depth;
-            const int max_g    = problem_.get_max_group(class_id);
+            const int max_group = problem_.get_max_group(class_id);
 
-            for (int g = 0; g <= max_g; ++g)
+            for (int group = 0; group <= max_group; ++group)
             {
-                current.assign(class_id, g);
-                if (!has_time_conflict(class_id, g, current, problem_))
-                    backtrack(depth + 1);
+                current.assign(class_id, group);
+                const bool are_feasible = constraints::are_feasible(previous_constraints, problem_, current, context);
+                if (are_feasible)
+                {
+                    const bool are_satisfied = constraints::are_satisfied(hard_constraints, problem_, current);
+                    if (are_satisfied)
+                    {
+                        backtrack(depth + 1);
+                    }
+                }
                 current.unassign(class_id);
             }
         };
@@ -194,12 +199,16 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
         backtrack(0);
 
         if (verbose)
-            std::cout << "  found " << found.size() << " candidate(s)\n";
+        {
+            std::cout << "  found " << found.size() << " candidate(s)" << std::endl;
+        }
 
         if (found.empty())
         {
             if (verbose)
-                std::cout << "  no solutions in sequence " << seq << " — stopping\n";
+            {
+                std::cout << "  no solutions in sequence " << seq << " — stopping" << std::endl;
+            }
             break;
         }
 
@@ -209,13 +218,15 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
             std::vector<std::pair<double, std::size_t>> scored;
             scored.reserve(found.size());
             for (std::size_t i = 0; i < found.size(); ++i)
+            {
                 scored.emplace_back(score_sequence(found[i], problem_, seq), i);
+            }
 
             std::sort(scored.begin(), scored.end());
 
             const double best_score = scored[0].first;
             if (verbose)
-                std::cout << "  best score: " << best_score << "\n";
+                std::cout << "  best score: " << best_score << std::endl;
 
             // Collect all indices that share the best score.
             std::vector<std::size_t> optimal_indices;
@@ -247,7 +258,7 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
         }
 
         if (verbose)
-            std::cout << "  returning " << solutions.size() << " solution(s)\n";
+            std::cout << "  returning " << solutions.size() << " solution(s)" << std::endl;
     }
 
     return solutions;

@@ -63,7 +63,9 @@ TimeTableProblem::TimeTableProblem(
 
     // Assign stable ids — index in the sorted constraints vector.
     for (int i = 0; i < static_cast<int>(constraints_.size()); ++i)
+    {
         std::visit([i](auto& c){ c.id = i; }, constraints_[i]);
+    }
 
     // Build sequence_soft_hard_split_point_: for each sequence index, store the position of
     // its first soft constraint or index of the end of the sequence.
@@ -79,7 +81,7 @@ TimeTableProblem::TimeTableProblem(
             const auto& constraint = constraints_[i];
             const int seq = constraint_sequence(constraint);
             const bool is_hard = constraint_is_hard(constraint);
-            sequence_split_point_[seq] = i;
+            sequence_split_point_[seq] = i + 1;
             if (!is_hard && sequence_soft_hard_split_point_[seq] == static_cast<int>(constraints_.size()))
             {
                 sequence_soft_hard_split_point_[seq] = i;
@@ -155,7 +157,7 @@ const std::vector<solver_models::Class>& TimeTableProblem::get_groups(const int 
     return classes_[class_id];
 }
 
-const solver_models::Class& TimeTableProblem::get_class(const int class_id, const int group) const
+const solver_models::Class& TimeTableProblem::get_group(const int class_id, const int group) const
 {
     return classes_[class_id][group];
 }
@@ -168,15 +170,28 @@ const std::vector<solver_models::ConstraintVariant>& TimeTableProblem::get_const
 // Returns all hard+soft constraints for sequences < sequence,
 // plus hard-only constraints for exactly sequence.
 // Equivalent to constraints_[0 .. sequence_split_point_[sequence]).
-std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_constraints(const int sequence) const
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_previous_constraints(const int sequence) const
 {
     if (sequence >= static_cast<int>(sequence_split_point_.size()))
     {
         return constraints_;
     }
 
-    const auto end = static_cast<size_t>(sequence_split_point_[sequence]);
+    const auto end = sequence < 1 ? 0 : static_cast<size_t>(sequence_split_point_[sequence - 1]);
     return std::span(constraints_).first(end);
+}
+
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_hard_constraints(const int sequence) const
+{
+    if (sequence >= static_cast<int>(sequence_split_point_.size()))
+    {
+        return constraints_;
+    }
+
+    const size_t start = sequence < 1 ? 0 : static_cast<size_t>(sequence_split_point_[sequence - 1]);
+    const auto end = static_cast<size_t>(sequence_soft_hard_split_point_[sequence]);
+
+    return std::span(constraints_).subspan(start, end - start);
 }
 
 // Returns the soft constraints whose sequence equals exactly sequence.

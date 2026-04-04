@@ -409,6 +409,19 @@ int DataMapper::map_lecturer(const std::string& lecturer)
     return id;
 }
 
+int DataMapper::map_sequence(const int sequence)
+{
+    const auto it = sequence_mapper_.find(sequence);
+    if (it != sequence_mapper_.end())
+    {
+        return it->second;
+    }
+
+    int id = static_cast<int>(sequence_mapper_.size());
+    sequence_mapper_[sequence] = id;
+    return id;
+}
+
 // -------------------- DEMAPPERS --------------------
 
 std::tuple<std::string, std::string>
@@ -548,7 +561,7 @@ std::vector<solver_models::Class> DataMapper::map_classes()
 
 // -------------------- MAP CONSTRAINTS --------------------
 
-std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() const
+std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
 {
     if (!timetable_)
     {
@@ -560,7 +573,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
 
     for (const auto& c : timetable_->constraints)
     {
-        const int sequence = c.sequence;
+        const int sequence = map_sequence(c.sequence);
         const double weight = c.weight.value_or(1.0);
         const bool hard = c.hard.value_or(false);
         const int slack = c.slack.value_or(0);

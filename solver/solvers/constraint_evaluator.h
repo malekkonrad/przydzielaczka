@@ -33,13 +33,13 @@ public:
     // True if candidate_id would time-conflict with any class already in state.
     [[nodiscard]] bool has_conflict(const int class_id, const int group, const TimeTableState& state) const
     {
-        const auto& current_class = problem_.get_class(class_id, group);
+        const auto& current_class = problem_.get_group(class_id, group);
         const auto& assigned_classes = state.get_assigned_classes();
         const auto& groups = state.get_groups();
         for (const int assigned_class_id : assigned_classes)
         {
             const int assigned_group = groups[assigned_class_id];
-            if (class_id != assigned_class_id && overlaps(current_class, problem_.get_class(assigned_class_id, assigned_group)))
+            if (class_id != assigned_class_id && overlaps(current_class, problem_.get_group(assigned_class_id, assigned_group)))
             {
                 return true;
             }

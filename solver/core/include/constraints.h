@@ -5,8 +5,10 @@
 #pragma once
 
 #include "time_table_state.h"
+#include <constraint_variant_fwd.h>
 
 #include <concepts>
+#include <time_table_problem.h>
 #include <variant>
 #include <vector>
 
@@ -24,13 +26,27 @@ namespace constraints
     {
         std::vector<double> best_scores;
 
-        [[nodiscard]] bool has_score(int id) const
+        [[nodiscard]] bool has_score(const int id) const
         {
             return id >= 0 && id < static_cast<int>(best_scores.size());
         }
     };
 
-    double evaluate_all(const TimeTableProblem& problem, const TimeTableState& state);
+    double evaluate_all(const TimeTableProblem& problem,
+                        const TimeTableState& state);
+
+    double evaluate_all(const std::span<const solver_models::ConstraintVariant>& constraints,
+                        const TimeTableProblem& problem,
+                        const TimeTableState& state);
+
+    bool are_satisfied(const std::span<const solver_models::ConstraintVariant>& constraints,
+                       const TimeTableProblem& problem,
+                       const TimeTableState& state);
+
+    bool are_feasible(const std::span<const solver_models::ConstraintVariant>& constraints,
+                      const TimeTableProblem& problem,
+                      const TimeTableState& state,
+                      const SequenceContext& context);
 
 } // namespace constraints
 
@@ -43,11 +59,11 @@ enum class EdgePosition { Start, End };
 
 struct MinimizeGapsConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int min_break;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int min_break{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -58,12 +74,12 @@ struct MinimizeGapsConstraint
 
 struct GroupPreferenceConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int class_id;
-    int group;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int class_id{};
+    int group{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -74,12 +90,12 @@ struct GroupPreferenceConstraint
 
 struct LecturerPreferenceConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int class_id;
-    int lecturer;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int class_id{};
+    int lecturer{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -90,13 +106,13 @@ struct LecturerPreferenceConstraint
 
 struct TimeBlockDayConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int start_time;
-    int end_time;
-    int day;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int start_time{};
+    int end_time{};
+    int day{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -107,13 +123,13 @@ struct TimeBlockDayConstraint
 
 struct TimeBlockDateConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int start_time;
-    int end_time;
-    int date;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int start_time{};
+    int end_time{};
+    int date{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -124,12 +140,12 @@ struct TimeBlockDateConstraint
 
 struct PreferEdgeClassConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int class_id;
-    EdgePosition position;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int class_id{};
+    EdgePosition position = EdgePosition::Start;
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -140,13 +156,13 @@ struct PreferEdgeClassConstraint
 
 struct PreferEdgeGroupConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int class_id;
-    int group;
-    EdgePosition position;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int class_id{};
+    int group{};
+    EdgePosition position = EdgePosition::Start;
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -157,11 +173,11 @@ struct PreferEdgeGroupConstraint
 
 struct MaximizeClassAttendanceConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int class_id;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int class_id{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -172,12 +188,12 @@ struct MaximizeClassAttendanceConstraint
 
 struct MaximizeGroupAttendanceConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
-    int class_id;
-    int group;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
+    int class_id{};
+    int group{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -188,10 +204,10 @@ struct MaximizeGroupAttendanceConstraint
 
 struct MaximizeTotalAttendanceConstraint
 {
-    int sequence;
-    double weight;
-    bool hard;
-    int slack;
+    int sequence{};
+    double weight{};
+    bool hard{};
+    int slack{};
     int id = 0;
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -199,21 +215,6 @@ struct MaximizeTotalAttendanceConstraint
     [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const;
     [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const constraints::SequenceContext& context) const;
 };
-
-// -------------------- VARIANT --------------------
-
-using ConstraintVariant = std::variant<
-    MinimizeGapsConstraint,
-    GroupPreferenceConstraint,
-    LecturerPreferenceConstraint,
-    TimeBlockDayConstraint,
-    TimeBlockDateConstraint,
-    PreferEdgeClassConstraint,
-    PreferEdgeGroupConstraint,
-    MaximizeClassAttendanceConstraint,
-    MaximizeGroupAttendanceConstraint,
-    MaximizeTotalAttendanceConstraint
->;
 
 // -------------------- CONCEPT --------------------
 

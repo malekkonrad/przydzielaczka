@@ -59,7 +59,7 @@ private:
 	// Mappers: domain value -> solver int id
 	[[nodiscard]] TimeTableProblem map_problem();
 	[[nodiscard]] std::vector<solver_models::Class> map_classes();
-	[[nodiscard]] std::vector<solver_models::ConstraintVariant> map_constraints() const;
+	[[nodiscard]] std::vector<solver_models::ConstraintVariant> map_constraints();
 	[[nodiscard]] int map_class_id_and_class_type(const std::string& class_id, const std::string& class_type);
 	[[nodiscard]] int map_group(int class_id, int group);
 	[[nodiscard]] int map_date(const std::string& date);
@@ -68,6 +68,7 @@ private:
 	[[nodiscard]] std::bitset<2> map_week(const std::string& week);
 	[[nodiscard]] int map_location(const input_models::Location& location);
 	[[nodiscard]] int map_lecturer(const std::string& lecturer);
+	[[nodiscard]] int map_sequence(int sequence);
 
 	// Demappers: solver int id -> domain value
 	[[nodiscard]] std::tuple<std::string, std::string> demap_class_id_and_class_type(int id) const;
@@ -92,6 +93,7 @@ private:
 	std::unordered_map<std::string, int> date_mapper_;
 	std::unordered_map<std::tuple<std::string, std::string>, int> location_mapper_;
 	std::unordered_map<std::string, int> lecturer_mapper_;
+	std::unordered_map<int, int> sequence_mapper_;
 
 	// Reverse maps (demappers)
 	std::unordered_map<int, std::tuple<std::string, std::string>> class_id_demapper_;

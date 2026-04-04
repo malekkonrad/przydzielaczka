@@ -24,6 +24,7 @@ public:
     [[nodiscard]] bool is_assigned(int class_id) const;
     [[nodiscard]] bool is_assigned(int class_id, int group) const;
     [[nodiscard]] const std::vector<int>& get_groups() const;
+    [[nodiscard]] int get_group(int class_id) const;
     [[nodiscard]] const std::vector<int>& get_assigned_classes() const;
     [[nodiscard]] size_t size() const;
     [[nodiscard]] size_t filled() const;

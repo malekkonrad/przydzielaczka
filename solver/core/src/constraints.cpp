@@ -13,6 +13,8 @@
 
 using namespace solver_models;
 
+// TODO right now only single date is taken into account, implement full later
+
 // Verify at compile time that every variant alternative satisfies Evaluatable.
 // This fires with a clear error if a new constraint type is added without
 // implementing penalty(), evaluate(), or is_satisfied().
@@ -30,41 +32,90 @@ double MinimizeGapsConstraint::penalty(const TimeTableState& state,
     const auto& groups = state.get_groups();
     for (int class_id = 0; class_id < static_cast<int>(groups.size()); ++class_id)
     {
-        if (groups[class_id] < 0) continue;
-        const auto& cls = problem.get_class(class_id, groups[class_id]);
-        for (int wi = 0; wi < 2; ++wi)
-            if (cls.week.test(wi))
-                by_day_week[{cls.day, wi}].push_back(&cls);
+        if (groups[class_id] < 0)
+        {
+            continue;
+        }
+        const auto& cls = problem.get_group(class_id, groups[class_id]);
+        if (cls.week.test(0))
+        {
+            by_day_week[{cls.day, 0}].push_back(&cls);
+        }
+        if (cls.week.test(1))
+        {
+            by_day_week[{cls.day, 1}].push_back(&cls);
+        }
     }
 
-    double p = 0.0;
-    for (auto& [key, day_classes] : by_day_week)
+    double penalty = 0.0;
+    for (auto& day_classes : by_day_week | std::views::values)
     {
         std::sort(day_classes.begin(), day_classes.end(),
-            [](const Class* a, const Class* b) { return a->start_time < b->start_time; });
+            [](const Class* a, const Class* b)
+            {
+                if (a->start_time == b->start_time)
+                {
+                    return a->end_time < b->end_time;
+                }
+                return a->start_time < b->start_time;
+            });
 
-        for (std::size_t i = 1; i < day_classes.size(); ++i)
+        for (size_t i = 1; i < day_classes.size(); ++i)
         {
             const int gap = day_classes[i]->start_time - day_classes[i - 1]->end_time;
             if (gap > min_break)
-                p += static_cast<double>(gap - min_break);
+            {
+                penalty += static_cast<double>(gap - min_break);
+            }
         }
     }
-    return p;
+    return penalty;
 }
 
 double MinimizeGapsConstraint::evaluate(const TimeTableState& state,
                                         const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
 bool MinimizeGapsConstraint::is_satisfied(const TimeTableState& state,
                                           const TimeTableProblem& problem) const
 {
-    return penalty(state, problem) == 0.0;
+    std::map<std::pair<int,int>, std::vector<const Class*>> by_day_week;
+    const auto& groups = state.get_groups();
+    for (int class_id = 0; class_id < static_cast<int>(groups.size()); ++class_id)
+    {
+        if (groups[class_id] < 0)
+        {
+            continue;
+        }
+        const auto& cls = problem.get_group(class_id, groups[class_id]);
+        if (cls.week.test(0))
+        {
+            by_day_week[{cls.day, 0}].push_back(&cls);
+        }
+        if (cls.week.test(1))
+        {
+            by_day_week[{cls.day, 1}].push_back(&cls);
+        }
+    }
+
+    for (auto& day_classes : by_day_week | std::views::values)
+    {
+        std::sort(day_classes.begin(), day_classes.end(),
+            [](const Class* a, const Class* b) { return a->start_time < b->start_time; });
+
+        for (size_t i = 1; i < day_classes.size(); ++i)
+        {
+            const int gap = day_classes[i]->start_time - day_classes[i - 1]->end_time;
+            if (gap < min_break)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 bool MinimizeGapsConstraint::is_feasible(const TimeTableState& state,
@@ -80,7 +131,6 @@ bool MinimizeGapsConstraint::is_feasible(const TimeTableState& state,
 double GroupPreferenceConstraint::penalty(const TimeTableState& state,
                                           const TimeTableProblem& /*problem*/) const
 {
-    if (!state.is_assigned(class_id)) return 0.0;
     return state.is_assigned(class_id, group) ? 0.0 : 1.0;
 }
 
@@ -88,14 +138,13 @@ double GroupPreferenceConstraint::evaluate(const TimeTableState& state,
                                            const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
 bool GroupPreferenceConstraint::is_satisfied(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
-    return penalty(state, problem) == 0.0;
+    return state.is_assigned(class_id, group);
 }
 
 bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
@@ -112,22 +161,23 @@ double LecturerPreferenceConstraint::penalty(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
     if (!state.is_assigned(class_id)) return 0.0;
-    const int group = state.get_groups()[class_id];
-    return problem.get_class(class_id, group).lecturer == lecturer ? 0.0 : 1.0;
+    const int group = state.get_group(class_id);
+    return problem.get_group(class_id, group).lecturer == lecturer ? 0.0 : 1.0;
 }
 
 double LecturerPreferenceConstraint::evaluate(const TimeTableState& state,
                                               const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
 bool LecturerPreferenceConstraint::is_satisfied(const TimeTableState& state,
                                                 const TimeTableProblem& problem) const
 {
-    return penalty(state, problem) == 0.0;
+    if (!state.is_assigned(class_id)) return false;
+    const int group = state.get_group(class_id);
+    return problem.get_group(class_id, group).lecturer == lecturer;
 }
 
 bool LecturerPreferenceConstraint::is_feasible(const TimeTableState& state,
@@ -150,14 +200,13 @@ double MaximizeClassAttendanceConstraint::evaluate(const TimeTableState& state,
                                                    const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
 bool MaximizeClassAttendanceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
-    return penalty(state, problem) == 0.0;
+    return state.is_assigned(class_id);
 }
 
 bool MaximizeClassAttendanceConstraint::is_feasible(const TimeTableState& state,
@@ -180,14 +229,13 @@ double MaximizeGroupAttendanceConstraint::evaluate(const TimeTableState& state,
                                                    const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
 bool MaximizeGroupAttendanceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
-    return penalty(state, problem) == 0.0;
+    return state.is_assigned(class_id, group);
 }
 
 bool MaximizeGroupAttendanceConstraint::is_feasible(const TimeTableState& state,
@@ -203,22 +251,55 @@ bool MaximizeGroupAttendanceConstraint::is_feasible(const TimeTableState& state,
 double MaximizeTotalAttendanceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& problem) const
 {
-    const int total = static_cast<int>(problem.class_size());
+    const size_t total = problem.class_size();
     if (total == 0) return 0.0;
-    return static_cast<double>(total - static_cast<int>(state.filled())) / total;
+
+    auto overlaps = [](const solver_models::Class& a, const solver_models::Class& b)
+    {
+        if (a.day != b.day) return false;
+        if (!(a.week & b.week).any()) return false;
+        return a.start_time < b.end_time && b.start_time < a.end_time;
+    };
+
+    int counter = 0;
+
+    for (int class_id = 0; class_id < static_cast<int>(state.get_groups().size()); ++class_id)
+    {
+        if (!state.is_assigned(class_id))
+        {
+            continue;
+        }
+        for (int cid = class_id + 1; cid < static_cast<int>(state.get_groups().size()); ++cid)
+        {
+            if (!state.is_assigned(cid))
+            {
+                continue;
+            }
+            const auto group = state.get_group(class_id);
+            const auto g = state.get_group(cid);
+            const auto& class_a = problem.get_group(class_id, group);
+            const auto& class_b = problem.get_group(cid, g);
+            if (overlaps(class_a, class_b))
+            {
+                counter++;
+            }
+        }
+    }
+    return counter;
 }
 
 double MaximizeTotalAttendanceConstraint::evaluate(const TimeTableState& state,
                                                    const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
 bool MaximizeTotalAttendanceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
+    const size_t total = problem.class_size();
+    if (total == 0) return true;
     return penalty(state, problem) == 0.0;
 }
 
@@ -236,14 +317,21 @@ double TimeBlockDayConstraint::penalty(const TimeTableState& state,
                                        const TimeTableProblem& problem) const
 {
     double p = 0.0;
-    const auto& groups = state.get_groups();
-    for (int class_id = 0; class_id < static_cast<int>(groups.size()); ++class_id)
+    for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
     {
-        if (groups[class_id] < 0) continue;
-        const auto& cls = problem.get_class(class_id, groups[class_id]);
-        if (cls.day != day) continue;
+        if (state.is_assigned(class_id))
+        {
+            continue;
+        }
+        const auto& cls = problem.get_group(class_id, state.get_group(class_id));
+        if (cls.day != day)
+        {
+            continue;
+        }
         if (cls.start_time < end_time && start_time < cls.end_time)
+        {
             p += 1.0;
+        }
     }
     return p;
 }
@@ -252,7 +340,6 @@ double TimeBlockDayConstraint::evaluate(const TimeTableState& state,
                                         const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
@@ -280,7 +367,7 @@ double TimeBlockDateConstraint::penalty(const TimeTableState& state,
     for (int class_id = 0; class_id < static_cast<int>(groups.size()); ++class_id)
     {
         if (groups[class_id] < 0) continue;
-        const auto& cls = problem.get_class(class_id, groups[class_id]);
+        const auto& cls = problem.get_group(class_id, groups[class_id]);
         for (const auto& session : cls.sessions)
         {
             if (session.date != date) continue;
@@ -298,7 +385,6 @@ double TimeBlockDateConstraint::evaluate(const TimeTableState& state,
                                          const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
@@ -323,7 +409,7 @@ double PreferEdgeClassConstraint::penalty(const TimeTableState& state,
 {
     if (!state.is_assigned(class_id)) return 0.0;
     const int group = state.get_groups()[class_id];
-    const auto& cls = problem.get_class(class_id, group);
+    const auto& cls = problem.get_group(class_id, group);
 
     int earliest = cls.start_time;
     int latest   = cls.end_time;
@@ -331,7 +417,7 @@ double PreferEdgeClassConstraint::penalty(const TimeTableState& state,
     for (int other_id = 0; other_id < static_cast<int>(groups.size()); ++other_id)
     {
         if (groups[other_id] < 0) continue;
-        const auto& other = problem.get_class(other_id, groups[other_id]);
+        const auto& other = problem.get_group(other_id, groups[other_id]);
         if (other.day != cls.day) continue;
         earliest = std::min(earliest, other.start_time);
         latest   = std::max(latest,   other.end_time);
@@ -346,7 +432,6 @@ double PreferEdgeClassConstraint::evaluate(const TimeTableState& state,
                                            const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
@@ -370,7 +455,7 @@ double PreferEdgeGroupConstraint::penalty(const TimeTableState& state,
                                           const TimeTableProblem& problem) const
 {
     if (!state.is_assigned(class_id, group)) return 0.0;
-    const auto& cls = problem.get_class(class_id, group);
+    const auto& cls = problem.get_group(class_id, group);
 
     int earliest = cls.start_time;
     int latest   = cls.end_time;
@@ -378,7 +463,7 @@ double PreferEdgeGroupConstraint::penalty(const TimeTableState& state,
     for (int other_id = 0; other_id < static_cast<int>(groups.size()); ++other_id)
     {
         if (groups[other_id] < 0) continue;
-        const auto& other = problem.get_class(other_id, groups[other_id]);
+        const auto& other = problem.get_group(other_id, groups[other_id]);
         if (other.day != cls.day) continue;
         earliest = std::min(earliest, other.start_time);
         latest   = std::max(latest,   other.end_time);
@@ -393,7 +478,6 @@ double PreferEdgeGroupConstraint::evaluate(const TimeTableState& state,
                                            const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
-    if (hard && p > 0.0) return 1e9;
     return weight * p;
 }
 
@@ -419,8 +503,50 @@ double evaluate_all(const TimeTableProblem& problem, const TimeTableState& state
 {
     double total = 0.0;
     for (const auto& constraint : problem.get_constraints())
+    {
         std::visit([&](const auto& c){ total += c.evaluate(state, problem); }, constraint);
+    }
     return total;
+}
+
+double evaluate_all(const std::span<const ConstraintVariant>& constraints,const TimeTableProblem& problem, const TimeTableState& state)
+{
+    double total = 0.0;
+    for (const auto& constraint : constraints)
+    {
+        std::visit([&](const auto& c){ total += c.evaluate(state, problem); }, constraint);
+    }
+    return total;
+}
+
+bool are_satisfied(const std::span<const ConstraintVariant>& constraints,const TimeTableProblem& problem, const TimeTableState& state)
+{
+    for (const auto& constraint : constraints)
+    {
+        const bool is_satisfied = std::visit([&](const auto& c){ return c.is_satisfied(state, problem); }, constraint);
+        if (!is_satisfied)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool are_feasible(
+    const std::span<const ConstraintVariant>& constraints,
+    const TimeTableProblem& problem,
+    const TimeTableState& state,
+    const SequenceContext& context)
+{
+    for (const auto& constraint : constraints)
+    {
+        const bool is_feasible = std::visit([&](const auto& c){ return c.is_feasible(state, problem, context); }, constraint);
+        if (!is_feasible)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace constraints
