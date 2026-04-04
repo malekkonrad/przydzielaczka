@@ -633,12 +633,12 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
                 }
             }
         }
-        else if (c.type == "maximize_class_attendance" && c.class_id && c.class_type)
+        else if (c.type == "minimize_class_absence" && c.class_id && c.class_type)
         {
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid)
             {
-                constraints.emplace_back(solver_models::MaximizeClassAttendanceConstraint{
+                constraints.emplace_back(solver_models::MinimizeClassAbsenceConstraint{
                     sequence, weight, hard, slack,
                     cid.value()
                 });
@@ -648,13 +648,13 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
                 std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
             }
         }
-        else if (c.type == "maximize_group_attendance" && c.class_id && c.class_type && c.group)
+        else if (c.type == "minimize_group_absence" && c.class_id && c.class_type && c.group)
         {
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             const std::optional<int> group = find_group(cid.value_or(-1), c.group.value());
             if (cid && group)
             {
-                constraints.emplace_back(solver_models::MaximizeGroupAttendanceConstraint{
+                constraints.emplace_back(solver_models::MinimizeGroupAbsenceConstraint{
                     sequence, weight, hard, slack,
                     cid.value(),
                     group.value()
@@ -672,9 +672,9 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
                 }
             }
         }
-        else if (c.type == "maximize_total_attendance")
+        else if (c.type == "minimize_total_absence")
         {
-            constraints.emplace_back(solver_models::MaximizeTotalAttendanceConstraint{
+            constraints.emplace_back(solver_models::MinimizeTotalAbsenceConstraint{
                 sequence, weight, hard, slack
             });
         }

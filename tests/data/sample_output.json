@@ -101,7 +101,7 @@
           "details": "Class 120-ISI-1S-293 is taught by Dr. Kowalski — matches preference."
         },
         {
-          "constraint_type": "maximize_class_attendance",
+          "constraint_type": "minimize_class_absence",
           "class_id": "120-ISI-1S-293",
           "class_type": "CWL",
           "sequence": 4,
@@ -113,7 +113,7 @@
           "details": "Class 120-ISI-1S-293 is selected."
         },
         {
-          "constraint_type": "maximize_group_attendance",
+          "constraint_type": "minimize_group_absence",
           "class_id": "120-ISI-1S-293",
           "class_type": "CWL",
           "group": 1,
@@ -126,7 +126,7 @@
           "details": "Class 120-ISI-1S-293 is in group 8, not group 1."
         },
         {
-          "constraint_type": "maximize_total_attendance",
+          "constraint_type": "minimize_total_absence",
           "sequence": 5,
           "weight": 6,
           "hard": false,

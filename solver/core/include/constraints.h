@@ -171,7 +171,7 @@ struct PreferEdgeGroupConstraint
     [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const constraints::SequenceContext& context) const;
 };
 
-struct MaximizeClassAttendanceConstraint
+struct MinimizeClassAbsenceConstraint
 {
     int sequence{};
     double weight{};
@@ -186,7 +186,7 @@ struct MaximizeClassAttendanceConstraint
     [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const constraints::SequenceContext& context) const;
 };
 
-struct MaximizeGroupAttendanceConstraint
+struct MinimizeGroupAbsenceConstraint
 {
     int sequence{};
     double weight{};
@@ -202,7 +202,7 @@ struct MaximizeGroupAttendanceConstraint
     [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const constraints::SequenceContext& context) const;
 };
 
-struct MaximizeTotalAttendanceConstraint
+struct MinimizeTotalAbsenceConstraint
 {
     int sequence{};
     double weight{};

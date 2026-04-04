@@ -39,7 +39,7 @@
       "slack": 0
     },
     {
-      "constraint_type": "maximize_class_attendance",
+      "constraint_type": "minimize_class_absence",
       "class_id": "120-ISI-1S-293",
       "class_type": "CWL",
       "sequence": 4,
@@ -48,7 +48,7 @@
       "slack": 0
     },
     {
-      "constraint_type": "maximize_group_attendance",
+      "constraint_type": "minimize_group_absence",
       "class_id": "120-ISI-1S-293",
       "class_type": "CWL",
       "group": 1,
@@ -58,7 +58,7 @@
       "slack": 0
     },
     {
-      "constraint_type": "maximize_total_attendance",
+      "constraint_type": "minimize_total_absence",
       "sequence": 5,
       "weight": 6,
       "slack": 0

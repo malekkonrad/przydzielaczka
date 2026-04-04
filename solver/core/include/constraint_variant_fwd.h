@@ -12,9 +12,9 @@
 
 namespace solver_models
 {
-    struct MaximizeTotalAttendanceConstraint;
-    struct MaximizeGroupAttendanceConstraint;
-    struct MaximizeClassAttendanceConstraint;
+    struct MinimizeTotalAbsenceConstraint;
+    struct MinimizeGroupAbsenceConstraint;
+    struct MinimizeClassAbsenceConstraint;
     struct PreferEdgeGroupConstraint;
     struct PreferEdgeClassConstraint;
     struct TimeBlockDateConstraint;
@@ -31,9 +31,9 @@ namespace solver_models
         TimeBlockDateConstraint,
         PreferEdgeClassConstraint,
         PreferEdgeGroupConstraint,
-        MaximizeClassAttendanceConstraint,
-        MaximizeGroupAttendanceConstraint,
-        MaximizeTotalAttendanceConstraint
+        MinimizeClassAbsenceConstraint,
+        MinimizeGroupAbsenceConstraint,
+        MinimizeTotalAbsenceConstraint
     >;
 
 } // namespace solver_models

@@ -121,49 +121,49 @@ TEST(LecturerPreference, WrongLecturerYieldsPenaltyOne)
 }
 
 // ============================================================
-//  MaximizeSingleAttendanceConstraint
+//  MinimizeClassAbsenceConstraint
 // ============================================================
 
-TEST(MaximizeSingleAttendance, ClassChosenYieldsZeroPenalty)
+TEST(MinimizeClassAbsence, ClassChosenYieldsZeroPenalty)
 {
-    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, false, 1};
+    ConstraintVariant c = MinimizeClassAbsenceConstraint{0, 1.0, false, 1};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1}), make_problem({make_class(1)})), 0.0);
 }
 
-TEST(MaximizeSingleAttendance, ClassAbsentYieldsPenaltyOne)
+TEST(MinimizeClassAbsence, ClassAbsentYieldsPenaltyOne)
 {
-    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, false, 1};
+    ConstraintVariant c = MinimizeClassAbsenceConstraint{0, 1.0, false, 1};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({}), make_problem({make_class(1)})), 1.0);
 }
 
 // ============================================================
-//  MaximizeTotalAttendanceConstraint
+//  MinimizeTotalAbsenceConstraint
 // ============================================================
 
-TEST(MaximizeTotalAttendance, AllClassesChosenYieldsZeroPenalty)
+TEST(MinimizeTotalAbsence, AllClassesChosenYieldsZeroPenalty)
 {
-    ConstraintVariant c = MaximizeTotalAttendanceConstraint{0, 1.0, false};
+    ConstraintVariant c = MinimizeTotalAbsenceConstraint{0, 1.0, false};
     auto problem = make_problem({make_class(1), make_class(2)});
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1, 2}), problem), 0.0);
 }
 
-TEST(MaximizeTotalAttendance, NoneChosenYieldsPenaltyOne)
+TEST(MinimizeTotalAbsence, NoneChosenYieldsPenaltyOne)
 {
-    ConstraintVariant c = MaximizeTotalAttendanceConstraint{0, 1.0, false};
+    ConstraintVariant c = MinimizeTotalAbsenceConstraint{0, 1.0, false};
     auto problem = make_problem({make_class(1), make_class(2)});
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({}), problem), 1.0);
 }
 
-TEST(MaximizeTotalAttendance, HalfChosenYieldsPenaltyHalf)
+TEST(MinimizeTotalAbsence, HalfChosenYieldsPenaltyHalf)
 {
-    ConstraintVariant c = MaximizeTotalAttendanceConstraint{0, 1.0, false};
+    ConstraintVariant c = MinimizeTotalAbsenceConstraint{0, 1.0, false};
     auto problem = make_problem({make_class(1), make_class(2)});
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1}), problem), 0.5);
 }
 
-TEST(MaximizeTotalAttendance, EmptyProblemYieldsZeroPenalty)
+TEST(MinimizeTotalAbsence, EmptyProblemYieldsZeroPenalty)
 {
-    ConstraintVariant c = MaximizeTotalAttendanceConstraint{0, 1.0, false};
+    ConstraintVariant c = MinimizeTotalAbsenceConstraint{0, 1.0, false};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({}), make_problem({})), 0.0);
 }
 
@@ -300,21 +300,21 @@ TEST(EvaluateAll, EmptyProblemYieldsZeroScore)
 TEST(EvaluateAll, SoftConstraintWeightIsApplied)
 {
     // Penalty = 1.0, weight = 3.5  →  total = 3.5
-    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, /*weight*/3.5, /*hard*/false, 1};
+    ConstraintVariant c = MinimizeClassAbsenceConstraint{0, /*weight*/3.5, /*hard*/false, 1};
     auto problem = make_problem({make_class(1)}, {c});
     EXPECT_DOUBLE_EQ(constraints::evaluate_all(problem, make_state({})), 3.5);
 }
 
 TEST(EvaluateAll, HardConstraintViolatedAddsLargePenalty)
 {
-    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, /*hard*/true, 1};
+    ConstraintVariant c = MinimizeClassAbsenceConstraint{0, 1.0, /*hard*/true, 1};
     auto problem = make_problem({make_class(1)}, {c});
     EXPECT_GE(constraints::evaluate_all(problem, make_state({})), 1e9);
 }
 
 TEST(EvaluateAll, HardConstraintSatisfiedContributesZero)
 {
-    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, /*hard*/true, 1};
+    ConstraintVariant c = MinimizeClassAbsenceConstraint{0, 1.0, /*hard*/true, 1};
     auto problem = make_problem({make_class(1)}, {c});
     EXPECT_DOUBLE_EQ(constraints::evaluate_all(problem, make_state({1})), 0.0);
 }
@@ -322,8 +322,8 @@ TEST(EvaluateAll, HardConstraintSatisfiedContributesZero)
 TEST(EvaluateAll, MultipleSoftConstraintsPenaltiesSummed)
 {
     // Both classes absent  →  2.0 + 3.0 = 5.0
-    ConstraintVariant c1 = MaximizeClassAttendanceConstraint{0, /*weight*/2.0, false, 1};
-    ConstraintVariant c2 = MaximizeClassAttendanceConstraint{1, /*weight*/3.0, false, 2};
+    ConstraintVariant c1 = MinimizeClassAbsenceConstraint{0, /*weight*/2.0, false, 1};
+    ConstraintVariant c2 = MinimizeClassAbsenceConstraint{1, /*weight*/3.0, false, 2};
     auto problem = make_problem({make_class(1), make_class(2)}, {c1, c2});
     EXPECT_DOUBLE_EQ(constraints::evaluate_all(problem, make_state({})), 5.0);
 }
@@ -332,8 +332,8 @@ TEST(EvaluateAll, MixOfHardAndSoftConstraints)
 {
     // Hard constraint violated → adds >= 1e9.  Soft penalty on top is irrelevant
     // for acceptance but the total must be >= 1e9.
-    ConstraintVariant hard = MaximizeClassAttendanceConstraint{0, 1.0, /*hard*/true, 1};
-    ConstraintVariant soft = MaximizeClassAttendanceConstraint{1, 5.0, /*hard*/false, 2};
+    ConstraintVariant hard = MinimizeClassAbsenceConstraint{0, 1.0, /*hard*/true, 1};
+    ConstraintVariant soft = MinimizeClassAbsenceConstraint{1, 5.0, /*hard*/false, 2};
     auto problem = make_problem({make_class(1), make_class(2)}, {hard, soft});
     // Neither class chosen: hard violated + soft penalty 5
     EXPECT_GE(constraints::evaluate_all(problem, make_state({})), 1e9);

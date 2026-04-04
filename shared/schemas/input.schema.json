@@ -62,9 +62,9 @@
             "minimize_gaps",
             "group_preference",
             "lecturer_preference",
-            "maximize_class_attendance",
-            "maximize_group_attendance",
-            "maximize_total_attendance",
+            "minimize_class_absence",
+            "minimize_group_absence",
+            "minimize_total_absence",
             "time_block_day",
             "time_block_date",
             "prefer_edge_class",
@@ -101,11 +101,11 @@
           "then": { "required": ["class_id", "class_type", "lecturer"] }
         },
         {
-          "if":   { "properties": { "constraint_type": { "const": "maximize_class_attendance" } }, "required": ["constraint_type"] },
+          "if":   { "properties": { "constraint_type": { "const": "minimize_class_absence" } }, "required": ["constraint_type"] },
           "then": { "required": ["class_id", "class_type"] }
         },
         {
-          "if":   { "properties": { "constraint_type": { "const": "maximize_group_attendance" } }, "required": ["constraint_type"] },
+          "if":   { "properties": { "constraint_type": { "const": "minimize_group_absence" } }, "required": ["constraint_type"] },
           "then": { "required": ["class_id", "class_type", "group"] }
         },
         {

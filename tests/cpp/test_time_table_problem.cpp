@@ -28,7 +28,7 @@ TEST(TimeTableProblem, StoresProvidedClasses)
 
 TEST(TimeTableProblem, StoresProvidedConstraints)
 {
-    ConstraintVariant c = MaximizeTotalAttendanceConstraint{0, 1.0, false};
+    ConstraintVariant c = MinimizeTotalAbsenceConstraint{0, 1.0, false};
     TimeTableProblem p({}, {c});
     EXPECT_EQ(p.get_constraints().size(), 1u);
 }
@@ -73,7 +73,7 @@ TEST(TimeTableProblem, GetConstraintsForClassFiltersCorrectly)
 {
     ConstraintVariant c_for_10  = GroupPreferenceConstraint{0, 1.0, false, 10, 0};
     ConstraintVariant c_for_20  = GroupPreferenceConstraint{1, 1.0, false, 20, 0};
-    ConstraintVariant c_global  = MaximizeTotalAttendanceConstraint{2, 1.0, false};
+    ConstraintVariant c_global  = MinimizeTotalAbsenceConstraint{2, 1.0, false};
 
     TimeTableProblem p({make_class(10), make_class(20)}, {c_for_10, c_for_20, c_global});
 
@@ -88,7 +88,7 @@ TEST(TimeTableProblem, GetConstraintsForClassFiltersCorrectly)
 
 TEST(TimeTableProblem, GlobalConstraintsNotReturnedByGetConstraintsForClass)
 {
-    ConstraintVariant global = MaximizeTotalAttendanceConstraint{0, 1.0, false};
+    ConstraintVariant global = MinimizeTotalAbsenceConstraint{0, 1.0, false};
     TimeTableProblem p({make_class(1)}, {global});
     EXPECT_TRUE(p.get_constraints_for_class(1).empty());
 }
@@ -104,7 +104,7 @@ TEST(TimeTableProblem, MultipleConstraintsForSameClassAllReturned)
 {
     ConstraintVariant c1 = GroupPreferenceConstraint{0, 1.0, false, 1, 0};
     ConstraintVariant c2 = LecturerPreferenceConstraint{1, 1.0, false, 1, 0};
-    ConstraintVariant c3 = MaximizeClassAttendanceConstraint{2, 1.0, false, 1};
+    ConstraintVariant c3 = MinimizeClassAbsenceConstraint{2, 1.0, false, 1};
 
     TimeTableProblem p({make_class(1)}, {c1, c2, c3});
     EXPECT_EQ(p.get_constraints_for_class(1).size(), 3u);

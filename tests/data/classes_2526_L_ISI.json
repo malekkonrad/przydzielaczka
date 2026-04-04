@@ -1,7 +1,7 @@
 {
     "constraints": [
         {
-            "constraint_type": "maximize_total_attendance",
+            "constraint_type": "minimize_total_absence",
             "sequence": 1,
             "weight": 1,
             "hard": true,

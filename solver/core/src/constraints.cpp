@@ -188,28 +188,28 @@ bool LecturerPreferenceConstraint::is_feasible(const TimeTableState& state,
     return penalty(state, problem) <= context.best_scores[id] + slack;
 }
 
-// -------------------- MaximizeClassAttendanceConstraint --------------------
+// -------------------- MinimizeClassAbsenceConstraint --------------------
 
-double MaximizeClassAttendanceConstraint::penalty(const TimeTableState& state,
+double MinimizeClassAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& /*problem*/) const
 {
     return state.is_assigned(class_id) ? 0.0 : 1.0;
 }
 
-double MaximizeClassAttendanceConstraint::evaluate(const TimeTableState& state,
+double MinimizeClassAbsenceConstraint::evaluate(const TimeTableState& state,
                                                    const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
     return weight * p;
 }
 
-bool MaximizeClassAttendanceConstraint::is_satisfied(const TimeTableState& state,
+bool MinimizeClassAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
     return state.is_assigned(class_id);
 }
 
-bool MaximizeClassAttendanceConstraint::is_feasible(const TimeTableState& state,
+bool MinimizeClassAbsenceConstraint::is_feasible(const TimeTableState& state,
                                                     const TimeTableProblem& problem,
                                                     const constraints::SequenceContext& context) const
 {
@@ -217,28 +217,28 @@ bool MaximizeClassAttendanceConstraint::is_feasible(const TimeTableState& state,
     return penalty(state, problem) <= context.best_scores[id] + slack;
 }
 
-// -------------------- MaximizeGroupAttendanceConstraint --------------------
+// -------------------- MinimizeGroupAbsenceConstraint --------------------
 
-double MaximizeGroupAttendanceConstraint::penalty(const TimeTableState& state,
+double MinimizeGroupAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& /*problem*/) const
 {
     return state.is_assigned(class_id, group) ? 0.0 : 1.0;
 }
 
-double MaximizeGroupAttendanceConstraint::evaluate(const TimeTableState& state,
+double MinimizeGroupAbsenceConstraint::evaluate(const TimeTableState& state,
                                                    const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
     return weight * p;
 }
 
-bool MaximizeGroupAttendanceConstraint::is_satisfied(const TimeTableState& state,
+bool MinimizeGroupAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
     return state.is_assigned(class_id, group);
 }
 
-bool MaximizeGroupAttendanceConstraint::is_feasible(const TimeTableState& state,
+bool MinimizeGroupAbsenceConstraint::is_feasible(const TimeTableState& state,
                                                     const TimeTableProblem& problem,
                                                     const constraints::SequenceContext& context) const
 {
@@ -246,9 +246,9 @@ bool MaximizeGroupAttendanceConstraint::is_feasible(const TimeTableState& state,
     return penalty(state, problem) <= context.best_scores[id] + slack;
 }
 
-// -------------------- MaximizeTotalAttendanceConstraint --------------------
+// -------------------- MinimizeTotalAbsenceConstraint --------------------
 
-double MaximizeTotalAttendanceConstraint::penalty(const TimeTableState& state,
+double MinimizeTotalAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& problem) const
 {
     const size_t total = problem.class_size();
@@ -288,14 +288,14 @@ double MaximizeTotalAttendanceConstraint::penalty(const TimeTableState& state,
     return counter;
 }
 
-double MaximizeTotalAttendanceConstraint::evaluate(const TimeTableState& state,
+double MinimizeTotalAbsenceConstraint::evaluate(const TimeTableState& state,
                                                    const TimeTableProblem& problem) const
 {
     const double p = penalty(state, problem);
     return weight * p;
 }
 
-bool MaximizeTotalAttendanceConstraint::is_satisfied(const TimeTableState& state,
+bool MinimizeTotalAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
     const size_t total = problem.class_size();
@@ -303,7 +303,7 @@ bool MaximizeTotalAttendanceConstraint::is_satisfied(const TimeTableState& state
     return penalty(state, problem) == 0.0;
 }
 
-bool MaximizeTotalAttendanceConstraint::is_feasible(const TimeTableState& state,
+bool MinimizeTotalAbsenceConstraint::is_feasible(const TimeTableState& state,
                                                     const TimeTableProblem& problem,
                                                     const constraints::SequenceContext& context) const
 {
