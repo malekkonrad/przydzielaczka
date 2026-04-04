@@ -74,3 +74,12 @@ private:
         return true;
     }
 };
+
+// Minimal evaluator stub — SimpleFullSolver implements all logic directly
+// and does not delegate to an evaluator object.
+struct NoopEvaluator
+{
+    explicit NoopEvaluator(const TimeTableProblem&) {}
+    bool   has_conflict(int, int, const TimeTableState&) const { return false; }
+    double score(const TimeTableState&)                 const { return 0.0; }
+};

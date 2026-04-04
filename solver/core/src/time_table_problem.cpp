@@ -61,6 +61,10 @@ TimeTableProblem::TimeTableProblem(
             return constraint_is_hard(a) && !constraint_is_hard(b);
         });
 
+    // Assign stable ids — index in the sorted constraints vector.
+    for (int i = 0; i < static_cast<int>(constraints_.size()); ++i)
+        std::visit([i](auto& c){ c.id = i; }, constraints_[i]);
+
     // Build sequence_soft_hard_split_point_: for each sequence index, store the position of
     // its first soft constraint or index of the end of the sequence.
     // This lets get_goals() jump directly to the soft section in O(1).
