@@ -28,28 +28,18 @@ public:
     explicit ConstraintEvaluator(const TimeTableProblem& problem)
         : problem_(problem)
     {
-        const auto& classes = problem_.get_classes();
-        const auto& groups = problem_.get_max_group();
-        classes_.resize(groups.size());
-        for (int i = 0; i < groups.size(); i++)
-        {
-            classes_[i].resize(groups[i] + 1);
-        }
-        for (const auto& clazz : classes)
-        {
-            classes_[clazz.id][clazz.group] = clazz;
-        }
     }
 
     // True if candidate_id would time-conflict with any class already in state.
     [[nodiscard]] bool has_conflict(const int class_id, const int group, const TimeTableState& state) const
     {
+        const auto& current_class = problem_.get_class(class_id, group);
         const auto& assigned_classes = state.get_assigned_classes();
         const auto& groups = state.get_groups();
         for (const int assigned_class_id : assigned_classes)
         {
             const int assigned_group = groups[assigned_class_id];
-            if (class_id != assigned_class_id && overlaps(class_id, group, assigned_class_id, assigned_group))
+            if (class_id != assigned_class_id && overlaps(current_class, problem_.get_class(assigned_class_id, assigned_group)))
             {
                 return true;
             }
@@ -65,12 +55,9 @@ public:
 
 private:
     const TimeTableProblem& problem_;
-    std::vector<std::vector<solver_models::Class>> classes_;
 
-    [[nodiscard]] bool overlaps(const int class_id_a, const int group_a, const int class_id_b, const int group_b) const
+    [[nodiscard]] static bool overlaps(const solver_models::Class& class_a, const solver_models::Class& class_b)
     {
-        const auto& class_a = classes_[class_id_a][group_a];
-        const auto& class_b = classes_[class_id_b][group_b];
         if (class_a.day != class_b.day)
         {
             return false;

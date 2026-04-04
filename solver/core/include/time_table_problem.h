@@ -26,8 +26,9 @@ public:
     [[nodiscard]] size_t class_size() const;
     [[nodiscard]] const std::vector<int>& get_max_group() const;
     [[nodiscard]] int get_max_group(int class_id) const;
-    [[nodiscard]] const std::vector<solver_models::Class>& get_classes() const;
-    // [[nodiscard]] const solver_models::Class& get_class(int class_id, int group) const; // TODO
+    [[nodiscard]] const std::vector<std::vector<solver_models::Class>>& get_classes() const;
+    [[nodiscard]] const std::vector<solver_models::Class>& get_groups(int class_id) const;
+    [[nodiscard]] const solver_models::Class& get_class(int class_id, int group) const;
     [[nodiscard]] const std::vector<solver_models::ConstraintVariant>& get_constraints() const;
     [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_constraints(int sequence) const;
     [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_goals(int sequence) const;
@@ -36,7 +37,7 @@ public:
 
 private:
     std::vector<int> max_group_;
-    std::vector<solver_models::Class> classes_; // TODO better mapping class_id, group
+    std::vector<std::vector<solver_models::Class>> classes_;
     std::vector<solver_models::ConstraintVariant> constraints_;
     std::vector<int> sequence_soft_hard_split_point_;
     std::vector<int> sequence_split_point_;

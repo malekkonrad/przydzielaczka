@@ -10,7 +10,7 @@
 #include <variant>
 #include <vector>
 
-using namespace solver_models;
+using namespace solver_models;  // TODO remove
 
 namespace constraints {
 

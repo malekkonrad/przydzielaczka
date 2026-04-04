@@ -26,16 +26,26 @@ static bool constraint_is_hard(const solver_models::ConstraintVariant& v)
 TimeTableProblem::TimeTableProblem(
     std::vector<solver_models::Class> classes,
     std::vector<solver_models::ConstraintVariant> constraints)
-    : classes_(std::move(classes))
-    , constraints_(std::move(constraints))
+    : constraints_(std::move(constraints))
 {
-    const int max_class_id = std::max_element(classes_.begin(), classes_.end(),
+    const int max_class_id = std::max_element(classes.begin(), classes.end(),
         [](const auto& a, const auto& b){return a.id < b.id;})->id;
     max_group_.assign(max_class_id + 1, 0);
-    for (const auto& c : classes_)
+    for (const auto& c : classes)
     {
         const auto id = static_cast<size_t>(c.id);
         max_group_[id] = std::max(c.group, max_group_[id]);
+    }
+
+    // Create classes map [class_id][group] -> Class
+    classes_.resize(max_group_.size());
+    for (int i = 0; i < max_group_.size(); i++)
+    {
+        classes_[i].resize(max_group_[i] + 1);
+    }
+    for (const auto& clazz : classes)
+    {
+        classes_[clazz.id][clazz.group] = clazz;
     }
 
     // Sort: ascending sequence, hard before soft within the same sequence.
@@ -128,12 +138,22 @@ const std::vector<int>& TimeTableProblem::get_max_group() const
 
 int TimeTableProblem::get_max_group(const int class_id) const
 {
-    return max_group_[static_cast<size_t>(class_id)];
+    return max_group_[class_id];
 }
 
-const std::vector<solver_models::Class>& TimeTableProblem::get_classes() const
+const std::vector<std::vector<solver_models::Class>>& TimeTableProblem::get_classes() const
 {
     return classes_;
+}
+
+const std::vector<solver_models::Class>& TimeTableProblem::get_groups(const int class_id) const
+{
+    return classes_[class_id];
+}
+
+const solver_models::Class& TimeTableProblem::get_class(const int class_id, const int group) const
+{
+    return classes_[class_id][group];
 }
 
 const std::vector<solver_models::ConstraintVariant>& TimeTableProblem::get_constraints() const
