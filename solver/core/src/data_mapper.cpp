@@ -72,9 +72,10 @@ static input_models::Constraint parse_constraint(const Json& j)
     c.weight = get_opt<double>(j, "weight");
     c.hard = get_opt<bool>(j, "hard");
     c.class_id = get_opt<std::string>(j, "class_id");
+    c.class_type = get_opt<std::string>(j, "class_type");
     c.min_break_duration = get_opt<int>(j, "min_break_duration");
-    c.preferred_group = get_opt<int>(j, "preferred_group");
-    c.preferred_lecturer = get_opt<std::string>(j, "preferred_lecturer");
+    c.group = get_opt<int>(j, "group");
+    c.lecturer = get_opt<std::string>(j, "lecturer");
     c.day = get_opt<int>(j, "day");
     c.date = get_opt<std::string>(j, "date");
     c.start_time = get_opt<int>(j, "start_time");
@@ -139,9 +140,10 @@ static Json constraint_to_json(const input_models::Constraint& c)
     if (c.weight) j["weight"] = c.weight.value();
     if (c.hard) j["hard"] = c.hard.value();
     if (c.class_id) j["class_id"] = c.class_id.value();
+    if (c.class_type) j["class_type"] = c.class_type.value();
     if (c.min_break_duration) j["min_break_duration"] = c.min_break_duration.value();
-    if (c.preferred_group) j["preferred_group"] = c.preferred_group.value();
-    if (c.preferred_lecturer) j["preferred_lecturer"] = c.preferred_lecturer.value();
+    if (c.group) j["group"] = c.group.value();
+    if (c.lecturer) j["lecturer"] = c.lecturer.value();
     if (c.day) j["day"] = c.day.value();
     if (c.date) j["date"] = c.date.value();
     if (c.start_time) j["start_time"] = c.start_time.value();
@@ -420,6 +422,20 @@ DataMapper::demap_class_id_and_class_type(const int id) const
     return {"", ""};
 }
 
+std::optional<int> DataMapper::demap_group(const int class_id, const int group) const
+{
+    const auto groups = group_demapper_.find(class_id);
+    if (groups != group_demapper_.end())
+    {
+        const auto it = groups->second.find(group);
+        if (it != groups->second.end())
+        {
+            return it->second;
+        }
+    }
+    return std::nullopt;
+}
+
 // -------------------- HELPERS ------------------------
 
 std::optional<int>
@@ -437,8 +453,8 @@ DataMapper::find_class_id_and_class_type(const std::string& class_id,
 
 std::optional<int> DataMapper::find_group(const int class_id, const int group) const
 {
-    const auto groups = group_demapper_.find(class_id);
-    if (groups != group_demapper_.end())
+    const auto groups = group_mapper_.find(class_id);
+    if (groups != group_mapper_.end())
     {
         const auto it = groups->second.find(group);
         if (it != groups->second.end())
@@ -556,25 +572,33 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
                 c.min_break_duration.value_or(0)
             });
         }
-        else if (c.type == "group_preference" && c.class_id && c.class_type && c.preferred_group)
+        else if (c.type == "group_preference" && c.class_id && c.class_type && c.group)
         {
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
-            if (cid)
+            const std::optional<int> group = find_group(cid.value_or(-1), c.group.value());
+            if (cid && group)
             {
                 constraints.emplace_back(solver_models::GroupPreferenceConstraint{
                     sequence, weight, hard, slack,
                     cid.value(),
-                    c.preferred_group.value()
+                    group.value()
                 });
             }
             else
             {
-                std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+                if (!cid)
+                {
+                    std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+                }
+                if (!group && cid)
+                {
+                    std::cerr << "Could not find mapped group for: " << c.group.value() << " in class: " << cid.value() << std::endl;
+                }
             }
         }
-        else if (c.type == "lecturer_preference" && c.class_id && c.class_type && c.preferred_lecturer)
+        else if (c.type == "lecturer_preference" && c.class_id && c.class_type && c.lecturer)
         {
-            const std::optional<int> lecturer_id = find_lecturer(c.preferred_lecturer.value());
+            const std::optional<int> lecturer_id = find_lecturer(c.lecturer.value());
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid && lecturer_id)
             {
@@ -592,16 +616,16 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
                 }
                 if (!lecturer_id)
                 {
-                    std::cerr << "Could not find mapped lecturer for: " << c.preferred_lecturer.value() << std::endl;
+                    std::cerr << "Could not find mapped lecturer for: " << c.lecturer.value() << std::endl;
                 }
             }
         }
-        else if (c.type == "maximize_single_attendance" && c.class_id && c.class_type)
+        else if (c.type == "maximize_class_attendance" && c.class_id && c.class_type)
         {
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid)
             {
-                constraints.emplace_back(solver_models::MaximizeSingleAttendanceConstraint{
+                constraints.emplace_back(solver_models::MaximizeClassAttendanceConstraint{
                     sequence, weight, hard, slack,
                     cid.value()
                 });
@@ -609,6 +633,30 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
             else
             {
                 std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+            }
+        }
+        else if (c.type == "maximize_group_attendance" && c.class_id && c.class_type && c.group)
+        {
+            const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
+            const std::optional<int> group = find_group(cid.value_or(-1), c.group.value());
+            if (cid && group)
+            {
+                constraints.emplace_back(solver_models::MaximizeGroupAttendanceConstraint{
+                    sequence, weight, hard, slack,
+                    cid.value(),
+                    group.value()
+                });
+            }
+            else
+            {
+                if (!cid)
+                {
+                    std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+                }
+                if (!group && cid)
+                {
+                    std::cerr << "Could not find mapped group for: " << c.group.value() << " in class: " << cid.value() << std::endl;
+                }
             }
         }
         else if (c.type == "maximize_total_attendance")
@@ -677,7 +725,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
                 }
             }
         }
-        else if (c.type == "prefer_edge_classes" && c.class_id && c.class_type && c.position)
+        else if (c.type == "prefer_edge_class" && c.class_id && c.class_type && c.position)
         {
             std::optional<solver_models::EdgePosition> pos = std::nullopt;
             if (c.position.value() == "end")
@@ -691,7 +739,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
             const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
             if (cid && pos)
             {
-                constraints.emplace_back(solver_models::PreferEdgeClassesConstraint{
+                constraints.emplace_back(solver_models::PreferEdgeClassConstraint{
                     sequence, weight, hard, slack,
                     cid.value(),
                     pos.value()
@@ -708,6 +756,48 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints() cons
                     std::cerr << "Could not find mapped position for: " << c.position.value() << std::endl;
                 }
             }
+        }
+        else if (c.type == "prefer_edge_group" && c.class_id && c.class_type && c.position && c.group)
+        {
+            std::optional<solver_models::EdgePosition> pos = std::nullopt;
+            if (c.position.value() == "end")
+            {
+                pos = solver_models::EdgePosition::End;
+            }
+            else if (c.position.value() == "start")
+            {
+                pos = solver_models::EdgePosition::Start;
+            }
+            const std::optional<int> cid = find_class_id_and_class_type(c.class_id.value(), c.class_type.value());
+            const std::optional<int> group = find_group(cid.value_or(-1), c.group.value());
+            if (cid && pos && group)
+            {
+                constraints.emplace_back(solver_models::PreferEdgeGroupConstraint{
+                    sequence, weight, hard, slack,
+                    cid.value(),
+                    group.value(),
+                    pos.value()
+                });
+            }
+            else
+            {
+                if (!cid)
+                {
+                    std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
+                }
+                if (!pos)
+                {
+                    std::cerr << "Could not find mapped position for: " << c.position.value() << std::endl;
+                }
+                if (!group && cid)
+                {
+                    std::cerr << "Could not find mapped group for: " << c.group.value() << " in class: " << cid.value() << std::endl;
+                }
+            }
+        }
+        else
+        {
+            std::cerr << "Could not find mapped constraint for: " << c.type << std::endl;
         }
     }
 
@@ -773,7 +863,7 @@ Json DataMapper::get_solution() const
                 continue;
             }
 
-            const auto demapped_group = find_group(class_id, group);
+            const auto demapped_group = demap_group(class_id, group);
 
             if (!demapped_group)
             {
@@ -835,7 +925,7 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
         const auto [cid_str, ctype_str] = demap_class_id_and_class_type(class_id);
         if (cid_str.empty())
             continue;
-        const auto orig_group = find_group(class_id, group);
+        const auto orig_group = demap_group(class_id, group);
         for (const auto& c : all_classes)
         {
             if (c.group == orig_group && c.id == cid_str && c.class_type == ctype_str)

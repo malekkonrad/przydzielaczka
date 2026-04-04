@@ -126,13 +126,13 @@ TEST(LecturerPreference, WrongLecturerYieldsPenaltyOne)
 
 TEST(MaximizeSingleAttendance, ClassChosenYieldsZeroPenalty)
 {
-    ConstraintVariant c = MaximizeSingleAttendanceConstraint{0, 1.0, false, 1};
+    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, false, 1};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1}), make_problem({make_class(1)})), 0.0);
 }
 
 TEST(MaximizeSingleAttendance, ClassAbsentYieldsPenaltyOne)
 {
-    ConstraintVariant c = MaximizeSingleAttendanceConstraint{0, 1.0, false, 1};
+    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, false, 1};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({}), make_problem({make_class(1)})), 1.0);
 }
 
@@ -248,7 +248,7 @@ TEST(TimeBlockDate, MultipleSessionsOnSameDateCountedOnce)
 
 TEST(PreferEdgeClasses, ClassNotInStateYieldsZeroPenalty)
 {
-    ConstraintVariant c = PreferEdgeClassesConstraint{0, 1.0, false, 1, EdgePosition::Start};
+    ConstraintVariant c = PreferEdgeClassConstraint{0, 1.0, false, 1, EdgePosition::Start};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({}), make_problem({make_class(1)})), 0.0);
 }
 
@@ -257,7 +257,7 @@ TEST(PreferEdgeClasses, ClassIsEarliestStartOnDayYieldsZeroPenalty)
     Class cls1 = make_class(1, 0, both_weeks(), 800,  900);
     Class cls2 = make_class(2, 0, both_weeks(), 1000, 1100);
     // class 1 has the earliest start — satisfies EdgePosition::Start
-    ConstraintVariant c = PreferEdgeClassesConstraint{0, 1.0, false, 1, EdgePosition::Start};
+    ConstraintVariant c = PreferEdgeClassConstraint{0, 1.0, false, 1, EdgePosition::Start};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1, 2}), make_problem({cls1, cls2})), 0.0);
 }
 
@@ -266,7 +266,7 @@ TEST(PreferEdgeClasses, ClassIsNotEarliestStartOnDayYieldsPenaltyOne)
     Class cls1 = make_class(1, 0, both_weeks(), 800,  900);
     Class cls2 = make_class(2, 0, both_weeks(), 1000, 1100);
     // class 2 is NOT the earliest — violates EdgePosition::Start
-    ConstraintVariant c = PreferEdgeClassesConstraint{0, 1.0, false, 2, EdgePosition::Start};
+    ConstraintVariant c = PreferEdgeClassConstraint{0, 1.0, false, 2, EdgePosition::Start};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1, 2}), make_problem({cls1, cls2})), 1.0);
 }
 
@@ -275,7 +275,7 @@ TEST(PreferEdgeClasses, ClassIsLatestEndOnDayYieldsZeroPenalty)
     Class cls1 = make_class(1, 0, both_weeks(), 800,  900);
     Class cls2 = make_class(2, 0, both_weeks(), 1000, 1100);
     // class 2 has the latest end — satisfies EdgePosition::End
-    ConstraintVariant c = PreferEdgeClassesConstraint{0, 1.0, false, 2, EdgePosition::End};
+    ConstraintVariant c = PreferEdgeClassConstraint{0, 1.0, false, 2, EdgePosition::End};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1, 2}), make_problem({cls1, cls2})), 0.0);
 }
 
@@ -284,7 +284,7 @@ TEST(PreferEdgeClasses, ClassIsNotLatestEndOnDayYieldsPenaltyOne)
     Class cls1 = make_class(1, 0, both_weeks(), 800,  900);
     Class cls2 = make_class(2, 0, both_weeks(), 1000, 1100);
     // class 1 is NOT the latest end
-    ConstraintVariant c = PreferEdgeClassesConstraint{0, 1.0, false, 1, EdgePosition::End};
+    ConstraintVariant c = PreferEdgeClassConstraint{0, 1.0, false, 1, EdgePosition::End};
     EXPECT_DOUBLE_EQ(eval_one(c, make_state({1, 2}), make_problem({cls1, cls2})), 1.0);
 }
 
@@ -300,21 +300,21 @@ TEST(EvaluateAll, EmptyProblemYieldsZeroScore)
 TEST(EvaluateAll, SoftConstraintWeightIsApplied)
 {
     // Penalty = 1.0, weight = 3.5  →  total = 3.5
-    ConstraintVariant c = MaximizeSingleAttendanceConstraint{0, /*weight*/3.5, /*hard*/false, 1};
+    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, /*weight*/3.5, /*hard*/false, 1};
     auto problem = make_problem({make_class(1)}, {c});
     EXPECT_DOUBLE_EQ(constraints::evaluate_all(problem, make_state({})), 3.5);
 }
 
 TEST(EvaluateAll, HardConstraintViolatedAddsLargePenalty)
 {
-    ConstraintVariant c = MaximizeSingleAttendanceConstraint{0, 1.0, /*hard*/true, 1};
+    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, /*hard*/true, 1};
     auto problem = make_problem({make_class(1)}, {c});
     EXPECT_GE(constraints::evaluate_all(problem, make_state({})), 1e9);
 }
 
 TEST(EvaluateAll, HardConstraintSatisfiedContributesZero)
 {
-    ConstraintVariant c = MaximizeSingleAttendanceConstraint{0, 1.0, /*hard*/true, 1};
+    ConstraintVariant c = MaximizeClassAttendanceConstraint{0, 1.0, /*hard*/true, 1};
     auto problem = make_problem({make_class(1)}, {c});
     EXPECT_DOUBLE_EQ(constraints::evaluate_all(problem, make_state({1})), 0.0);
 }
@@ -322,8 +322,8 @@ TEST(EvaluateAll, HardConstraintSatisfiedContributesZero)
 TEST(EvaluateAll, MultipleSoftConstraintsPenaltiesSummed)
 {
     // Both classes absent  →  2.0 + 3.0 = 5.0
-    ConstraintVariant c1 = MaximizeSingleAttendanceConstraint{0, /*weight*/2.0, false, 1};
-    ConstraintVariant c2 = MaximizeSingleAttendanceConstraint{1, /*weight*/3.0, false, 2};
+    ConstraintVariant c1 = MaximizeClassAttendanceConstraint{0, /*weight*/2.0, false, 1};
+    ConstraintVariant c2 = MaximizeClassAttendanceConstraint{1, /*weight*/3.0, false, 2};
     auto problem = make_problem({make_class(1), make_class(2)}, {c1, c2});
     EXPECT_DOUBLE_EQ(constraints::evaluate_all(problem, make_state({})), 5.0);
 }
@@ -332,8 +332,8 @@ TEST(EvaluateAll, MixOfHardAndSoftConstraints)
 {
     // Hard constraint violated → adds >= 1e9.  Soft penalty on top is irrelevant
     // for acceptance but the total must be >= 1e9.
-    ConstraintVariant hard = MaximizeSingleAttendanceConstraint{0, 1.0, /*hard*/true, 1};
-    ConstraintVariant soft = MaximizeSingleAttendanceConstraint{1, 5.0, /*hard*/false, 2};
+    ConstraintVariant hard = MaximizeClassAttendanceConstraint{0, 1.0, /*hard*/true, 1};
+    ConstraintVariant soft = MaximizeClassAttendanceConstraint{1, 5.0, /*hard*/false, 2};
     auto problem = make_problem({make_class(1), make_class(2)}, {hard, soft});
     // Neither class chosen: hard violated + soft penalty 5
     EXPECT_GE(constraints::evaluate_all(problem, make_state({})), 1e9);

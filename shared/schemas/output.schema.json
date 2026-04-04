@@ -59,12 +59,13 @@
             "minimize_gaps",
             "group_preference",
             "lecturer_preference",
-            "maximize_single_attendance",
+            "maximize_class_attendance",
+            "maximize_group_attendance",
             "maximize_total_attendance",
-            "time_block",
             "time_block_day",
             "time_block_date",
-            "prefer_edge_classes"
+            "prefer_edge_class",
+            "prefer_edge_group"
           ]
         },
         "sequence":       { "type": "integer", "minimum": 0 },
@@ -76,9 +77,10 @@
         "details":        { "type": "string" },
 
         "class_id":           { "type": "string" },
+        "class_type":         { "type": "string" },
         "min_break_duration": { "type": "integer", "minimum": 0, "maximum": 1440 },
-        "preferred_group":    { "type": "integer" },
-        "preferred_lecturer": { "type": "string" },
+        "group":              { "type": "integer" },
+        "lecturer":           { "type": "string" },
         "day":                { "type": "integer", "minimum": 0, "maximum": 6 },
         "date":               { "type": "string", "format": "date" },
         "start_time":         { "type": "integer", "minimum": 0, "maximum": 1440 },
@@ -100,34 +102,28 @@
             "properties": { "constraint_type": { "const": "group_preference" } },
             "required": ["constraint_type"]
           },
-          "then": { "required": ["class_id", "preferred_group"] }
+          "then": { "required": ["class_id", "group"] }
         },
         {
           "if": {
             "properties": { "constraint_type": { "const": "lecturer_preference" } },
             "required": ["constraint_type"]
           },
-          "then": { "required": ["class_id", "preferred_lecturer"] }
+          "then": { "required": ["class_id", "lecturer"] }
         },
         {
           "if": {
-            "properties": { "constraint_type": { "const": "maximize_single_attendance" } },
+            "properties": { "constraint_type": { "const": "maximize_class_attendance" } },
             "required": ["constraint_type"]
           },
           "then": { "required": ["class_id"] }
         },
         {
           "if": {
-            "properties": { "constraint_type": { "const": "time_block" } },
+            "properties": { "constraint_type": { "const": "maximize_group_attendance" } },
             "required": ["constraint_type"]
           },
-          "then": {
-            "required": ["start_time", "end_time"],
-            "anyOf": [
-              { "required": ["day"] },
-              { "required": ["date"] }
-            ]
-          }
+          "then": { "required": ["class_id", "group"] }
         },
         {
           "if": {
@@ -145,10 +141,17 @@
         },
         {
           "if": {
-            "properties": { "constraint_type": { "const": "prefer_edge_classes" } },
+            "properties": { "constraint_type": { "const": "prefer_edge_class" } },
             "required": ["constraint_type"]
           },
           "then": { "required": ["class_id", "position"] }
+        },
+        {
+          "if": {
+            "properties": { "constraint_type": { "const": "prefer_edge_group" } },
+            "required": ["constraint_type"]
+          },
+          "then": { "required": ["class_id", "group", "position"] }
         }
       ]
     }

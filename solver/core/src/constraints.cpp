@@ -66,7 +66,14 @@ static double eval(const LecturerPreferenceConstraint& c,
     return 0.0;
 }
 
-static double eval(const MaximizeSingleAttendanceConstraint& c,
+static double eval(const MaximizeClassAttendanceConstraint& c,
+                   const TimeTableState& state,
+                   const TimeTableProblem& /*problem*/)
+{
+    return state.is_assigned(c.class_id) ? 0.0 : 1.0;
+}
+
+static double eval(const MaximizeGroupAttendanceConstraint& c,
                    const TimeTableState& state,
                    const TimeTableProblem& /*problem*/)
 {
@@ -121,7 +128,31 @@ static double eval(const TimeBlockDateConstraint& c,
     return penalty;
 }
 
-static double eval(const PreferEdgeClassesConstraint& c,
+static double eval(const PreferEdgeClassConstraint& c,
+                   const TimeTableState& state,
+                   const TimeTableProblem& problem)
+{
+    // if (!state.contains(c.class_id)) return 0.0;
+    // const Class* cls = problem.find_class(c.class_id);
+    // if (!cls) return 0.0;
+    //
+    // // Find the earliest start and latest end among chosen classes on the same day.
+    // int earliest = cls->start_time;
+    // int latest   = cls->end_time;
+    // // for (int id : state.get_chosen_ids())
+    // // {
+    // //     const Class* other = problem.find_class(id);
+    // //     if (!other || other->day != cls->day) continue;
+    // //     earliest = std::min(earliest, other->start_time);
+    // //     latest   = std::max(latest,   other->end_time);
+    // // }
+    //
+    // if (c.position == EdgePosition::Start && cls->start_time == earliest) return 0.0;
+    // if (c.position == EdgePosition::End   && cls->end_time   == latest)   return 0.0;
+    return 1.0;
+}
+
+static double eval(const PreferEdgeGroupConstraint& c,
                    const TimeTableState& state,
                    const TimeTableProblem& problem)
 {

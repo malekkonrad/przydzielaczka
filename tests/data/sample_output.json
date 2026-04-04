@@ -5,7 +5,7 @@
     "duration_ms": 84,
     "algorithm": "constraint_satisfaction",
     "input_classes_total": 1,
-    "input_constraints_total": 10
+    "input_constraints_total": 11
   },
 
   "summary": {
@@ -37,19 +37,13 @@
           "sessions": [
             {
               "date": "2024-10-07",
-              "location": {
-                "room": "4.07",
-                "building": "D2"
-              },
+              "location": { "room": "4.07", "building": "D2" },
               "start_time": 480,
               "end_time": 570
             },
             {
               "date": "2024-10-14",
-              "location": {
-                "room": "4.07",
-                "building": "D2"
-              },
+              "location": { "room": "4.07", "building": "D2" },
               "start_time": 480,
               "end_time": 570
             }
@@ -70,7 +64,8 @@
         {
           "constraint_type": "group_preference",
           "class_id": "120-ISI-1S-293",
-          "preferred_group": 8,
+          "class_type": "CWL",
+          "group": 8,
           "sequence": 2,
           "weight": 3,
           "hard": false,
@@ -82,7 +77,8 @@
         {
           "constraint_type": "group_preference",
           "class_id": "120-ISI-1S-293",
-          "preferred_group": 3,
+          "class_type": "CWL",
+          "group": 3,
           "sequence": 2,
           "weight": 5,
           "hard": false,
@@ -94,7 +90,8 @@
         {
           "constraint_type": "lecturer_preference",
           "class_id": "120-ISI-1S-293",
-          "preferred_lecturer": "Dr. Kowalski",
+          "class_type": "CWL",
+          "lecturer": "Dr. Kowalski",
           "sequence": 3,
           "weight": 2,
           "hard": false,
@@ -104,8 +101,9 @@
           "details": "Class 120-ISI-1S-293 is taught by Dr. Kowalski — matches preference."
         },
         {
-          "constraint_type": "maximize_single_attendance",
+          "constraint_type": "maximize_class_attendance",
           "class_id": "120-ISI-1S-293",
+          "class_type": "CWL",
           "sequence": 4,
           "weight": 4,
           "hard": true,
@@ -113,6 +111,19 @@
           "score_achieved": 0.0,
           "score_max": 0.0,
           "details": "Class 120-ISI-1S-293 is selected."
+        },
+        {
+          "constraint_type": "maximize_group_attendance",
+          "class_id": "120-ISI-1S-293",
+          "class_type": "CWL",
+          "group": 1,
+          "sequence": 4,
+          "weight": 4,
+          "hard": false,
+          "satisfied": false,
+          "score_achieved": 0.0,
+          "score_max": 4.0,
+          "details": "Class 120-ISI-1S-293 is in group 8, not group 1."
         },
         {
           "constraint_type": "maximize_total_attendance",
@@ -151,29 +162,31 @@
           "details": "Session on 2024-10-07 runs 08:00–09:30, does not overlap blocked window 10:00–15:00."
         },
         {
-          "constraint_type": "time_block",
-          "date": "2024-10-07",
-          "start_time": 600,
-          "end_time": 900,
-          "sequence": 6,
-          "weight": 2,
-          "hard": true,
-          "satisfied": true,
-          "score_achieved": 0.0,
-          "score_max": 0.0,
-          "details": "Session on 2024-10-07 runs 08:00–09:30, does not overlap blocked window 10:00–15:00."
-        },
-        {
-          "constraint_type": "prefer_edge_classes",
+          "constraint_type": "prefer_edge_class",
           "class_id": "120-ISI-1S-293",
+          "class_type": "CWL",
           "position": "start",
           "sequence": 2,
           "weight": 2,
           "hard": false,
           "satisfied": true,
-          "score_achieved": 7.0,
-          "score_max": 7.0,
+          "score_achieved": 2.0,
+          "score_max": 2.0,
           "details": "Class 120-ISI-1S-293 starts at 08:00 — first class of the day on Monday."
+        },
+        {
+          "constraint_type": "prefer_edge_group",
+          "class_id": "120-ISI-1S-293",
+          "class_type": "CWL",
+          "group": 1,
+          "position": "start",
+          "sequence": 2,
+          "weight": 2,
+          "hard": false,
+          "satisfied": false,
+          "score_achieved": 0.0,
+          "score_max": 2.0,
+          "details": "Class 120-ISI-1S-293 is in group 8, not group 1 — edge preference not applicable."
         }
       ]
     }

@@ -71,6 +71,7 @@ private:
 
 	// Demappers: solver int id -> domain value
 	[[nodiscard]] std::tuple<std::string, std::string> demap_class_id_and_class_type(int id) const;
+	[[nodiscard]] std::optional<int> demap_group(int class_id, int group) const;
 
 	// Helpers
 	[[nodiscard]] std::optional<int> find_class_id_and_class_type(const std::string& class_id, const std::string& class_type) const;

@@ -12,7 +12,7 @@
       "constraint_type": "group_preference",
       "class_id": "120-ISI-1S-293",
       "class_type": "CWL",
-      "preferred_group": 8,
+      "group": 8,
       "sequence": 2,
       "weight": 3,
       "hard": false,
@@ -22,7 +22,7 @@
       "constraint_type": "group_preference",
       "class_id": "120-ISI-1S-293",
       "class_type": "CWL",
-      "preferred_group": 3,
+      "group": 3,
       "sequence": 2,
       "weight": 5,
       "hard": false,
@@ -32,19 +32,29 @@
       "constraint_type": "lecturer_preference",
       "class_id": "120-ISI-1S-293",
       "class_type": "CWL",
-      "preferred_lecturer": "Dr. Kowalski",
+      "lecturer": "Dr. Kowalski",
       "sequence": 3,
       "weight": 2,
       "hard": false,
       "slack": 0
     },
     {
-      "constraint_type": "maximize_single_attendance",
+      "constraint_type": "maximize_class_attendance",
       "class_id": "120-ISI-1S-293",
       "class_type": "CWL",
       "sequence": 4,
       "weight": 4,
       "hard": true,
+      "slack": 0
+    },
+    {
+      "constraint_type": "maximize_group_attendance",
+      "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
+      "group": 1,
+      "sequence": 4,
+      "weight": 4,
+      "hard": false,
       "slack": 0
     },
     {
@@ -74,8 +84,20 @@
       "slack": 0
     },
     {
-      "constraint_type": "prefer_edge_classes",
+      "constraint_type": "prefer_edge_class",
       "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
+      "position": "start",
+      "sequence": 2,
+      "weight": 2,
+      "hard": false,
+      "slack": 0
+    },
+    {
+      "constraint_type": "prefer_edge_group",
+      "class_id": "120-ISI-1S-293",
+      "class_type": "CWL",
+      "group": 1,
       "position": "start",
       "sequence": 2,
       "weight": 2,

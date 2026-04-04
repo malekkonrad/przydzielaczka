@@ -51,8 +51,8 @@ namespace input_models
         std::optional<std::string> class_type;
 
         std::optional<int> min_break_duration;
-        std::optional<int> preferred_group;
-        std::optional<std::string> preferred_lecturer;
+        std::optional<int> group;
+        std::optional<std::string> lecturer;
 
         std::optional<int> day;
         std::optional<std::string> date;
@@ -100,11 +100,13 @@ namespace solver_models
         MinimizeGaps,
         GroupPreference,
         LecturerPreference,
-        MaximizeSingleAttendance,
+        MaximizeClassAttendance,
+        MaximizeGroupAttendance,
         MaximizeTotalAttendance,
         TimeBlockDay,
         TimeBlockDate,
-        PreferEdgeClasses
+        PreferEdgeClass,
+        PreferEdgeGroup
     };
 
     enum class EdgePosition { Start, End };
@@ -125,7 +127,7 @@ namespace solver_models
         bool hard;
         int slack;
         int class_id;
-        int preferred_group;
+        int group;
     };
 
     struct LecturerPreferenceConstraint
@@ -160,7 +162,7 @@ namespace solver_models
         int date;
     };
 
-    struct PreferEdgeClassesConstraint
+    struct PreferEdgeClassConstraint
     {
         int sequence;
         double weight;
@@ -170,13 +172,34 @@ namespace solver_models
         EdgePosition position;
     };
 
-    struct MaximizeSingleAttendanceConstraint
+    struct PreferEdgeGroupConstraint
     {
         int sequence;
         double weight;
         bool hard;
         int slack;
         int class_id;
+        int group;
+        EdgePosition position;
+    };
+
+    struct MaximizeClassAttendanceConstraint
+    {
+        int sequence;
+        double weight;
+        bool hard;
+        int slack;
+        int class_id;
+    };
+
+    struct MaximizeGroupAttendanceConstraint
+    {
+        int sequence;
+        double weight;
+        bool hard;
+        int slack;
+        int class_id;
+        int group;
     };
 
     struct MaximizeTotalAttendanceConstraint
@@ -193,8 +216,10 @@ namespace solver_models
         LecturerPreferenceConstraint,
         TimeBlockDayConstraint,
         TimeBlockDateConstraint,
-        PreferEdgeClassesConstraint,
-        MaximizeSingleAttendanceConstraint,
+        PreferEdgeClassConstraint,
+        PreferEdgeGroupConstraint,
+        MaximizeClassAttendanceConstraint,
+        MaximizeGroupAttendanceConstraint,
         MaximizeTotalAttendanceConstraint
     >;
 

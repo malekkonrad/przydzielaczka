@@ -104,7 +104,7 @@ TEST(TimeTableProblem, MultipleConstraintsForSameClassAllReturned)
 {
     ConstraintVariant c1 = GroupPreferenceConstraint{0, 1.0, false, 1, 0};
     ConstraintVariant c2 = LecturerPreferenceConstraint{1, 1.0, false, 1, 0};
-    ConstraintVariant c3 = MaximizeSingleAttendanceConstraint{2, 1.0, false, 1};
+    ConstraintVariant c3 = MaximizeClassAttendanceConstraint{2, 1.0, false, 1};
 
     TimeTableProblem p({make_class(1)}, {c1, c2, c3});
     EXPECT_EQ(p.get_constraints_for_class(1).size(), 3u);

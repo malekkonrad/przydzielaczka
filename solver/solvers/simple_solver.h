@@ -48,10 +48,10 @@ std::vector<TimeTableState> SimpleSolver<Evaluator>::solve()
         {
             all_solutions.emplace_back(this->evaluator_.score(current), current);
 
-            if (all_solutions.size() >= this->config_.max_keep_solutions)
-            {
-                stop = true;
-            }
+            // if (all_solutions.size() >= this->config_.max_keep_solutions)
+            // {
+            //     stop = true;
+            // }
             // if (verbose)
             //     std::cout << "\n[solution #" << all_solutions.size()
             //               << " score=" << all_solutions.back().first << "]\n";
