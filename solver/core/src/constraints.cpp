@@ -32,12 +32,18 @@ double MinimizeGapsConstraint::penalty(const TimeTableState& state,
     for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
     {
         if (!state.is_attended(class_id))
+        {
             continue;
+        }
         const auto& cls = problem.get_group(class_id, state.get_group(class_id));
         if (cls.week.test(0))
+        {
             by_day_week[{cls.day, 0}].push_back(&cls);
+        }
         if (cls.week.test(1))
+        {
             by_day_week[{cls.day, 1}].push_back(&cls);
+        }
     }
 
     double penalty = 0.0;

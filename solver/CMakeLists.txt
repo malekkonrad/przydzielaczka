@@ -16,7 +16,8 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         solvers/solver_config.h
         solvers/simple_full_solver.h
         core/include/constraint_variant_fwd.h
-        solvers/constraint_evaluator.cpp)
+        solvers/constraint_evaluator.cpp
+        solvers/optimized_full_solver.h)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC
@@ -49,6 +50,7 @@ target_precompile_headers(solver_core PRIVATE
     <unordered_set>
     <variant>
     <vector>
+    <ranges>
 )
 
 # Provide the schema path as a compile-time constant so the validator can load it

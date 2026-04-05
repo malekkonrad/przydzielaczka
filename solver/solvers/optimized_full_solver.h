@@ -18,7 +18,10 @@
 #include <ranges>
 #include <vector>
 
-// SimpleFullSolver — a concrete, non-template backtracking solver.
+#include "constraint_evaluator.h"
+#include "solver_base.h"
+
+// OptimizedFullSolver — a template backtracking solver that accepts any Evaluatable.
 //
 // Algorithm (one pass per sequence):
 //   1. Backtrack over all classes, pruning on time overlap.
@@ -29,13 +32,21 @@
 //      all optimal-score states (most permissive bound for the next sequence).
 //   5. Repeat for the next sequence.
 //
-// This is the baseline: correctness over performance.
-// Constraint-level pruning (early backtracking) is left for derived solvers.
-class SimpleFullSolver : public SolverBase<ConstraintEvaluator>
+// Extra constructor arguments are forwarded to the Evaluator, so policies can
+// be injected: OptimizedFullSolver<PolicyConstraintEvaluator<IntTimePolicy>>(problem, cfg, policies)
+template<typename Evaluator>
+    requires Evaluatable<Evaluator>
+class OptimizedFullSolver : public SolverBase<Evaluator>
 {
+    using SolverBase<Evaluator>::problem_;
+    using SolverBase<Evaluator>::config_;
+    using SolverBase<Evaluator>::evaluator_;
+
 public:
-    explicit SimpleFullSolver(const TimeTableProblem& problem, const solver::config& config)
-        : SolverBase<ConstraintEvaluator>(problem, config) {}
+    template<typename... Args>
+    explicit OptimizedFullSolver(const TimeTableProblem& problem, const solver::config& config,
+                                 Args&&... args)
+        : SolverBase<Evaluator>(problem, config, std::forward<Args>(args)...) {}
 
     std::vector<TimeTableState> solve() override;
 
@@ -65,13 +76,13 @@ private:
     }
 };
 
-// TODO for branch and bound the weights should always be positive and that creates a problem with deselecting a lecturer.
-
 // ---------------------------------------------------------------------------
-// solve() — defined inline here because SimpleFullSolver is header-only.
+// solve() — defined inline here because OptimizedFullSolver is header-only.
 // ---------------------------------------------------------------------------
 
-inline std::vector<TimeTableState> SimpleFullSolver::solve()
+template<typename Evaluator>
+    requires Evaluatable<Evaluator>
+inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());
     const int n_seqs    = static_cast<int>(problem_.sequence_size());

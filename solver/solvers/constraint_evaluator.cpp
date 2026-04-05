@@ -4,7 +4,7 @@
 
 #include "constraint_evaluator.h"
 
-constraints::SequenceContext BaseEvaluator::score(const TimeTableState& state, const int sequence) const
+constraints::SequenceContext ConstraintEvaluator::score(const TimeTableState& state, const int sequence) const
 {
     const auto& constraints = problem_.get_all_constraints(sequence);
     const size_t n_constraints = problem_.get_constraints().size();
@@ -17,7 +17,7 @@ constraints::SequenceContext BaseEvaluator::score(const TimeTableState& state, c
     return context;
 }
 
-void BaseEvaluator::update_context(constraints::SequenceContext& context, const TimeTableState& state, const int sequence) const
+void ConstraintEvaluator::update_context(constraints::SequenceContext& context, const TimeTableState& state, const int sequence) const
 {
     const auto& constraints = problem_.get_constraints(sequence);
     for (const auto& constraint : constraints)
@@ -36,19 +36,19 @@ void BaseEvaluator::update_context(constraints::SequenceContext& context, const 
     }
 }
 
-double BaseEvaluator::evaluate(const TimeTableState& state, const int sequence) const
+double ConstraintEvaluator::evaluate(const TimeTableState& state, const int sequence) const
 {
     const auto& goals = problem_.get_goals(sequence);
     return constraints::evaluate_all(goals, problem_, state);
 }
 
-bool BaseEvaluator::are_satisfied(const TimeTableState& state, const int sequence) const
+bool ConstraintEvaluator::are_satisfied(const TimeTableState& state, const int sequence) const
 {
     const auto& hard_constraints = problem_.get_hard_constraints(sequence);
     return constraints::are_satisfied(hard_constraints, problem_, state);
 }
 
-bool BaseEvaluator::are_feasible(
+bool ConstraintEvaluator::are_feasible(
     const TimeTableState& state,
     const constraints::SequenceContext& context,
     const int sequence) const

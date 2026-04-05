@@ -34,7 +34,7 @@ void test_simple_solver(const std::string& input_file_name)
     std::cout << runner << "\n\n";
 
     // Run the full pipeline with verbose output:
-    //   - prints Solver info
+    //   - prints Solver infoNo
     //   - prints an ASCII timetable for every solution found
     //   - prints timing summary
     const nlohmann::json result = runner.run(input_file_name, /*verbose=*/true);

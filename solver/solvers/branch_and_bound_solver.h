@@ -32,11 +32,11 @@
 //
 // This is the baseline: correctness over performance.
 // Constraint-level pruning (early backtracking) is left for derived solvers.
-class BranchAndBoundSolver : public SolverBase<BaseEvaluator>
+class BranchAndBoundSolver : public SolverBase<ConstraintEvaluator>
 {
 public:
     explicit BranchAndBoundSolver(const TimeTableProblem& problem, const solver::config& config)
-        : SolverBase<BaseEvaluator>(problem, config) {}
+        : SolverBase<ConstraintEvaluator>(problem, config) {}
 
     std::vector<TimeTableState> solve() override;
 

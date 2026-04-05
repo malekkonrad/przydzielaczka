@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <optimized_full_solver.h>
 #include <ostream>
 #include <simple_full_solver.h>
 #include <sstream>
@@ -48,7 +49,8 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     config.verbose = true;
     // TODO add some selector
     // SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem, config);
-    SimpleFullSolver solver(problem, config);
+    // SimpleFullSolver solver(problem, config);
+    OptimizedFullSolver<PolicyConstraintEvaluator<IntTimePolicy>> solver(problem, config);
     // BranchAndBoundSolver solver(problem, config);
 
     const auto t_start = Clock::now();

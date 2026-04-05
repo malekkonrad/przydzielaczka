@@ -33,6 +33,11 @@ namespace constraints
         {
             return id >= 0 && id < static_cast<int>(best_scores.size());
         }
+
+        [[nodiscard]] double get_score(const int id) const
+        {
+            return best_scores[id];
+        }
     };
 
     double evaluate_all(const TimeTableProblem& problem,
@@ -71,7 +76,7 @@ struct MinimizeGapsConstraint
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
     [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
-    [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const; // TODO is_feasible should not take in context
+    [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const;
     [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const constraints::SequenceContext& context) const;
 };
 
