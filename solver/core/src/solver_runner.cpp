@@ -3,6 +3,9 @@
 //
 
 #include "solver_runner.h"
+
+#include <branch_and_bound_solver.h>
+
 #include "constraints.h"
 #include "data_mapper.h"
 #include "simple_solver.h"
@@ -45,7 +48,8 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     config.verbose = true;
     // TODO add some selector
     // SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem, config);
-    SimpleFullSolver solver(problem, config);
+    // SimpleFullSolver solver(problem, config);
+    BranchAndBoundSolver solver(problem, config);
 
     const auto t_start = Clock::now();
     const std::vector<TimeTableState> solutions = solver.solve();

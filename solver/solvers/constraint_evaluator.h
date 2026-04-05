@@ -9,7 +9,6 @@
 #include <time_table_problem.h>
 #include <time_table_state.h>
 
-#include <unordered_map>
 #include <vector>
 
 // ConstraintEvaluator<TimePolicy> is the single place that knows about both
@@ -75,11 +74,18 @@ private:
     }
 };
 
-// Minimal evaluator stub — SimpleFullSolver implements all logic directly
-// and does not delegate to an evaluator object.
-struct NoopEvaluator
+class BaseEvaluator
 {
-    explicit NoopEvaluator(const TimeTableProblem&) {}
-    bool   has_conflict(int, int, const TimeTableState&) const { return false; }
-    double score(const TimeTableState&)                 const { return 0.0; }
+public:
+    explicit BaseEvaluator(const TimeTableProblem& problem)
+        : problem_(problem) {}
+
+    [[nodiscard]] constraints::SequenceContext score(const TimeTableState& state, int sequence) const;
+    void update_context(constraints::SequenceContext& context, const TimeTableState& state, int sequence) const;
+    [[nodiscard]] double evaluate(const TimeTableState& state, int sequence) const;
+    [[nodiscard]] bool   are_satisfied(const TimeTableState& state, int sequence) const;
+    [[nodiscard]] bool   are_feasible(const TimeTableState& state, const constraints::SequenceContext& context, int sequence) const;
+
+private:
+    const TimeTableProblem& problem_;
 };

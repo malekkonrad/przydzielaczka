@@ -5,20 +5,21 @@
 #pragma once
 
 #include <constraints.h>
-#include <solver_base.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
-#include <constraint_evaluator.h>
+#include "constraint_evaluator.h"
+#include "solver_base.h"
 
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <ranges>
 #include <set>
 #include <utility>
-#include <ranges>
 #include <vector>
 
-// SimpleFullSolver — a concrete, non-template backtracking solver.
+
+// BranchAndBoundSolver — a concrete, non-template backtracking solver.
 //
 // Algorithm (one pass per sequence):
 //   1. Backtrack over all classes, pruning on time overlap.
@@ -31,10 +32,10 @@
 //
 // This is the baseline: correctness over performance.
 // Constraint-level pruning (early backtracking) is left for derived solvers.
-class SimpleFullSolver : public SolverBase<BaseEvaluator>
+class BranchAndBoundSolver : public SolverBase<BaseEvaluator>
 {
 public:
-    explicit SimpleFullSolver(const TimeTableProblem& problem, const solver::config& config)
+    explicit BranchAndBoundSolver(const TimeTableProblem& problem, const solver::config& config)
         : SolverBase<BaseEvaluator>(problem, config) {}
 
     std::vector<TimeTableState> solve() override;
@@ -71,7 +72,7 @@ private:
 // solve() — defined inline here because SimpleFullSolver is header-only.
 // ---------------------------------------------------------------------------
 
-inline std::vector<TimeTableState> SimpleFullSolver::solve()
+inline std::vector<TimeTableState> BranchAndBoundSolver::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());
     const int n_seqs    = static_cast<int>(problem_.sequence_size());
@@ -83,6 +84,8 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
 
     for (int seq = 0; seq < n_seqs; ++seq)
     {
+        bool stop = false;
+
         solutions.clear();
         if (verbose)
         {
@@ -107,6 +110,13 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
                               << "  best score: " << best
                               << "    " << std::flush;
                 }
+                // // early stopping when solutions are full
+                // const auto worst_score = solutions.rbegin()->first;
+                // if (worst_score == 0.0)
+                // {
+                //     stop = true;
+                // }
+
                 return;
             }
 
@@ -115,6 +125,11 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
 
             for (int group = 0; group <= max_group; ++group)
             {
+                if (stop)
+                {
+                    break;
+                }
+
                 current.assign(class_id, group);
 
                 const bool are_feasible = evaluator_.are_feasible(current, context, seq);

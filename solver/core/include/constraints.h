@@ -26,6 +26,9 @@ namespace constraints
     {
         std::vector<double> best_scores;
 
+        explicit SequenceContext(const size_t size)
+            : best_scores(size, std::numeric_limits<double>::infinity()) {}
+
         [[nodiscard]] bool has_score(const int id) const
         {
             return id >= 0 && id < static_cast<int>(best_scores.size());
@@ -68,7 +71,7 @@ struct MinimizeGapsConstraint
 
     [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
     [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
-    [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const;
+    [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const; // TODO is_feasible should not take in context
     [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const constraints::SequenceContext& context) const;
 };
 

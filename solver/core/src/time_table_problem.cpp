@@ -167,6 +167,24 @@ const std::vector<solver_models::ConstraintVariant>& TimeTableProblem::get_const
     return constraints_;
 }
 
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_constraints(const int sequence) const
+{
+    if (sequence >= static_cast<int>(sequence_split_point_.size()))
+    {
+        return constraints_;
+    }
+
+    const size_t start = sequence < 1 ? 0 : static_cast<size_t>(sequence_split_point_[sequence - 1]);
+    const auto end = static_cast<size_t>(sequence_split_point_[sequence]);
+
+    return std::span(constraints_).subspan(start, end - start);
+}
+
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_all_constraints(const int sequence) const
+{
+    return get_previous_constraints(sequence + 1);
+}
+
 // Returns all hard+soft constraints for sequences < sequence,
 // plus hard-only constraints for exactly sequence.
 // Equivalent to constraints_[0 .. sequence_split_point_[sequence]).

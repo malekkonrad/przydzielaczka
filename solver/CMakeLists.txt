@@ -15,7 +15,8 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         utils/tuple_hash.h
         solvers/solver_config.h
         solvers/simple_full_solver.h
-        core/include/constraint_variant_fwd.h)
+        core/include/constraint_variant_fwd.h
+        solvers/constraint_evaluator.cpp)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC
