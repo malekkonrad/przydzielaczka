@@ -48,8 +48,8 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     config.verbose = true;
     // TODO add some selector
     // SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem, config);
-    // SimpleFullSolver solver(problem, config);
-    BranchAndBoundSolver solver(problem, config);
+    SimpleFullSolver solver(problem, config);
+    // BranchAndBoundSolver solver(problem, config);
 
     const auto t_start = Clock::now();
     const std::vector<TimeTableState> solutions = solver.solve();

@@ -34,7 +34,7 @@ public:
     {
         const auto& current_class = problem_.get_group(class_id, group);
         const auto& assigned_classes = state.get_assigned_classes();
-        const auto& groups = state.get_groups();
+        const auto& groups = state.get_raw_groups();
         for (const int assigned_class_id : assigned_classes)
         {
             const int assigned_group = groups[assigned_class_id];

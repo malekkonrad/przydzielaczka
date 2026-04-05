@@ -18,7 +18,7 @@ void test_print(const std::string& input_file_name)
     auto state = TimeTableState{problem.class_size()};
     for (int i = 0; i < state.size(); i++)
     {
-        state.assign(i, 0);
+        state.attend(i, 0);
     }
 
     mapper.print_timetable(state);

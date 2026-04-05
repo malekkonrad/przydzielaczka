@@ -61,10 +61,12 @@ std::vector<TimeTableState> SimpleSolver<Evaluator>::solve()
         const int class_id = depth;
         const int max_g = this->problem_.get_max_group(class_id);
 
-        for (int group = 0; group <= max_g; group++)
+        for (int group = 1; group <= max_g; group++)
         {
             if (stop) break;
-            current.assign(class_id, group);
+
+            current.attend(class_id, group);
+
             const bool conflict = this->evaluator_.has_conflict(class_id, group, current);
 
             if (verbose)
@@ -72,28 +74,23 @@ std::vector<TimeTableState> SimpleSolver<Evaluator>::solve()
                 ++attempt;
                 if (depth < kPrintDepth)
                 {
-                    // Box-drawing tree line, printed once per node.
                     for (int d = 0; d < depth; ++d) std::cout << "|  ";
                     std::cout << (group < max_g ? "+- " : "\\- ")
                               << class_id << ":" << group
                               << (conflict ? " x" : "") << "\n";
                 }
-                else
+                else if (attempt % 10000 == 0)
                 {
-                    // Deep nodes: overwrite a single progress line every 10k attempts.
-                    if (attempt % 10000 == 0)
-                        std::cout << "  [attempts=" << attempt
-                                  << " solutions=" << all_solutions.size()
-                                  << " depth=" << depth
-                                  << " class=" << class_id << ":" << group << "]   \r"
-                                  << std::flush;
+                    std::cout << "  [attempts=" << attempt
+                              << " solutions=" << all_solutions.size()
+                              << " depth=" << depth
+                              << " class=" << class_id << ":" << group << "]   \r"
+                              << std::flush;
                 }
             }
 
             if (!conflict)
-            {
                 backtrack(depth + 1);
-            }
             current.unassign(class_id);
         }
     };

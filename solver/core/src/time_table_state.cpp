@@ -11,7 +11,7 @@
 // -------------------- CONSTRUCTORS --------------------
 
 TimeTableState::TimeTableState(const size_t size)
-    : groups_(size, -1)
+    : groups_(size, UNASSIGNED)
 {
 }
 
@@ -38,50 +38,86 @@ TimeTableState& TimeTableState::operator=(TimeTableState&& other) noexcept
 
 void TimeTableState::assign(const int class_id, const int group)
 {
-    groups_[static_cast<size_t>(class_id)] = group;
+    groups_[static_cast<size_t>(class_id)] = -1 * std::abs(group);
+}
+
+void TimeTableState::attend(const int class_id, const int group)
+{
+    groups_[static_cast<size_t>(class_id)] = std::abs(group);
 }
 
 void TimeTableState::unassign(const int class_id)
 {
-    groups_[static_cast<size_t>(class_id)] = -1;
+    groups_[static_cast<size_t>(class_id)] = UNASSIGNED;
+}
+
+void TimeTableState::set_group(const int class_id, const int group)
+{
+    groups_[static_cast<size_t>(class_id)] = group;
+}
+
+void TimeTableState::reset_group(const int class_id)
+{
+    groups_[static_cast<size_t>(class_id)] = UNASSIGNED;
 }
 
 // -------------------- ACCESSORS --------------------
 
 bool TimeTableState::is_assigned(const int class_id) const
 {
-    return groups_[static_cast<size_t>(class_id)] >= 0;
+    return groups_[static_cast<size_t>(class_id)] != UNASSIGNED;
 }
 
 bool TimeTableState::is_assigned(const int class_id, const int group) const
 {
+    return std::abs(groups_[static_cast<size_t>(class_id)]) == std::abs(group);
+}
+
+bool TimeTableState::is_attended(const int class_id) const
+{
+    return groups_[static_cast<size_t>(class_id)] > 0;
+}
+
+bool TimeTableState::is_attended(const int class_id, const int group) const
+{
+    return groups_[static_cast<size_t>(class_id)] == std::abs(group);
+}
+
+bool TimeTableState::is_unattended(const int class_id) const
+{
+    return groups_[static_cast<size_t>(class_id)] < 0;
+}
+
+bool TimeTableState::is_unattended(const int class_id, const int group) const
+{
+    return groups_[static_cast<size_t>(class_id)] == -1 * std::abs(group);
+}
+
+bool TimeTableState::is_group(const int class_id) const
+{
+    return groups_[static_cast<size_t>(class_id)] != UNASSIGNED;
+}
+
+bool TimeTableState::is_group(const int class_id, const int group) const
+{
     return groups_[static_cast<size_t>(class_id)] == group;
 }
 
-const std::vector<int>& TimeTableState::get_groups() const
+const std::vector<int>& TimeTableState::get_raw_groups() const
 {
     return groups_;
+}
+
+std::vector<int> TimeTableState::get_assigned_groups() const
+{
+    std::vector<int> groups = groups_; // explicit copy
+    std::ranges::for_each(groups, [](int& g) { g = std::abs(g); });
+    return groups;
 }
 
 int TimeTableState::get_group(const int class_id) const
 {
     return groups_[static_cast<size_t>(class_id)];
-}
-
-const std::vector<int>& TimeTableState::get_assigned_classes() const
-{
-    thread_local std::vector<int> classes;
-    classes.clear();
-
-    const int groups_size = static_cast<int>(groups_.size());
-    for (int class_id = 0; class_id < groups_size; class_id++)
-    {
-        if (is_assigned(class_id))
-        {
-            classes.emplace_back(class_id);
-        }
-    }
-    return classes;
 }
 
 size_t TimeTableState::size() const
@@ -91,8 +127,22 @@ size_t TimeTableState::size() const
 
 size_t TimeTableState::filled() const
 {
-    return static_cast<size_t>(
-        std::count_if(groups_.begin(), groups_.end(), [](int g) { return g >= 0; }));
+    return static_cast<size_t>(std::ranges::count_if(groups_, [](const int g) { return g != UNASSIGNED; }));
+}
+
+size_t TimeTableState::assigned() const
+{
+    return filled();
+}
+
+size_t TimeTableState::attended() const
+{
+    return static_cast<size_t>(std::ranges::count_if(groups_, [](const int g) { return g > 0; }));
+}
+
+size_t TimeTableState::unattended() const
+{
+    return static_cast<size_t>(std::ranges::count_if(groups_, [](const int g) { return g < 0; }));
 }
 
 bool TimeTableState::is_empty() const
@@ -104,12 +154,12 @@ bool TimeTableState::is_empty() const
 
 std::ostream& operator<<(std::ostream& out, const TimeTableState& s)
 {
-    const auto& groups = s.get_groups();
+    const auto& groups = s.get_raw_groups();
     out << "TimeTableState{ size=" << groups.size() << ", filled=[";
     bool first = true;
     for (size_t i = 0; i < groups.size(); ++i)
     {
-        if (groups[i] >= 0)
+        if (groups[i] != TimeTableState::UNASSIGNED)
         {
             if (!first) out << ", ";
             out << i << ":" << groups[i];

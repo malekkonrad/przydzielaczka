@@ -328,21 +328,23 @@ int DataMapper::map_group(const int class_id, const int group)
     const auto class_it = group_mapper_.find(class_id);
     if (class_it != group_mapper_.end())
     {
-        const auto groups = class_it->second;
+        const auto& groups = class_it->second;
         const auto it = groups.find(group);
         if (it != groups.end())
         {
             return it->second;
         }
-        const auto id = static_cast<int>(groups.size());
+        // 1-indexed: 0 is reserved for UNASSIGNED in TimeTableState
+        const auto id = static_cast<int>(groups.size()) + 1;
         group_mapper_[class_id][group] = id;
         group_demapper_[class_id][id] = group;
         return id;
     }
 
-    group_mapper_[class_id][group] = 0;
-    group_demapper_[class_id][0] = group;
-    return 0;
+    // First group for this class gets id 1
+    group_mapper_[class_id][group] = 1;
+    group_demapper_[class_id][1] = group;
+    return 1;
 }
 
 int DataMapper::map_date(const std::string& date)
@@ -866,7 +868,7 @@ Json DataMapper::get_solution() const
     {
         // Demap int IDs → string class_id + class_type, then find the full input class.
         Json chosen = Json::array();
-        const auto& groups = state.get_groups();
+        const auto& groups = state.get_raw_groups();
         for (int class_id = 0; class_id < groups.size(); class_id++)
         {
             const int group = groups[class_id];
@@ -931,7 +933,7 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
 
     // --- Collect chosen classes ---
     std::vector<const input_models::Class*> chosen;
-    const auto& groups = state.get_groups();
+    const auto& groups = state.get_raw_groups();
     for (int class_id = 0; class_id < groups.size(); class_id++)
     {
         const int group = groups[class_id];

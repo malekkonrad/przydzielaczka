@@ -113,26 +113,29 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
             const int class_id = depth;
             const int max_group = problem_.get_max_group(class_id);
 
-            for (int group = 0; group <= max_group; ++group)
+            auto try_state = [&]()
             {
-                current.assign(class_id, group);
-
-                const bool are_feasible = evaluator_.are_feasible(current, context, seq);
-                if (!are_feasible)
+                if (!evaluator_.are_feasible(current, context, seq))
                 {
                     current.unassign(class_id);
-                    continue;
+                    return;
                 }
-
-                const bool are_satisfied = evaluator_.are_satisfied(current, seq);
-                if (!are_satisfied)
+                if (!evaluator_.are_satisfied(current, seq))
                 {
                     current.unassign(class_id);
-                    continue;
+                    return;
                 }
-
                 backtrack(depth + 1);
                 current.unassign(class_id);
+            };
+
+            for (int group = 1; group <= max_group; ++group)
+            {
+                current.attend(class_id, group);
+                try_state();
+
+                current.assign(class_id, group);
+                try_state();
             }
         };
 
