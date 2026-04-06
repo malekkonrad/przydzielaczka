@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "constraints.h"
+#include <constraint_variant_fwd.h>
+
 #include "data_models.h"
 
 #include <iosfwd>

@@ -31,11 +31,11 @@
 //
 // This is the baseline: correctness over performance.
 // Constraint-level pruning (early backtracking) is left for derived solvers.
-class SimpleFullSolver : public SolverBase<ConstraintEvaluator>
+class SimpleFullSolver : public SolverBase<BaseEvaluator>
 {
 public:
     explicit SimpleFullSolver(const TimeTableProblem& problem, const solver::config& config)
-        : SolverBase<ConstraintEvaluator>(problem, config) {}
+        : SolverBase<BaseEvaluator>(problem, config) {}
 
     std::vector<TimeTableState> solve() override;
 
@@ -78,7 +78,7 @@ inline std::vector<TimeTableState> SimpleFullSolver::solve()
     const size_t n_constraints = problem_.get_constraints().size();
     const bool verbose  = config_.verbose;
 
-    constraints::SequenceContext context(n_constraints); // empty — no prior sequence
+    SequenceContext context(n_constraints); // empty — no prior sequence
     SolutionSet solutions;
 
     for (int seq = 0; seq < n_seqs; ++seq)

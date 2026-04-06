@@ -130,10 +130,10 @@ struct IntTimePolicy
 
     [[nodiscard]] bool is_feasible(const TimeTableState& state,
                                    const TimeTableProblem& problem,
-                                   const constraints::SequenceContext& context) const
+                                   const SequenceContext& context) const
     {
         if (!context.has_score(id)) return true;
-        return penalty(state, problem) <= context.best_scores[id] + slack;
+        return penalty(state, problem) <= context[id] + slack;
     }
 
     // -------------------- PartiallyEvaluatable interface --------------------
@@ -209,11 +209,11 @@ struct IntTimePolicy
 
     [[nodiscard]] bool partial_is_feasible(const TimeTableState& state,
                                             const TimeTableProblem& problem,
-                                            const constraints::SequenceContext& context,
+                                            const SequenceContext& context,
                                             const int class_id, const int group) const
     {
         if (!context.has_score(id)) return true;
-        return partial_penalty(state, problem, class_id, group) <= context.best_scores[id] + slack;
+        return partial_penalty(state, problem, class_id, group) <= context[id] + slack;
     }
 
 private:
@@ -234,11 +234,11 @@ private:
     std::map<std::pair<int,int>, std::vector<std::pair<int,int>>> class_group_to_keys_;
 };
 
-static_assert(solver_models::Evaluatable<IntTimePolicy>,
+static_assert(policies::Evaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy solver_models::Evaluatable");
 
-static_assert(PartiallyEvaluatable<IntTimePolicy>,
+static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy PartiallyEvaluatable");
 
-static_assert(Evaluator<PolicyConstraintEvaluator<IntTimePolicy>>,
+static_assert(ConstraintEvaluator<PolicyEvaluator<IntTimePolicy>>,
     "PolicyConstraintEvaluator<IntTimePolicy> must satisfy the Evaluatable concept");

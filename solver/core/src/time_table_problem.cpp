@@ -3,6 +3,7 @@
 //
 
 #include "time_table_problem.h"
+#include <constraints.h>
 
 #include <algorithm>
 #include <ostream>

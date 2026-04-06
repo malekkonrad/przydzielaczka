@@ -23,7 +23,7 @@
 // The variadic constructor forwards extra arguments to the Evaluator constructor,
 // allowing policies and other configuration to be passed through.
 template<typename Evaluator>
-    requires Evaluator<Evaluator>
+    requires ConstraintEvaluator<Evaluator>
 class SolverBase
 {
 public:

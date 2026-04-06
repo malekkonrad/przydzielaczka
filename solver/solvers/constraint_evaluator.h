@@ -24,7 +24,7 @@
 // All five evaluation methods then operate on that stored sequence.
 // Both ConstraintEvaluator and PolicyConstraintEvaluator<P> satisfy this.
 template<typename E>
-concept Evaluator = requires(
+concept ConstraintEvaluator = requires(
     E e,
     const TimeTableState& state,
     SequenceContext& ctx,
@@ -45,7 +45,7 @@ concept Evaluator = requires(
 // by the plain ConstraintEvaluator.  Solvers check this at compile time with
 // if constexpr to dispatch to the cheaper per-(class_id, group) pruning path.
 template<typename E>
-concept PartialEvaluator = Evaluator<E> && requires(
+concept PartialConsraintEvaluator = ConstraintEvaluator<E> && requires(
     E e,
     const TimeTableState& state,
     const SequenceContext& ctx,
@@ -60,10 +60,10 @@ concept PartialEvaluator = Evaluator<E> && requires(
 // ==================== BASELINE EVALUATOR ====================
 
 // Non-template evaluator — delegates entirely to the constraint objects.
-class ConstraintEvaluator
+class BaseEvaluator
 {
 public:
-    explicit ConstraintEvaluator(const TimeTableProblem& problem)
+    explicit BaseEvaluator(const TimeTableProblem& problem)
         : problem_(problem), sequence_(0) {}
 
     void set_sequence(const int sequence) { sequence_ = sequence; }
@@ -80,7 +80,7 @@ private:
     int sequence_;
 };
 
-static_assert(Evaluator<ConstraintEvaluator>,
+static_assert(ConstraintEvaluator<BaseEvaluator>,
     "ConstraintEvaluator must satisfy Evaluatable");
 
 // ==================== POLICY EVALUATOR ====================
@@ -104,10 +104,10 @@ static_assert(Evaluator<ConstraintEvaluator>,
 //   goals_in / policy_goals_in    — soft constraints/policies for this sequence
 //   *_up_to / *_before            — all (hard+soft) for score and are_feasible
 template<policies::Evaluatable P>
-class PolicyConstraintEvaluator
+class PolicyEvaluator
 {
 public:
-    explicit PolicyConstraintEvaluator(const TimeTableProblem& problem, std::vector<P> policies = {})
+    explicit PolicyEvaluator(const TimeTableProblem& problem, std::vector<P> policies = {})
         : problem_(problem), policies_(std::move(policies)), sequence_(0)
     {
         std::unordered_set<int> claimed;
@@ -212,7 +212,7 @@ private:
 
 // Fills context with penalties for every policy and constraint up to sequence.
 template<policies::Evaluatable P>
-SequenceContext PolicyConstraintEvaluator<P>::score(
+SequenceContext PolicyEvaluator<P>::score(
     const TimeTableState& state) const
 {
     SequenceContext context(policies_.size() + constraints_.size());
@@ -229,7 +229,7 @@ SequenceContext PolicyConstraintEvaluator<P>::score(
 
 // Updates context with lower penalties found in this sequence (hard + soft).
 template<policies::Evaluatable P>
-void PolicyConstraintEvaluator<P>::update_context(
+void PolicyEvaluator<P>::update_context(
     SequenceContext& context, const TimeTableState& state) const
 {
     auto update = [&](const int id, const double pen)
@@ -251,7 +251,7 @@ void PolicyConstraintEvaluator<P>::update_context(
 
 // Sums soft goals (policies + constraints) for this sequence.
 template<policies::Evaluatable P>
-double PolicyConstraintEvaluator<P>::evaluate(
+double PolicyEvaluator<P>::evaluate(
     const TimeTableState& state) const
 {
     double total = 0.0;
@@ -264,7 +264,7 @@ double PolicyConstraintEvaluator<P>::evaluate(
 
 // True if all hard policies and hard constraints in this sequence are satisfied.
 template<policies::Evaluatable P>
-bool PolicyConstraintEvaluator<P>::are_satisfied(
+bool PolicyEvaluator<P>::are_satisfied(
     const TimeTableState& state) const
 {
     for (const auto& p : policies_in(sequence_))
@@ -280,7 +280,7 @@ bool PolicyConstraintEvaluator<P>::are_satisfied(
 
 // True if all policies and constraints from previous sequences are still feasible.
 template<policies::Evaluatable P>
-bool PolicyConstraintEvaluator<P>::are_feasible(
+bool PolicyEvaluator<P>::are_feasible(
     const TimeTableState& state, const SequenceContext& context) const
 {
     for (const auto& p : policies_before(sequence_))
@@ -296,7 +296,7 @@ bool PolicyConstraintEvaluator<P>::are_feasible(
 
 // Sums soft goals for this sequence, using per-(class_id,group) overloads when available.
 template<policies::Evaluatable P>
-double PolicyConstraintEvaluator<P>::partial_evaluate(
+double PolicyEvaluator<P>::partial_evaluate(
     const TimeTableState& state, const int class_id, const int group) const
 {
     double total = 0.0;
@@ -315,7 +315,7 @@ double PolicyConstraintEvaluator<P>::partial_evaluate(
 // True if all hard policies/constraints in this sequence are satisfied,
 // using per-(class_id,group) overloads for policies when available.
 template<policies::Evaluatable P>
-bool PolicyConstraintEvaluator<P>::partial_are_satisfied(
+bool PolicyEvaluator<P>::partial_are_satisfied(
     const TimeTableState& state, const int class_id, const int group) const
 {
     for (const auto& p : policies_in(sequence_))
@@ -339,7 +339,7 @@ bool PolicyConstraintEvaluator<P>::partial_are_satisfied(
 // True if all policies/constraints from previous sequences are still feasible,
 // using per-(class_id,group) overloads for policies when available.
 template<policies::Evaluatable P>
-bool PolicyConstraintEvaluator<P>::partial_are_feasible(
+bool PolicyEvaluator<P>::partial_are_feasible(
     const TimeTableState& state, const SequenceContext& context,
     const int class_id, const int group) const
 {
@@ -367,7 +367,7 @@ bool PolicyConstraintEvaluator<P>::partial_are_feasible(
 namespace evaluator {
 
 // Sums the soft-goal score across all sequences.
-template<Evaluator E>
+template<ConstraintEvaluator E>
 double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 {
     double total = 0.0;
@@ -380,7 +380,7 @@ double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 }
 
 // Returns true if all hard constraints are satisfied across all sequences.
-template<Evaluator E>
+template<ConstraintEvaluator E>
 bool all_satisfied(E& ev, const TimeTableState& state, const int n_sequences)
 {
     for (int seq = 0; seq < n_sequences; ++seq)

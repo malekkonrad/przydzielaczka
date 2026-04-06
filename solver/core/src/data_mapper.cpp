@@ -4,6 +4,8 @@
 
 #include <data_mapper.h>
 #include <tuple_hash.h>
+#include <data_models.h>
+#include <constraints.h>
 
 #include <algorithm>
 #include <array>

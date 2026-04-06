@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include "constraints.h"
 
 #include <nlohmann/json.hpp>
 

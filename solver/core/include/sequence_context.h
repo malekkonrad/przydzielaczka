@@ -39,6 +39,11 @@ public:
         return scores_[id];
     }
 
+    double operator[](const int id) const
+    {
+        return scores_[id];
+    }
+
     [[nodiscard]] size_t size() const
     {
         return scores_.size();
