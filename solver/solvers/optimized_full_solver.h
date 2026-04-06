@@ -95,6 +95,7 @@ inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
     for (int seq = 0; seq < n_seqs; ++seq)
     {
         solutions.clear();
+        evaluator_.set_sequence(seq);
         if (verbose)
         {
             std::cout << "=== Sequence " << seq << " ===" << std::endl;
@@ -108,8 +109,8 @@ inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
             if (depth == n_classes)
             {
                 ++found_count;
-                evaluator_.update_context(context, current, seq);
-                const double score = evaluator_.evaluate(current, seq);
+                evaluator_.update_context(context, current);
+                const double score = evaluator_.evaluate(current);
                 add_solution(solutions, current, score);
                 if (verbose)
                 {
@@ -124,17 +125,33 @@ inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
             const int class_id = depth;
             const int max_group = problem_.get_max_group(class_id);
 
-            auto try_state = [&]()
+            auto try_state = [&](const int group)
             {
-                if (!evaluator_.are_feasible(current, context, seq))
+                if constexpr (PartiallyEvaluatableEvaluator<Evaluator>)
                 {
-                    current.unassign(class_id);
-                    return;
+                    if (!evaluator_.partial_are_feasible(current, context, class_id, group))
+                    {
+                        current.unassign(class_id);
+                        return;
+                    }
+                    if (!evaluator_.partial_are_satisfied(current, class_id, group))
+                    {
+                        current.unassign(class_id);
+                        return;
+                    }
                 }
-                if (!evaluator_.are_satisfied(current, seq))
+                else
                 {
-                    current.unassign(class_id);
-                    return;
+                    if (!evaluator_.are_feasible(current, context))
+                    {
+                        current.unassign(class_id);
+                        return;
+                    }
+                    if (!evaluator_.are_satisfied(current))
+                    {
+                        current.unassign(class_id);
+                        return;
+                    }
                 }
                 backtrack(depth + 1);
                 current.unassign(class_id);
@@ -143,10 +160,10 @@ inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
             for (int group = 1; group <= max_group; ++group)
             {
                 current.attend(class_id, group);
-                try_state();
+                try_state(group);
 
                 current.assign(class_id, group);
-                try_state();
+                try_state(group);
             }
         };
 
