@@ -15,51 +15,54 @@ namespace policies {
 
     // ==================== CONCEPTS ====================
 
-    // Evaluatable - alias for constraints::evaluatable
-    template<typename Policy>
-    concept Evaluatable = constraints::Evaluatable<Policy>;
-
-    // PartiallyEvaluatable — optional extension for solver_models::Evaluatable types.
-    //
-    // Policies that implement this concept can be evaluated against a single
-    // (class_id, group) assignment instead of the full state, enabling finer-grained
-    // pruning. PolicyConstraintEvaluator<P> checks this at compile time and dispatches
-    // to the partial overloads when available, falling back to full evaluation otherwise.
-    template<typename Policy>
-    concept PartiallyEvaluatable = constraints::Evaluatable<Policy> && requires(
-        const Policy& p,
-        const TimeTableState& state,
-        const TimeTableProblem& problem,
-        const SequenceContext& ctx,
-        int class_id, int group)
+    inline namespace concepts
     {
-        { p.partial_evaluate(state, problem, class_id, group)         } -> std::convertible_to<double>;
-        { p.partial_is_satisfied(state, problem, class_id, group)     } -> std::convertible_to<bool>;
-        { p.partial_is_feasible(state, problem, ctx, class_id, group) } -> std::convertible_to<bool>;
-    };
+        // Evaluatable - alias for evaluatable
+        template<typename Policy>
+        concept Evaluatable = constraints::Evaluatable<Policy>;
+
+        // PartiallyEvaluatable — optional extension for solver_models::Evaluatable types.
+        //
+        // Policies that implement this concept can be evaluated against a single
+        // (class_id, group) assignment instead of the full state, enabling finer-grained
+        // pruning. PolicyConstraintEvaluator<P> checks this at compile time and dispatches
+        // to the partial overloads when available, falling back to full evaluation otherwise.
+        template<typename Policy>
+        concept PartiallyEvaluatable = Evaluatable<Policy> && requires(
+            const Policy& p,
+            const TimeTableState& state,
+            const TimeTableProblem& problem,
+            const SequenceContext& ctx,
+            int class_id, int group)
+        {
+            { p.partial_evaluate(state, problem, class_id, group)         } -> std::convertible_to<double>;
+            { p.partial_is_satisfied(state, problem, class_id, group)     } -> std::convertible_to<bool>;
+            { p.partial_is_feasible(state, problem, ctx, class_id, group) } -> std::convertible_to<bool>;
+        };
+    } // namespace concepts
 
     // ==================== POLICY FREE FUNCTIONS ====================
 
     // Work at the constraint/policy level: take any solver_models::Evaluatable.
-    // These are the generic equivalents of constraints::evaluate_all / are_satisfied
+    // These are the generic equivalents of evaluate_all / are_satisfied
     // / are_feasible, but work with policies as well as constraints.
 
     // Evaluate a single constraint or policy.
-    template<constraints::Evaluatable E>
+    template<Evaluatable E>
     double evaluate(const E& e, const TimeTableState& state, const TimeTableProblem& problem)
     {
         return e.evaluate(state, problem);
     }
 
     // True if a single constraint or policy is satisfied.
-    template<constraints::Evaluatable E>
+    template<Evaluatable E>
     bool is_satisfied(const E& e, const TimeTableState& state, const TimeTableProblem& problem)
     {
         return e.is_satisfied(state, problem);
     }
 
     // True if a single constraint or policy is feasible given the sequence context.
-    template<constraints::Evaluatable E>
+    template<Evaluatable E>
     bool is_feasible(const E& e, const TimeTableState& state, const TimeTableProblem& problem,
                      const SequenceContext& context)
     {
@@ -68,7 +71,7 @@ namespace policies {
 
     // Sum evaluate() over a homogeneous range of constraints or policies.
     template<std::ranges::input_range R>
-        requires constraints::Evaluatable<std::ranges::range_value_t<R>>
+        requires Evaluatable<std::ranges::range_value_t<R>>
     double evaluate_all(const R& range, const TimeTableState& state, const TimeTableProblem& problem)
     {
         double total = 0.0;
@@ -79,7 +82,7 @@ namespace policies {
 
     // True if every element in the range is satisfied.
     template<std::ranges::input_range R>
-        requires constraints::Evaluatable<std::ranges::range_value_t<R>>
+        requires Evaluatable<std::ranges::range_value_t<R>>
     bool all_satisfied(const R& range, const TimeTableState& state, const TimeTableProblem& problem)
     {
         return std::ranges::all_of(range, [&](const auto& e)
@@ -90,7 +93,7 @@ namespace policies {
 
     // True if every element in the range is feasible.
     template<std::ranges::input_range R>
-        requires constraints::Evaluatable<std::ranges::range_value_t<R>>
+        requires Evaluatable<std::ranges::range_value_t<R>>
     bool all_feasible(const R& range, const TimeTableState& state, const TimeTableProblem& problem,
                       const SequenceContext& context)
     {

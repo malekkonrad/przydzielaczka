@@ -23,39 +23,43 @@
 // The active sequence is set once per backtracking pass via set_sequence().
 // All five evaluation methods then operate on that stored sequence.
 // Both ConstraintEvaluator and PolicyConstraintEvaluator<P> satisfy this.
-template<typename E>
-concept ConstraintEvaluator = requires(
-    E e,
-    const TimeTableState& state,
-    SequenceContext& ctx,
-    const SequenceContext& cctx,
-    int sequence)
-{
-    { e.set_sequence(sequence)     } -> std::same_as<void>;
-    { e.score(state)               } -> std::same_as<SequenceContext>;
-    { e.update_context(ctx, state) } -> std::same_as<void>;
-    { e.evaluate(state)            } -> std::convertible_to<double>;
-    { e.are_satisfied(state)       } -> std::convertible_to<bool>;
-    { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
-};
 
-// PartialEvaluator — evaluator-level extension of Evaluator.
-//
-// Satisfied by PolicyConstraintEvaluator<P> (always, regardless of P), but not
-// by the plain ConstraintEvaluator.  Solvers check this at compile time with
-// if constexpr to dispatch to the cheaper per-(class_id, group) pruning path.
-template<typename E>
-concept PartialConsraintEvaluator = ConstraintEvaluator<E> && requires(
-    E e,
-    const TimeTableState& state,
-    const SequenceContext& ctx,
-    int class_id,
-    int group)
+namespace concepts
 {
-    { e.partial_evaluate(state, class_id, group)          } -> std::convertible_to<double>;
-    { e.partial_are_satisfied(state, class_id, group)     } -> std::convertible_to<bool>;
-    { e.partial_are_feasible(state, ctx, class_id, group) } -> std::convertible_to<bool>;
-};
+    template<typename E>
+    concept ConstraintEvaluator = requires(
+        E e,
+        const TimeTableState& state,
+        SequenceContext& ctx,
+        const SequenceContext& cctx,
+        int sequence)
+    {
+        { e.set_sequence(sequence)     } -> std::same_as<void>;
+        { e.score(state)               } -> std::same_as<SequenceContext>;
+        { e.update_context(ctx, state) } -> std::same_as<void>;
+        { e.evaluate(state)            } -> std::convertible_to<double>;
+        { e.are_satisfied(state)       } -> std::convertible_to<bool>;
+        { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
+    };
+
+    // PartialEvaluator — evaluator-level extension of Evaluator.
+    //
+    // Satisfied by PolicyConstraintEvaluator<P> (always, regardless of P), but not
+    // by the plain ConstraintEvaluator.  Solvers check this at compile time with
+    // if constexpr to dispatch to the cheaper per-(class_id, group) pruning path.
+    template<typename E>
+    concept PartialConstraintEvaluator = ConstraintEvaluator<E> && requires(
+        E e,
+        const TimeTableState& state,
+        const SequenceContext& ctx,
+        int class_id,
+        int group)
+    {
+        { e.partial_evaluate(state, class_id, group)          } -> std::convertible_to<double>;
+        { e.partial_are_satisfied(state, class_id, group)     } -> std::convertible_to<bool>;
+        { e.partial_are_feasible(state, ctx, class_id, group) } -> std::convertible_to<bool>;
+    };
+} // namespace concepts
 
 // ==================== BASELINE EVALUATOR ====================
 
@@ -80,7 +84,7 @@ private:
     int sequence_;
 };
 
-static_assert(ConstraintEvaluator<BaseEvaluator>,
+static_assert(concepts::ConstraintEvaluator<BaseEvaluator>,
     "ConstraintEvaluator must satisfy Evaluatable");
 
 // ==================== POLICY EVALUATOR ====================
@@ -367,7 +371,7 @@ bool PolicyEvaluator<P>::partial_are_feasible(
 namespace evaluator {
 
 // Sums the soft-goal score across all sequences.
-template<ConstraintEvaluator E>
+template<concepts::ConstraintEvaluator E>
 double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 {
     double total = 0.0;
@@ -380,7 +384,7 @@ double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 }
 
 // Returns true if all hard constraints are satisfied across all sequences.
-template<ConstraintEvaluator E>
+template<concepts::ConstraintEvaluator E>
 bool all_satisfied(E& ev, const TimeTableState& state, const int n_sequences)
 {
     for (int seq = 0; seq < n_sequences; ++seq)

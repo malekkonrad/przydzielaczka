@@ -77,7 +77,7 @@ struct IntTimePolicy
             }
         }
         // Sort each bucket by start_time once — never sorted again at runtime.
-        for (auto& [key, entries] : lookup_)
+        for (auto& entries : lookup_ | std::views::values)
             std::ranges::sort(entries, {}, &Entry::start_time);
     }
 
@@ -240,5 +240,5 @@ static_assert(policies::Evaluatable<IntTimePolicy>,
 static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy PartiallyEvaluatable");
 
-static_assert(ConstraintEvaluator<PolicyEvaluator<IntTimePolicy>>,
+static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<IntTimePolicy>>,
     "PolicyConstraintEvaluator<IntTimePolicy> must satisfy the Evaluatable concept");

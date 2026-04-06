@@ -127,7 +127,7 @@ inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
 
             auto try_state = [&](const int group)
             {
-                if constexpr (PartialConsraintEvaluator<Evaluator>)
+                if constexpr (concepts::PartialConstraintEvaluator<Evaluator>)
                 {
                     if (!evaluator_.partial_are_feasible(current, context, class_id, group))
                     {

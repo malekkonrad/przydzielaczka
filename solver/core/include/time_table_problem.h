@@ -32,11 +32,11 @@ public:
     [[nodiscard]] const std::vector<solver_models::Class>& get_groups(int class_id) const;
     [[nodiscard]] const solver_models::Class& get_group(int class_id, int group) const;
     [[nodiscard]] const std::vector<solver_models::ConstraintVariant>& get_constraints() const;
-    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_constraints(int sequence) const;
-    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_all_constraints(int sequence) const;
-    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_previous_constraints(int sequence) const;
-    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_hard_constraints(int sequence) const;
-    [[nodiscard]] std::span<const solver_models::ConstraintVariant> get_goals(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> constraints_in(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> constraints_up_to(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> constraints_before(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> hard_constraints_in(int sequence) const;
+    [[nodiscard]] std::span<const solver_models::ConstraintVariant> goals_in(int sequence) const;
 
     friend std::ostream& operator<<(std::ostream& out, const TimeTableProblem& p);
 

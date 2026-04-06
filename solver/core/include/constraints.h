@@ -19,34 +19,37 @@ namespace constraints
 {
     // -------------------- CONCEPT --------------------
 
-    // Requires that a type exposes all four evaluation methods.
-    // TimeTableProblem is forward-declared here; the static_assert in constraints.cpp
-    // fires with the full definition, so the check is complete at that point.
-    template<typename T>
-    concept Evaluatable = requires(
-        const T& c,
-        const TimeTableState& s,
-        const TimeTableProblem& p,
-        const SequenceContext& ctx)
+    inline namespace concepts
     {
-        { c.penalty(s, p) }           -> std::convertible_to<double>;
-        { c.evaluate(s, p) }          -> std::convertible_to<double>;
-        { c.is_satisfied(s, p) }      -> std::convertible_to<bool>;
-        { c.is_feasible(s, p, ctx) }  -> std::convertible_to<bool>;
-    };
+        // Requires that a type exposes all four evaluation methods.
+        // TimeTableProblem is forward-declared here; the static_assert in constraints.cpp
+        // fires with the full definition, so the check is complete at that point.
+        template<typename T>
+        concept Evaluatable = requires(
+            const T& c,
+            const TimeTableState& s,
+            const TimeTableProblem& p,
+            const SequenceContext& ctx)
+        {
+            { c.penalty(s, p) }           -> std::convertible_to<double>;
+            { c.evaluate(s, p) }          -> std::convertible_to<double>;
+            { c.is_satisfied(s, p) }      -> std::convertible_to<bool>;
+            { c.is_feasible(s, p, ctx) }  -> std::convertible_to<bool>;
+        };
 
-    namespace detail {
+        namespace detail {
+            template<typename Variant>
+            struct all_evaluatable_impl : std::false_type {};
+
+            template<typename... Ts>
+            struct all_evaluatable_impl<std::variant<Ts...>>
+                : std::bool_constant<(Evaluatable<Ts> && ...)> {};
+        } // namespace detail
+
+        // True if every alternative in Variant satisfies Evaluatable.
         template<typename Variant>
-        struct all_evaluatable_impl : std::false_type {};
-
-        template<typename... Ts>
-        struct all_evaluatable_impl<std::variant<Ts...>>
-            : std::bool_constant<(Evaluatable<Ts> && ...)> {};
-    } // namespace detail
-
-    // True iff every alternative in Variant satisfies Evaluatable.
-    template<typename Variant>
-    inline constexpr bool all_evaluatable_v = detail::all_evaluatable_impl<Variant>::value;
+        inline constexpr bool all_evaluatable_v = detail::all_evaluatable_impl<Variant>::value;
+    } // namespace concepts
 
     // -------------------- FREE FUNCTIONS --------------------
 

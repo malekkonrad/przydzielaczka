@@ -168,7 +168,7 @@ const std::vector<solver_models::ConstraintVariant>& TimeTableProblem::get_const
     return constraints_;
 }
 
-std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_constraints(const int sequence) const
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::constraints_in(const int sequence) const
 {
     if (sequence >= static_cast<int>(sequence_split_point_.size()))
     {
@@ -181,15 +181,15 @@ std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_constrai
     return std::span(constraints_).subspan(start, end - start);
 }
 
-std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_all_constraints(const int sequence) const
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::constraints_up_to(const int sequence) const
 {
-    return get_previous_constraints(sequence + 1);
+    return constraints_before(sequence + 1);
 }
 
 // Returns all hard+soft constraints for sequences < sequence,
 // plus hard-only constraints for exactly sequence.
 // Equivalent to constraints_[0 .. sequence_split_point_[sequence]).
-std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_previous_constraints(const int sequence) const
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::constraints_before(const int sequence) const
 {
     if (sequence >= static_cast<int>(sequence_split_point_.size()))
     {
@@ -200,7 +200,7 @@ std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_previous
     return std::span(constraints_).first(end);
 }
 
-std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_hard_constraints(const int sequence) const
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::hard_constraints_in(const int sequence) const
 {
     if (sequence >= static_cast<int>(sequence_split_point_.size()))
     {
@@ -215,7 +215,7 @@ std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_hard_con
 
 // Returns the soft constraints whose sequence equals exactly sequence.
 // Uses sequence_split_point_ to jump directly to the soft section.
-std::span<const solver_models::ConstraintVariant> TimeTableProblem::get_goals(const int sequence) const
+std::span<const solver_models::ConstraintVariant> TimeTableProblem::goals_in(const int sequence) const
 {
     if (sequence >= static_cast<int>(sequence_split_point_.size()))
     {
