@@ -37,6 +37,7 @@ struct IntTimePolicy
     int slack{};
     int min_break{};
     int id = 0;
+    constraints::ConstraintType type = constraints::ConstraintType::MinimizeGaps;
 
     IntTimePolicy() = default;
 
@@ -235,7 +236,7 @@ private:
 };
 
 static_assert(policies::Evaluatable<IntTimePolicy>,
-    "IntTimePolicy must satisfy solver_models::Evaluatable");
+    "IntTimePolicy must satisfy policies::Evaluatable");
 
 static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy PartiallyEvaluatable");

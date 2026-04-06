@@ -112,6 +112,7 @@ namespace policies {
         int id       = -1;
         int sequence = -1;
         bool hard    = false;
+        constraints::ConstraintType type = constraints::ConstraintType::Null;
 
         [[nodiscard]] double penalty(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }
         [[nodiscard]] double evaluate(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }

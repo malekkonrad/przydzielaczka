@@ -21,7 +21,8 @@ using namespace solver_models;
 // implementing penalty(), evaluate(), or is_satisfied().
 static_assert(
     constraints::all_evaluatable_v<solver_models::ConstraintVariant>,
-    "Every type in ConstraintVariant must implement penalty(), evaluate(), is_satisfied(), and is_feasible()"
+    "Every type in ConstraintVariant must implement: penalty(), evaluate(), is_satisfied(), and is_feasible()\n"
+    "As well as public atributes: id, hard, sequence, type"
 );
 
 // -------------------- MinimizeGapsConstraint --------------------
@@ -122,9 +123,9 @@ bool MinimizeGapsConstraint::is_feasible(const TimeTableState& state,
 // -------------------- GroupPreferenceConstraint --------------------
 
 double GroupPreferenceConstraint::penalty(const TimeTableState& state,
-                                          const TimeTableProblem& /*problem*/) const
+                                          const TimeTableProblem& problem) const
 {
-    return state.is_assigned(class_id, group) ? 0.0 : 1.0;
+    return state.is_attended(class_id, group) ? 0.0 : 1.0;
 }
 
 double GroupPreferenceConstraint::evaluate(const TimeTableState& state,
@@ -137,7 +138,7 @@ double GroupPreferenceConstraint::evaluate(const TimeTableState& state,
 bool GroupPreferenceConstraint::is_satisfied(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
-    return state.is_assigned(class_id, group);
+    return state.is_attended(class_id, group);
 }
 
 bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
@@ -153,8 +154,8 @@ bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
 double LecturerPreferenceConstraint::penalty(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
-    if (!state.is_assigned(class_id)) return 0.0;
-    const int group = std::abs(state.get_group(class_id));
+    if (!state.is_attended(class_id)) return 0.0;
+    const int group = state.get_group(class_id);
     return problem.get_group(class_id, group).lecturer == lecturer ? 0.0 : 1.0;
 }
 
@@ -168,9 +169,7 @@ double LecturerPreferenceConstraint::evaluate(const TimeTableState& state,
 bool LecturerPreferenceConstraint::is_satisfied(const TimeTableState& state,
                                                 const TimeTableProblem& problem) const
 {
-    if (!state.is_assigned(class_id)) return false;
-    const int group = std::abs(state.get_group(class_id));
-    return problem.get_group(class_id, group).lecturer == lecturer;
+    return penalty(state, problem) == 0.0;
 }
 
 bool LecturerPreferenceConstraint::is_feasible(const TimeTableState& state,
@@ -186,7 +185,7 @@ bool LecturerPreferenceConstraint::is_feasible(const TimeTableState& state,
 double MinimizeClassAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& /*problem*/) const
 {
-    return state.is_assigned(class_id) ? 0.0 : 1.0;
+    return state.is_attended(class_id) ? 0.0 : 1.0;
 }
 
 double MinimizeClassAbsenceConstraint::evaluate(const TimeTableState& state,
@@ -199,7 +198,7 @@ double MinimizeClassAbsenceConstraint::evaluate(const TimeTableState& state,
 bool MinimizeClassAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
-    return state.is_assigned(class_id);
+    return state.is_attended(class_id);
 }
 
 bool MinimizeClassAbsenceConstraint::is_feasible(const TimeTableState& state,
@@ -215,7 +214,7 @@ bool MinimizeClassAbsenceConstraint::is_feasible(const TimeTableState& state,
 double MinimizeGroupAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& /*problem*/) const
 {
-    return state.is_assigned(class_id, group) ? 0.0 : 1.0;
+    return state.is_attended(class_id, group) ? 0.0 : 1.0;
 }
 
 double MinimizeGroupAbsenceConstraint::evaluate(const TimeTableState& state,
@@ -228,7 +227,7 @@ double MinimizeGroupAbsenceConstraint::evaluate(const TimeTableState& state,
 bool MinimizeGroupAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
-    return state.is_assigned(class_id, group);
+    return state.is_attended(class_id, group);
 }
 
 bool MinimizeGroupAbsenceConstraint::is_feasible(const TimeTableState& state,

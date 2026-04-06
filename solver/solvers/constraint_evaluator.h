@@ -91,12 +91,16 @@ static_assert(concepts::ConstraintEvaluator<BaseEvaluator>,
 
 namespace detail {
     // Appends a single type T to the alternatives of a std::variant.
-    template<typename V, typename T> struct variant_append;
+    template<typename V, typename T>
+    struct variant_append;
+
     template<typename... Ts, typename T>
     struct variant_append<std::variant<Ts...>, T> { using type = std::variant<Ts..., T>; };
 
     // Appends zero or more types to a variant (variadic fold).
-    template<typename V, typename... Ts> struct variant_append_all { using type = V; };
+    template<typename V, typename... Ts>
+    struct variant_append_all { using type = V; };
+
     template<typename V, typename T, typename... Ts>
     struct variant_append_all<V, T, Ts...>
         : variant_append_all<typename variant_append<V, T>::type, Ts...> {};

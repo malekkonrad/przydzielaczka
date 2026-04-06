@@ -17,6 +17,23 @@ class SequenceContext;
 
 namespace constraints
 {
+    // -------------------- ENUMS --------------------
+
+    enum class ConstraintType
+    {
+        Null,
+        MinimizeGaps,
+        GroupPreference,
+        LecturerPreference,
+        TimeBlockDay,
+        TimeBlockDate,
+        PreferEdgeClass,
+        PreferEdgeGroup,
+        MinimizeClassAbsence,
+        MinimizeGroupAbsence,
+        MinimizeTotalAbsence,
+    };
+
     // -------------------- CONCEPT --------------------
 
     inline namespace concepts
@@ -35,6 +52,10 @@ namespace constraints
             { c.evaluate(s, p) }          -> std::convertible_to<double>;
             { c.is_satisfied(s, p) }      -> std::convertible_to<bool>;
             { c.is_feasible(s, p, ctx) }  -> std::convertible_to<bool>;
+            { c.id }                      -> std::convertible_to<int>;
+            { c.sequence }                -> std::convertible_to<int>;
+            { c.hard }                    -> std::convertible_to<bool>;
+            { c.type }                    -> std::convertible_to<ConstraintType>;
         };
 
         namespace detail {
@@ -86,6 +107,7 @@ namespace solver_models {
         int slack{};
         int min_break{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::MinimizeGaps;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -102,6 +124,7 @@ namespace solver_models {
         int class_id{};
         int group{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::GroupPreference;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -118,6 +141,7 @@ namespace solver_models {
         int class_id{};
         int lecturer{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::LecturerPreference;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -135,6 +159,7 @@ namespace solver_models {
         int end_time{};
         int day{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::TimeBlockDay;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -152,6 +177,7 @@ namespace solver_models {
         int end_time{};
         int date{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::TimeBlockDate;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -168,6 +194,7 @@ namespace solver_models {
         int class_id{};
         EdgePosition position = EdgePosition::Start;
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::PreferEdgeClass;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -185,6 +212,7 @@ namespace solver_models {
         int group{};
         EdgePosition position = EdgePosition::Start;
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::PreferEdgeGroup;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -200,6 +228,7 @@ namespace solver_models {
         int slack{};
         int class_id{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::MinimizeClassAbsence;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -216,6 +245,7 @@ namespace solver_models {
         int class_id{};
         int group{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::MinimizeGroupAbsence;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
@@ -230,6 +260,7 @@ namespace solver_models {
         bool hard{};
         int slack{};
         int id = 0;
+        constraints::ConstraintType type = constraints::ConstraintType::MinimizeTotalAbsence;
 
         [[nodiscard]] double penalty(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] double evaluate(const TimeTableState& state, const TimeTableProblem& problem) const;
