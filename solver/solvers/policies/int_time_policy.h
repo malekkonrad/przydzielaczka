@@ -240,5 +240,5 @@ static_assert(solver_models::Evaluatable<IntTimePolicy>,
 static_assert(PartiallyEvaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy PartiallyEvaluatable");
 
-static_assert(Evaluatable<PolicyConstraintEvaluator<IntTimePolicy>>,
+static_assert(Evaluator<PolicyConstraintEvaluator<IntTimePolicy>>,
     "PolicyConstraintEvaluator<IntTimePolicy> must satisfy the Evaluatable concept");

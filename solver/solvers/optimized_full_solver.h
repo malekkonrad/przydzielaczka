@@ -35,7 +35,7 @@
 // Extra constructor arguments are forwarded to the Evaluator, so policies can
 // be injected: OptimizedFullSolver<PolicyConstraintEvaluator<IntTimePolicy>>(problem, cfg, policies)
 template<typename Evaluator>
-    requires Evaluatable<Evaluator>
+    requires Evaluator<Evaluator>
 class OptimizedFullSolver : public SolverBase<Evaluator>
 {
     using SolverBase<Evaluator>::problem_;
@@ -81,7 +81,7 @@ private:
 // ---------------------------------------------------------------------------
 
 template<typename Evaluator>
-    requires Evaluatable<Evaluator>
+    requires Evaluator<Evaluator>
 inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());
@@ -127,7 +127,7 @@ inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
 
             auto try_state = [&](const int group)
             {
-                if constexpr (PartiallyEvaluatableEvaluator<Evaluator>)
+                if constexpr (PartialEvaluator<Evaluator>)
                 {
                     if (!evaluator_.partial_are_feasible(current, context, class_id, group))
                     {

@@ -17,7 +17,10 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         solvers/simple_full_solver.h
         core/include/constraint_variant_fwd.h
         solvers/constraint_evaluator.cpp
-        solvers/optimized_full_solver.h)
+        solvers/optimized_full_solver.h
+        core/src/sequence_context.cpp
+        core/include/sequence_context.h
+        solvers/policies/policies.h)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC

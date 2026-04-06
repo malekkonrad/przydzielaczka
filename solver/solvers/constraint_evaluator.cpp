@@ -3,33 +3,34 @@
 //
 
 #include "constraint_evaluator.h"
+#include "sequence_context.h"
 
-constraints::SequenceContext ConstraintEvaluator::score(const TimeTableState& state) const
+SequenceContext ConstraintEvaluator::score(const TimeTableState& state) const
 {
     const auto& constraints = problem_.get_all_constraints(sequence_);
     const size_t n_constraints = problem_.get_constraints().size();
 
-    constraints::SequenceContext context(n_constraints);
+    SequenceContext context(n_constraints);
     for (const auto& constraint : constraints)
     {
-        std::visit([&](const auto& c){ context.best_scores[c.id] = c.penalty(state, problem_); }, constraint);
+        std::visit([&](const auto& c){ context[c.id] = c.penalty(state, problem_); }, constraint);
     }
     return context;
 }
 
-void ConstraintEvaluator::update_context(constraints::SequenceContext& context, const TimeTableState& state) const
+void ConstraintEvaluator::update_context(SequenceContext& context, const TimeTableState& state) const
 {
     const auto& constraints = problem_.get_constraints(sequence_);
     for (const auto& constraint : constraints)
     {
         std::visit([&](const auto& c)
         {
-            if (context.best_scores[c.id] != 0.0)
+            if (context[c.id] != 0.0)
             {
                 const auto penalty = c.penalty(state, problem_);
-                if (penalty < context.best_scores[c.id])
+                if (penalty < context[c.id])
                 {
-                    context.best_scores[c.id] = penalty;
+                    context[c.id] = penalty;
                 }
             }
         }, constraint);
@@ -50,7 +51,7 @@ bool ConstraintEvaluator::are_satisfied(const TimeTableState& state) const
 
 bool ConstraintEvaluator::are_feasible(
     const TimeTableState& state,
-    const constraints::SequenceContext& context) const
+    const SequenceContext& context) const
 {
     const auto& previous_constraints = problem_.get_previous_constraints(sequence_);
     return constraints::are_feasible(previous_constraints, problem_, state, context);

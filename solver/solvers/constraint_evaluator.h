@@ -10,50 +10,13 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
-#include <constraints.h>
 #include <constraint_variant_fwd.h>
-#include <data_models.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
+#include <policies/policies.h>
+#include <sequence_context.h>
 
 // ==================== CONCEPTS ====================
-
-// TimePolicy — a stateless struct that encodes times and checks overlaps.
-//
-// Required interface:
-//   TimeType             — the encoded time representation
-//   encode(start, end)   — converts raw ints to TimeType
-//   overlaps_time(a, b)  — true if two encoded intervals overlap
-//   time_in_block(t, s, e) — true if interval t overlaps the block [s, e)
-//
-// IntTimePolicy is the reference implementation.
-template<typename P>
-concept TimePolicy = requires(typename P::TimeType t, int start, int end, int bs, int be)
-{
-    typename P::TimeType;
-    { P::encode(start, end)          } -> std::same_as<typename P::TimeType>;
-    { P::overlaps_time(t, t)         } -> std::convertible_to<bool>;
-    { P::time_in_block(t, bs, be)    } -> std::convertible_to<bool>;
-};
-
-// PartiallyEvaluatable — optional extension for solver_models::Evaluatable types.
-//
-// Policies that implement this concept can be evaluated against a single
-// (class_id, group) assignment instead of the full state, enabling finer-grained
-// pruning. PolicyConstraintEvaluator<P> checks this at compile time and dispatches
-// to the partial overloads when available, falling back to full evaluation otherwise.
-template<typename P>
-concept PartiallyEvaluatable = solver_models::Evaluatable<P> && requires(
-    const P& p,
-    const TimeTableState& state,
-    const TimeTableProblem& problem,
-    const constraints::SequenceContext& ctx,
-    int class_id, int group)
-{
-    { p.partial_evaluate(state, problem, class_id, group)         } -> std::convertible_to<double>;
-    { p.partial_is_satisfied(state, problem, class_id, group)     } -> std::convertible_to<bool>;
-    { p.partial_is_feasible(state, problem, ctx, class_id, group) } -> std::convertible_to<bool>;
-};
 
 // Evaluatable — anything that can score and prune a TimeTableState.
 //
@@ -61,31 +24,33 @@ concept PartiallyEvaluatable = solver_models::Evaluatable<P> && requires(
 // All five evaluation methods then operate on that stored sequence.
 // Both ConstraintEvaluator and PolicyConstraintEvaluator<P> satisfy this.
 template<typename E>
-concept Evaluatable = requires(
+concept Evaluator = requires(
     E e,
     const TimeTableState& state,
-    constraints::SequenceContext& ctx,
-    const constraints::SequenceContext& cctx)
+    SequenceContext& ctx,
+    const SequenceContext& cctx,
+    int sequence)
 {
-    { e.set_sequence(0)            } -> std::same_as<void>;
-    { e.score(state)               } -> std::same_as<constraints::SequenceContext>;
+    { e.set_sequence(sequence)     } -> std::same_as<void>;
+    { e.score(state)               } -> std::same_as<SequenceContext>;
     { e.update_context(ctx, state) } -> std::same_as<void>;
     { e.evaluate(state)            } -> std::convertible_to<double>;
     { e.are_satisfied(state)       } -> std::convertible_to<bool>;
     { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
 };
 
-// PartiallyEvaluatableEvaluator — evaluator-level extension of Evaluatable.
+// PartialEvaluator — evaluator-level extension of Evaluator.
 //
 // Satisfied by PolicyConstraintEvaluator<P> (always, regardless of P), but not
 // by the plain ConstraintEvaluator.  Solvers check this at compile time with
 // if constexpr to dispatch to the cheaper per-(class_id, group) pruning path.
 template<typename E>
-concept PartiallyEvaluatableEvaluator = Evaluatable<E> && requires(
+concept PartialEvaluator = Evaluator<E> && requires(
     E e,
     const TimeTableState& state,
-    const constraints::SequenceContext& ctx,
-    int class_id, int group)
+    const SequenceContext& ctx,
+    int class_id,
+    int group)
 {
     { e.partial_evaluate(state, class_id, group)          } -> std::convertible_to<double>;
     { e.partial_are_satisfied(state, class_id, group)     } -> std::convertible_to<bool>;
@@ -104,27 +69,27 @@ public:
     void set_sequence(const int sequence) { sequence_ = sequence; }
     int  get_sequence() const             { return sequence_; }
 
-    [[nodiscard]] constraints::SequenceContext score(const TimeTableState& state) const;
-    void update_context(constraints::SequenceContext& context, const TimeTableState& state) const;
+    [[nodiscard]] SequenceContext score(const TimeTableState& state) const;
+    void update_context(SequenceContext& context, const TimeTableState& state) const;
     [[nodiscard]] double evaluate(const TimeTableState& state) const;
     [[nodiscard]] bool   are_satisfied(const TimeTableState& state) const;
-    [[nodiscard]] bool   are_feasible(const TimeTableState& state, const constraints::SequenceContext& context) const;
+    [[nodiscard]] bool   are_feasible(const TimeTableState& state, const SequenceContext& context) const;
 
 private:
     const TimeTableProblem& problem_;
     int sequence_;
 };
 
-static_assert(Evaluatable<ConstraintEvaluator>,
+static_assert(Evaluator<ConstraintEvaluator>,
     "ConstraintEvaluator must satisfy Evaluatable");
 
 // ==================== POLICY EVALUATOR ====================
 
 // Template evaluator that combines policies with the remaining problem constraints.
 //
-// P must satisfy solver_models::Evaluatable (penalty/evaluate/is_satisfied/is_feasible).
+// P must satisfy policies::Evaluatable (penalty/evaluate/is_satisfied/is_feasible).
 // If P additionally satisfies PartiallyEvaluatable, the partial_* methods dispatch
-// to P's optimised per-(class_id, group) overloads; otherwise they fall back to
+// to P's optimized per-(class_id, group) overloads; otherwise they fall back to
 // full-state evaluation.
 //
 // The active sequence is set once per backtracking pass via set_sequence().
@@ -138,7 +103,7 @@ static_assert(Evaluatable<ConstraintEvaluator>,
 //   constraints_in / policies_in  — hard constraints/policies for this sequence
 //   goals_in / policy_goals_in    — soft constraints/policies for this sequence
 //   *_up_to / *_before            — all (hard+soft) for score and are_feasible
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 class PolicyConstraintEvaluator
 {
 public:
@@ -160,11 +125,11 @@ public:
     void set_sequence(const int sequence) { sequence_ = sequence; }
     int  get_sequence() const             { return sequence_; }
 
-    [[nodiscard]] constraints::SequenceContext score(const TimeTableState& state) const;
-    void update_context(constraints::SequenceContext& context, const TimeTableState& state) const;
+    [[nodiscard]] SequenceContext score(const TimeTableState& state) const;
+    void update_context(SequenceContext& context, const TimeTableState& state) const;
     [[nodiscard]] double evaluate(const TimeTableState& state) const;
     [[nodiscard]] bool   are_satisfied(const TimeTableState& state) const;
-    [[nodiscard]] bool   are_feasible(const TimeTableState& state, const constraints::SequenceContext& context) const;
+    [[nodiscard]] bool   are_feasible(const TimeTableState& state, const SequenceContext& context) const;
 
     // Partial evaluation — operates on the single (class_id, group) assignment that
     // was just placed in the state.  For policies that satisfy PartiallyEvaluatable
@@ -172,7 +137,7 @@ public:
     // method is used as a fallback.
     [[nodiscard]] double partial_evaluate(const TimeTableState& state, int class_id, int group) const;
     [[nodiscard]] bool   partial_are_satisfied(const TimeTableState& state, int class_id, int group) const;
-    [[nodiscard]] bool   partial_are_feasible(const TimeTableState& state, const constraints::SequenceContext& context, int class_id, int group) const;
+    [[nodiscard]] bool   partial_are_feasible(const TimeTableState& state, const SequenceContext& context, int class_id, int group) const;
 
 private:
     const TimeTableProblem& problem_;
@@ -246,31 +211,31 @@ private:
 // -------------------- Inline implementations --------------------
 
 // Fills context with penalties for every policy and constraint up to sequence.
-template<solver_models::Evaluatable P>
-constraints::SequenceContext PolicyConstraintEvaluator<P>::score(
+template<policies::Evaluatable P>
+SequenceContext PolicyConstraintEvaluator<P>::score(
     const TimeTableState& state) const
 {
-    constraints::SequenceContext context(policies_.size() + constraints_.size());
+    SequenceContext context(policies_.size() + constraints_.size());
 
     for (const auto& p : policies_up_to(sequence_))
-        context.best_scores[p.id] = p.penalty(state, problem_);
+        context[p.id] = p.penalty(state, problem_);
 
     for (const auto& c : constraints_up_to(sequence_))
         std::visit([&](const auto& cv)
-            { context.best_scores[cv.id] = cv.penalty(state, problem_); }, c);
+            { context[cv.id] = cv.penalty(state, problem_); }, c);
 
     return context;
 }
 
 // Updates context with lower penalties found in this sequence (hard + soft).
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 void PolicyConstraintEvaluator<P>::update_context(
-    constraints::SequenceContext& context, const TimeTableState& state) const
+    SequenceContext& context, const TimeTableState& state) const
 {
     auto update = [&](const int id, const double pen)
     {
-        if (context.best_scores[id] != 0.0 && pen < context.best_scores[id])
-            context.best_scores[id] = pen;
+        if (context[id] != 0.0 && pen < context[id])
+            context[id] = pen;
     };
 
     for (const auto& p : policies_in(sequence_))
@@ -285,7 +250,7 @@ void PolicyConstraintEvaluator<P>::update_context(
 }
 
 // Sums soft goals (policies + constraints) for this sequence.
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 double PolicyConstraintEvaluator<P>::evaluate(
     const TimeTableState& state) const
 {
@@ -298,7 +263,7 @@ double PolicyConstraintEvaluator<P>::evaluate(
 }
 
 // True if all hard policies and hard constraints in this sequence are satisfied.
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 bool PolicyConstraintEvaluator<P>::are_satisfied(
     const TimeTableState& state) const
 {
@@ -314,9 +279,9 @@ bool PolicyConstraintEvaluator<P>::are_satisfied(
 }
 
 // True if all policies and constraints from previous sequences are still feasible.
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 bool PolicyConstraintEvaluator<P>::are_feasible(
-    const TimeTableState& state, const constraints::SequenceContext& context) const
+    const TimeTableState& state, const SequenceContext& context) const
 {
     for (const auto& p : policies_before(sequence_))
         if (!p.is_feasible(state, problem_, context)) return false;
@@ -330,14 +295,14 @@ bool PolicyConstraintEvaluator<P>::are_feasible(
 }
 
 // Sums soft goals for this sequence, using per-(class_id,group) overloads when available.
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 double PolicyConstraintEvaluator<P>::partial_evaluate(
     const TimeTableState& state, const int class_id, const int group) const
 {
     double total = 0.0;
     for (const auto& p : policy_goals_in(sequence_))
     {
-        if constexpr (PartiallyEvaluatable<P>)
+        if constexpr (policies::PartiallyEvaluatable<P>)
             total += p.partial_evaluate(state, problem_, class_id, group);
         else
             total += p.evaluate(state, problem_);
@@ -349,14 +314,14 @@ double PolicyConstraintEvaluator<P>::partial_evaluate(
 
 // True if all hard policies/constraints in this sequence are satisfied,
 // using per-(class_id,group) overloads for policies when available.
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 bool PolicyConstraintEvaluator<P>::partial_are_satisfied(
     const TimeTableState& state, const int class_id, const int group) const
 {
     for (const auto& p : policies_in(sequence_))
     {
         bool ok;
-        if constexpr (PartiallyEvaluatable<P>)
+        if constexpr (policies::PartiallyEvaluatable<P>)
             ok = p.partial_is_satisfied(state, problem_, class_id, group);
         else
             ok = p.is_satisfied(state, problem_);
@@ -373,15 +338,15 @@ bool PolicyConstraintEvaluator<P>::partial_are_satisfied(
 
 // True if all policies/constraints from previous sequences are still feasible,
 // using per-(class_id,group) overloads for policies when available.
-template<solver_models::Evaluatable P>
+template<policies::Evaluatable P>
 bool PolicyConstraintEvaluator<P>::partial_are_feasible(
-    const TimeTableState& state, const constraints::SequenceContext& context,
+    const TimeTableState& state, const SequenceContext& context,
     const int class_id, const int group) const
 {
     for (const auto& p : policies_before(sequence_))
     {
         bool ok;
-        if constexpr (PartiallyEvaluatable<P>)
+        if constexpr (policies::PartiallyEvaluatable<P>)
             ok = p.partial_is_feasible(state, problem_, context, class_id, group);
         else
             ok = p.is_feasible(state, problem_, context);
@@ -402,7 +367,7 @@ bool PolicyConstraintEvaluator<P>::partial_are_feasible(
 namespace evaluator {
 
 // Sums the soft-goal score across all sequences.
-template<Evaluatable E>
+template<Evaluator E>
 double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 {
     double total = 0.0;
@@ -415,7 +380,7 @@ double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 }
 
 // Returns true if all hard constraints are satisfied across all sequences.
-template<Evaluatable E>
+template<Evaluator E>
 bool all_satisfied(E& ev, const TimeTableState& state, const int n_sequences)
 {
     for (int seq = 0; seq < n_sequences; ++seq)
@@ -428,68 +393,3 @@ bool all_satisfied(E& ev, const TimeTableState& state, const int n_sequences)
 }
 
 } // namespace evaluator
-
-// ==================== POLICY FREE FUNCTIONS ====================
-// Work at the constraint/policy level: take any solver_models::Evaluatable.
-// These are the generic equivalents of constraints::evaluate_all / are_satisfied
-// / are_feasible, but work with policies as well as constraints.
-
-namespace policies {
-
-// Evaluate a single constraint or policy.
-template<solver_models::Evaluatable E>
-double evaluate(const E& e, const TimeTableState& state, const TimeTableProblem& problem)
-{
-    return e.evaluate(state, problem);
-}
-
-// True if a single constraint or policy is satisfied.
-template<solver_models::Evaluatable E>
-bool is_satisfied(const E& e, const TimeTableState& state, const TimeTableProblem& problem)
-{
-    return e.is_satisfied(state, problem);
-}
-
-// True if a single constraint or policy is feasible given the sequence context.
-template<solver_models::Evaluatable E>
-bool is_feasible(const E& e, const TimeTableState& state, const TimeTableProblem& problem,
-                 const constraints::SequenceContext& context)
-{
-    return e.is_feasible(state, problem, context);
-}
-
-// Sum evaluate() over a homogeneous range of constraints or policies.
-template<std::ranges::input_range R>
-    requires solver_models::Evaluatable<std::ranges::range_value_t<R>>
-double evaluate_all(const R& range, const TimeTableState& state, const TimeTableProblem& problem)
-{
-    double total = 0.0;
-    for (const auto& e : range)
-        total += e.evaluate(state, problem);
-    return total;
-}
-
-// True if every element in the range is satisfied.
-template<std::ranges::input_range R>
-    requires solver_models::Evaluatable<std::ranges::range_value_t<R>>
-bool all_satisfied(const R& range, const TimeTableState& state, const TimeTableProblem& problem)
-{
-    return std::ranges::all_of(range, [&](const auto& e)
-    {
-        return e.is_satisfied(state, problem);
-    });
-}
-
-// True if every element in the range is feasible.
-template<std::ranges::input_range R>
-    requires solver_models::Evaluatable<std::ranges::range_value_t<R>>
-bool all_feasible(const R& range, const TimeTableState& state, const TimeTableProblem& problem,
-                  const constraints::SequenceContext& context)
-{
-    return std::ranges::all_of(range, [&](const auto& e)
-    {
-        return e.is_feasible(state, problem, context);
-    });
-}
-
-} // namespace policies

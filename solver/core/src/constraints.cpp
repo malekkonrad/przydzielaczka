@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <map>
+#include <sequence_context.h>
 #include <variant>
 #include <vector>
 
@@ -19,7 +20,7 @@ using namespace solver_models;
 // This fires with a clear error if a new constraint type is added without
 // implementing penalty(), evaluate(), or is_satisfied().
 static_assert(
-    solver_models::all_evaluatable_v<solver_models::ConstraintVariant>,
+    constraints::all_evaluatable_v<solver_models::ConstraintVariant>,
     "Every type in ConstraintVariant must implement penalty(), evaluate(), is_satisfied(), and is_feasible()"
 );
 
@@ -112,10 +113,10 @@ bool MinimizeGapsConstraint::is_satisfied(const TimeTableState& state,
 
 bool MinimizeGapsConstraint::is_feasible(const TimeTableState& state,
                                          const TimeTableProblem& problem,
-                                         const constraints::SequenceContext& context) const
+                                         const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- GroupPreferenceConstraint --------------------
@@ -141,10 +142,10 @@ bool GroupPreferenceConstraint::is_satisfied(const TimeTableState& state,
 
 bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
                                             const TimeTableProblem& problem,
-                                            const constraints::SequenceContext& context) const
+                                            const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- LecturerPreferenceConstraint --------------------
@@ -174,10 +175,10 @@ bool LecturerPreferenceConstraint::is_satisfied(const TimeTableState& state,
 
 bool LecturerPreferenceConstraint::is_feasible(const TimeTableState& state,
                                                const TimeTableProblem& problem,
-                                               const constraints::SequenceContext& context) const
+                                               const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- MinimizeClassAbsenceConstraint --------------------
@@ -203,10 +204,10 @@ bool MinimizeClassAbsenceConstraint::is_satisfied(const TimeTableState& state,
 
 bool MinimizeClassAbsenceConstraint::is_feasible(const TimeTableState& state,
                                                     const TimeTableProblem& problem,
-                                                    const constraints::SequenceContext& context) const
+                                                    const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- MinimizeGroupAbsenceConstraint --------------------
@@ -232,10 +233,10 @@ bool MinimizeGroupAbsenceConstraint::is_satisfied(const TimeTableState& state,
 
 bool MinimizeGroupAbsenceConstraint::is_feasible(const TimeTableState& state,
                                                     const TimeTableProblem& problem,
-                                                    const constraints::SequenceContext& context) const
+                                                    const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- MinimizeTotalAbsenceConstraint --------------------
@@ -330,10 +331,10 @@ bool MinimizeTotalAbsenceConstraint::is_satisfied(const TimeTableState& state,
 
 bool MinimizeTotalAbsenceConstraint::is_feasible(const TimeTableState& state,
                                                     const TimeTableProblem& problem,
-                                                    const constraints::SequenceContext& context) const
+                                                    const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- TimeBlockDayConstraint --------------------
@@ -370,10 +371,10 @@ bool TimeBlockDayConstraint::is_satisfied(const TimeTableState& state,
 
 bool TimeBlockDayConstraint::is_feasible(const TimeTableState& state,
                                          const TimeTableProblem& problem,
-                                         const constraints::SequenceContext& context) const
+                                         const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- TimeBlockDateConstraint --------------------
@@ -414,10 +415,10 @@ bool TimeBlockDateConstraint::is_satisfied(const TimeTableState& state,
 
 bool TimeBlockDateConstraint::is_feasible(const TimeTableState& state,
                                           const TimeTableProblem& problem,
-                                          const constraints::SequenceContext& context) const
+                                          const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- PreferEdgeClassConstraint --------------------
@@ -459,10 +460,10 @@ bool PreferEdgeClassConstraint::is_satisfied(const TimeTableState& state,
 
 bool PreferEdgeClassConstraint::is_feasible(const TimeTableState& state,
                                             const TimeTableProblem& problem,
-                                            const constraints::SequenceContext& context) const
+                                            const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- PreferEdgeGroupConstraint --------------------
@@ -504,10 +505,10 @@ bool PreferEdgeGroupConstraint::is_satisfied(const TimeTableState& state,
 
 bool PreferEdgeGroupConstraint::is_feasible(const TimeTableState& state,
                                             const TimeTableProblem& problem,
-                                            const constraints::SequenceContext& context) const
+                                            const SequenceContext& context) const
 {
     if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context.best_scores[id] + slack;
+    return penalty(state, problem) <= context[id] + slack;
 }
 
 // -------------------- PUBLIC API --------------------
