@@ -21,6 +21,17 @@ namespace policies {
         template<typename Policy>
         concept Evaluatable = constraints::Evaluatable<Policy>;
 
+        // Substitutable — policy can construct itself from a matching ConstraintVariant.
+        // PolicyEvaluator uses this to automatically replace all constraints whose
+        // ConstraintType matches P{}.type, copying all fields via the factory method.
+        template<typename Policy>
+        concept Substitutable = requires(
+            const solver_models::ConstraintVariant& c,
+            const TimeTableProblem& problem)
+        {
+            { Policy::make(c, problem) } -> std::same_as<Policy>;
+        };
+
         // PartiallyEvaluatable — optional extension for solver_models::Evaluatable types.
         //
         // Policies that implement this concept can be evaluated against a single
@@ -113,6 +124,8 @@ namespace policies {
         int sequence = -1;
         bool hard    = false;
         constraints::ConstraintType type = constraints::ConstraintType::Null;
+
+        static NullPolicy make(const solver_models::ConstraintVariant&, const TimeTableProblem&) { return {}; }
 
         [[nodiscard]] double penalty(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }
         [[nodiscard]] double evaluate(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }

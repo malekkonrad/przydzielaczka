@@ -52,6 +52,23 @@ struct IntTimePolicy
         precompute(problem);
     }
 
+    // Substitutable factory — constructs from the matching MinimizeGapsConstraint.
+    static IntTimePolicy make(const solver_models::ConstraintVariant& c, const TimeTableProblem& problem)
+    {
+        return std::visit([&](const auto& src) -> IntTimePolicy {
+            IntTimePolicy p;
+            p.id       = src.id;
+            p.sequence = src.sequence;
+            p.hard     = src.hard;
+            p.weight   = src.weight;
+            p.slack    = src.slack;
+            if constexpr (requires { src.min_break; })
+                p.min_break = src.min_break;
+            p.precompute(problem);
+            return p;
+        }, c);
+    }
+
     // Can also be called manually after default construction.
     void precompute(const TimeTableProblem& problem)
     {
@@ -241,5 +258,8 @@ static_assert(policies::Evaluatable<IntTimePolicy>,
 static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy PartiallyEvaluatable");
 
+static_assert(policies::Substitutable<IntTimePolicy>,
+    "IntTimePolicy must satisfy policies::Substitutable");
+
 static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<IntTimePolicy>>,
-    "PolicyConstraintEvaluator<IntTimePolicy> must satisfy the Evaluatable concept");
+    "PolicyEvaluator<IntTimePolicy> must satisfy the ConstraintEvaluator concept");

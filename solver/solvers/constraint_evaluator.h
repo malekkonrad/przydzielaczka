@@ -107,6 +107,18 @@ namespace detail {
 
     template<typename V, typename... Ts>
     using variant_append_all_t = typename variant_append_all<V, Ts...>::type;
+
+    // True iff T does not appear in Ts...
+    template<typename T, typename... Ts>
+    inline constexpr bool contains_type_v = (std::is_same_v<T, Ts> || ...);
+
+    // True iff all types in Ts... are distinct.
+    template<typename... Ts>
+    inline constexpr bool all_unique_types_v = true;
+
+    template<typename T, typename... Ts>
+    inline constexpr bool all_unique_types_v<T, Ts...> =
+        !contains_type_v<T, Ts...> && all_unique_types_v<Ts...>;
 } // namespace detail
 
 // Template evaluator that combines any number of policy types with the remaining
@@ -122,37 +134,41 @@ namespace detail {
 //   PolicyEvaluator<A>         ev(problem, {a1, a2});     // one policy type
 //   PolicyEvaluator<A, B>      ev(problem, {a1}, {b1});   // two policy types
 //
-// Each policy replaces the constraint whose id matches policy.id.
-// Remaining constraints + all policies are merged, sorted (ascending sequence,
-// hard before soft), and indexed identically to TimeTableProblem.
+// Each Ps must also satisfy policies::Substitutable — provide a static make() factory.
+// For every constraint whose ConstraintType matches P{}.type, P::make(c, problem)
+// is called and the result replaces the original constraint. All other fields
+// (id, sequence, hard, weight, slack, plus any policy-specific fields) are copied
+// inside make(). Unmatched constraints are kept as-is.
 template<policies::Evaluatable... Ps>
+    requires (policies::Substitutable<Ps> && ...)
 class PolicyEvaluator
 {
+    static_assert(detail::all_unique_types_v<Ps...>,
+        "Each policy type must appear at most once in PolicyEvaluator<Ps...>");
+
 public:
     // All constraint alternatives + every policy type in one flat variant.
     using UnifiedVariant = detail::variant_append_all_t<solver_models::ConstraintVariant, Ps...>;
 
-    explicit PolicyEvaluator(const TimeTableProblem& problem, std::vector<Ps>... policy_lists)
+    explicit PolicyEvaluator(const TimeTableProblem& problem)
         : problem_(problem), sequence_(0)
     {
-        std::unordered_set<int> claimed;
-
-        // Collect claimed ids from every policy list.
-        (..., (std::for_each(policy_lists.begin(), policy_lists.end(),
-            [&](const auto& p){ claimed.insert(p.id); })));
-
-        // Unclaimed constraints — convert ConstraintVariant → UnifiedVariant.
         for (const auto& c : problem.get_constraints())
         {
-            const int id = std::visit([](const auto& cv) { return cv.id; }, c);
-            if (!claimed.contains(id))
+            const auto ctype = std::visit([](const auto& cv) { return cv.type; }, c);
+
+            // Try each policy type in order; the first whose static type field matches wins.
+            bool substituted = false;
+            ([&]<typename P>(std::type_identity<P>) {
+                if (!substituted && P{}.type == ctype) {
+                    unified_.push_back(P::make(c, problem));
+                    substituted = true;
+                }
+            }(std::type_identity<Ps>{}), ...);
+
+            if (!substituted)
                 unified_.push_back(std::visit([](const auto& cv) -> UnifiedVariant { return cv; }, c));
         }
-
-        // Policies — move each list's items in.
-        (..., (std::for_each(std::make_move_iterator(policy_lists.begin()),
-            std::make_move_iterator(policy_lists.end()),
-            [&](auto&& p){ unified_.push_back(std::move(p)); })));
 
         // Sort: ascending sequence, hard before soft within sequence.
         std::stable_sort(unified_.begin(), unified_.end(),
