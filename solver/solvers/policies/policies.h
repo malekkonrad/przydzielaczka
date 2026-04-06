@@ -25,7 +25,7 @@ namespace policies {
         // PolicyEvaluator uses this to automatically replace all constraints whose
         // ConstraintType matches P{}.type, copying all fields via the factory method.
         template<typename Policy>
-        concept Substitutable = requires(
+        concept Substitutable = Evaluatable<Policy> && requires(
             const solver_models::ConstraintVariant& c,
             const TimeTableProblem& problem)
         {

@@ -261,5 +261,5 @@ static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
 static_assert(policies::Substitutable<IntTimePolicy>,
     "IntTimePolicy must satisfy policies::Substitutable");
 
-static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<IntTimePolicy>>,
+static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<true, IntTimePolicy>>,
     "PolicyEvaluator<IntTimePolicy> must satisfy the ConstraintEvaluator concept");

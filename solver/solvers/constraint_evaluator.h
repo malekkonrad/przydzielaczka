@@ -125,7 +125,7 @@ namespace detail {
 // problem constraints in a single sorted vector (UnifiedVariant), indexed by
 // pre-computed split points. This gives O(1) sequence slicing — no filter scans.
 //
-// Each Ps must satisfy policies::Evaluatable.
+// Each Ps must satisfy policies::Substitutable.
 // If a policy type also satisfies policies::PartiallyEvaluatable, partial_*
 // methods use the cheaper per-(class_id, group) overloads for items of that type.
 //
@@ -139,8 +139,7 @@ namespace detail {
 // is called and the result replaces the original constraint. All other fields
 // (id, sequence, hard, weight, slack, plus any policy-specific fields) are copied
 // inside make(). Unmatched constraints are kept as-is.
-template<policies::Evaluatable... Ps>
-    requires (policies::Substitutable<Ps> && ...)
+template<bool UsePartial = true, policies::Substitutable... Ps>
 class PolicyEvaluator
 {
     static_assert(detail::all_unique_types_v<Ps...>,
@@ -274,8 +273,8 @@ private:
 // -------------------- Inline implementations --------------------
 
 // Fills context with penalties for every entry up to and including sequence.
-template<policies::Evaluatable... Ps>
-SequenceContext PolicyEvaluator<Ps...>::score(
+template<bool UsePartial, policies::Substitutable... Ps>
+SequenceContext PolicyEvaluator<UsePartial, Ps...>::score(
     const TimeTableState& state) const
 {
     SequenceContext context(problem_.get_constraints().size());
@@ -285,8 +284,8 @@ SequenceContext PolicyEvaluator<Ps...>::score(
 }
 
 // Updates context with lower penalties found in this sequence (hard + soft).
-template<policies::Evaluatable... Ps>
-void PolicyEvaluator<Ps...>::update_context(
+template<bool UsePartial, policies::Substitutable... Ps>
+void PolicyEvaluator<UsePartial, Ps...>::update_context(
     SequenceContext& context, const TimeTableState& state) const
 {
     for (const auto& u : slice_in(sequence_))
@@ -301,8 +300,8 @@ void PolicyEvaluator<Ps...>::update_context(
 }
 
 // Sums soft goals for this sequence.
-template<policies::Evaluatable... Ps>
-double PolicyEvaluator<Ps...>::evaluate(
+template<bool UsePartial, policies::Substitutable... Ps>
+double PolicyEvaluator<UsePartial, Ps...>::evaluate(
     const TimeTableState& state) const
 {
     double total = 0.0;
@@ -312,8 +311,8 @@ double PolicyEvaluator<Ps...>::evaluate(
 }
 
 // True if all hard entries in this sequence are satisfied.
-template<policies::Evaluatable... Ps>
-bool PolicyEvaluator<Ps...>::are_satisfied(
+template<bool UsePartial, policies::Substitutable... Ps>
+bool PolicyEvaluator<UsePartial, Ps...>::are_satisfied(
     const TimeTableState& state) const
 {
     for (const auto& u : slice_hard(sequence_))
@@ -326,8 +325,8 @@ bool PolicyEvaluator<Ps...>::are_satisfied(
 }
 
 // True if all entries from previous sequences are still feasible.
-template<policies::Evaluatable... Ps>
-bool PolicyEvaluator<Ps...>::are_feasible(
+template<bool UsePartial, policies::Substitutable... Ps>
+bool PolicyEvaluator<UsePartial, Ps...>::are_feasible(
     const TimeTableState& state, const SequenceContext& context) const
 {
     for (const auto& u : slice_before(sequence_))
@@ -340,8 +339,8 @@ bool PolicyEvaluator<Ps...>::are_feasible(
 }
 
 // Sums soft goals; items satisfying PartiallyEvaluatable use the partial overload.
-template<policies::Evaluatable... Ps>
-double PolicyEvaluator<Ps...>::partial_evaluate(
+template<bool UsePartial, policies::Substitutable... Ps>
+double PolicyEvaluator<UsePartial, Ps...>::partial_evaluate(
     const TimeTableState& state, const int class_id, const int group) const
 {
     double total = 0.0;
@@ -349,7 +348,7 @@ double PolicyEvaluator<Ps...>::partial_evaluate(
         std::visit([&](const auto& x)
         {
             using T = std::decay_t<decltype(x)>;
-            if constexpr (policies::PartiallyEvaluatable<T>)
+            if constexpr (UsePartial && policies::PartiallyEvaluatable<T>)
                 total += x.partial_evaluate(state, problem_, class_id, group);
             else
                 total += x.evaluate(state, problem_);
@@ -358,8 +357,8 @@ double PolicyEvaluator<Ps...>::partial_evaluate(
 }
 
 // True if all hard entries are satisfied; partial overloads used where available.
-template<policies::Evaluatable... Ps>
-bool PolicyEvaluator<Ps...>::partial_are_satisfied(
+template<bool UsePartial, policies::Substitutable... Ps>
+bool PolicyEvaluator<UsePartial, Ps...>::partial_are_satisfied(
     const TimeTableState& state, const int class_id, const int group) const
 {
     for (const auto& u : slice_hard(sequence_))
@@ -367,7 +366,7 @@ bool PolicyEvaluator<Ps...>::partial_are_satisfied(
         const bool ok = std::visit([&](const auto& x) -> bool
         {
             using T = std::decay_t<decltype(x)>;
-            if constexpr (policies::PartiallyEvaluatable<T>)
+            if constexpr (UsePartial && policies::PartiallyEvaluatable<T>)
                 return x.partial_is_satisfied(state, problem_, class_id, group);
             else
                 return x.is_satisfied(state, problem_);
@@ -378,8 +377,8 @@ bool PolicyEvaluator<Ps...>::partial_are_satisfied(
 }
 
 // True if all previous-sequence entries are feasible; partial overloads used where available.
-template<policies::Evaluatable... Ps>
-bool PolicyEvaluator<Ps...>::partial_are_feasible(
+template<bool UsePartial, policies::Substitutable... Ps>
+bool PolicyEvaluator<UsePartial, Ps...>::partial_are_feasible(
     const TimeTableState& state, const SequenceContext& context,
     const int class_id, const int group) const
 {
@@ -388,7 +387,7 @@ bool PolicyEvaluator<Ps...>::partial_are_feasible(
         const bool ok = std::visit([&](const auto& x) -> bool
         {
             using T = std::decay_t<decltype(x)>;
-            if constexpr (policies::PartiallyEvaluatable<T>)
+            if constexpr (UsePartial && policies::PartiallyEvaluatable<T>)
                 return x.partial_is_feasible(state, problem_, context, class_id, group);
             else
                 return x.is_feasible(state, problem_, context);
