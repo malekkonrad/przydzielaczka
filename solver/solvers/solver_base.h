@@ -7,6 +7,7 @@
 #include <time_table_problem.h>
 #include <time_table_state.h>
 #include <constraint_evaluator.h>
+#include <solution_set.h>
 #include "solver_config.h"
 
 #include <utility>
@@ -38,7 +39,7 @@ public:
     SolverBase(const SolverBase&)            = delete;
     SolverBase& operator=(const SolverBase&) = delete;
 
-    virtual std::vector<TimeTableState> solve() = 0;
+    virtual BoundedSolutionSet<SequenceContext> solve() = 0;
 
 protected:
     const TimeTableProblem& problem_;

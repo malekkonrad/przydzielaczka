@@ -23,6 +23,7 @@
 #include <sstream>
 
 #include <nlohmann/json.hpp>
+#include <policies/int_absence_policy.h>
 
 using Json = nlohmann::json;
 using Clock = std::chrono::steady_clock;
@@ -48,13 +49,13 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     config.max_solutions = static_cast<size_t>(max_solutions_);
     config.verbose = true;
     // TODO add some selector
-    // SimpleSolver<ConstraintEvaluator<IntTimePolicy>> solver(problem, config);
     // SimpleFullSolver solver(problem, config);
     OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy>> solver(problem, config);
+    // OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
     // BranchAndBoundSolver solver(problem, config);
 
     const auto t_start = Clock::now();
-    const std::vector<TimeTableState> solutions = solver.solve();
+    const std::vector<TimeTableState> solutions = solver.solve().extract_states();
     const auto t_end = Clock::now();
 
     const long long duration_ms =

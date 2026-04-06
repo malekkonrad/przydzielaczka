@@ -10,11 +10,8 @@
 #include "constraint_evaluator.h"
 #include "solver_base.h"
 
-#include <algorithm>
 #include <functional>
 #include <iostream>
-#include <ranges>
-#include <set>
 #include <utility>
 #include <vector>
 
@@ -38,41 +35,16 @@ public:
     explicit BranchAndBoundSolver(const TimeTableProblem& problem, const solver::config& config)
         : SolverBase<BaseEvaluator>(problem, config) {}
 
-    std::vector<TimeTableState> solve() override;
-
-    struct ScoreOnly {
-        bool operator()(const std::pair<double, TimeTableState>& a,
-                        const std::pair<double, TimeTableState>& b) const
-        {
-            return a.first < b.first;
-        }
-    };
-
-    // Sorted set: (score, state), ascending by score. Worst = last element.
-    using SolutionSet = std::multiset<std::pair<double, TimeTableState>, ScoreOnly>;
-
-private:
-    void add_solution(SolutionSet& solutions, const TimeTableState& state, const double score)
-    {
-        if (solutions.size() < config_.max_solutions)
-        {
-            solutions.emplace(score, state);
-        }
-        else if (score < solutions.rbegin()->first)
-        {
-            solutions.erase(std::prev(solutions.end()));
-            solutions.emplace(score, state);
-        }
-    }
+    BoundedSolutionSet<SequenceContext> solve() override;
 };
 
 // TODO for branch and bound the weights should always be positive and that creates a problem with deselecting a lecturer.
 
 // ---------------------------------------------------------------------------
-// solve() — defined inline here because SimpleFullSolver is header-only.
+// solve() — defined inline here because BranchAndBoundSolver is header-only.
 // ---------------------------------------------------------------------------
 
-inline std::vector<TimeTableState> BranchAndBoundSolver::solve()
+inline BoundedSolutionSet<SequenceContext> BranchAndBoundSolver::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());
     const int n_seqs    = static_cast<int>(problem_.sequence_size());
@@ -80,7 +52,7 @@ inline std::vector<TimeTableState> BranchAndBoundSolver::solve()
     const bool verbose  = config_.verbose;
 
     SequenceContext context(n_constraints); // empty — no prior sequence
-    SolutionSet solutions;
+    BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
 
     for (int seq = 0; seq < n_seqs; ++seq)
     {
@@ -101,22 +73,18 @@ inline std::vector<TimeTableState> BranchAndBoundSolver::solve()
             if (depth == n_classes)
             {
                 ++found_count;
+                SequenceContext ctx = evaluator_.score(current);
                 evaluator_.update_context(context, current);
-                const double score = evaluator_.evaluate(current);
-                add_solution(solutions, current, score);
+                solutions.insert(std::move(ctx), current);
                 if (verbose)
                 {
-                    const double best = solutions.empty() ? score : solutions.begin()->first;
+                    const double best = solutions.empty() ? context.sum() : solutions.best_score().sum();
                     std::cout << "\r  found: " << found_count
                               << "  best score: " << best
                               << "    " << std::flush;
                 }
                 // // early stopping when solutions are full
-                // const auto worst_score = solutions.rbegin()->first;
-                // if (worst_score == 0.0)
-                // {
-                //     stop = true;
-                // }
+                // if (solutions.worst_score().sum() == 0.0) stop = true;
 
                 return;
             }
@@ -172,9 +140,5 @@ inline std::vector<TimeTableState> BranchAndBoundSolver::solve()
         }
     }
 
-    std::vector<TimeTableState> result;
-    result.reserve(solutions.size());
-    for (const auto& state : solutions | std::views::values)
-        result.push_back(state);
-    return result;
+    return solutions;
 }

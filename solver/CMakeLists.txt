@@ -11,7 +11,6 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         core/include/time_table_state.h
         core/include/data_models.h
         solvers/simple_solver.cpp
-        solvers/simple_solver.h
         utils/tuple_hash.h
         solvers/solver_config.h
         solvers/simple_full_solver.h
@@ -20,7 +19,8 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         solvers/optimized_full_solver.h
         core/src/sequence_context.cpp
         core/include/sequence_context.h
-        solvers/policies/policies.h)
+        solvers/policies/policies.h
+        solvers/policies/int_absence_policy.h)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC
