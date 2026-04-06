@@ -35,7 +35,7 @@
 // Extra constructor arguments are forwarded to the Evaluator, so policies can
 // be injected: OptimizedFullSolver<PolicyConstraintEvaluator<IntTimePolicy>>(problem, cfg, policies)
 template<typename Evaluator>
-    requires ConstraintEvaluator<Evaluator>
+    requires concepts::ConstraintEvaluator<Evaluator>
 class OptimizedFullSolver : public SolverBase<Evaluator>
 {
     using SolverBase<Evaluator>::problem_;
@@ -81,7 +81,7 @@ private:
 // ---------------------------------------------------------------------------
 
 template<typename Evaluator>
-    requires ConstraintEvaluator<Evaluator>
+    requires concepts::ConstraintEvaluator<Evaluator>
 inline std::vector<TimeTableState> OptimizedFullSolver<Evaluator>::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());

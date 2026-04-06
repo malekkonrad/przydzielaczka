@@ -103,4 +103,20 @@ namespace policies {
         });
     }
 
+    // ==================== NULL POLICY ====================
+
+    // No-op policy — always satisfied, zero penalty.
+    // Used as the default template argument for PolicyEvaluator.
+    struct NullPolicy
+    {
+        int id       = -1;
+        int sequence = -1;
+        bool hard    = false;
+
+        [[nodiscard]] double penalty(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }
+        [[nodiscard]] double evaluate(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }
+        [[nodiscard]] bool   is_satisfied(const TimeTableState&, const TimeTableProblem&) const { return true; }
+        [[nodiscard]] bool   is_feasible(const TimeTableState&, const TimeTableProblem&, const SequenceContext&) const { return true; }
+    };
+
 } // namespace policies
