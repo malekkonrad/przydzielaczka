@@ -10,7 +10,6 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         core/src/time_table_state.cpp
         core/include/time_table_state.h
         core/include/data_models.h
-        solvers/simple_solver.cpp
         utils/tuple_hash.h
         solvers/solver_config.h
         solvers/simple_full_solver.h

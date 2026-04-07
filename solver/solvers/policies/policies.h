@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <concepts>
 #include <ranges>
+#include <utility>
+#include <vector>
 #include <constraints.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
@@ -30,6 +32,51 @@ namespace policies {
             const TimeTableProblem& problem)
         {
             { Policy::make(c, problem) } -> std::same_as<Policy>;
+        };
+
+        // Guided — policy can dynamically suggest the most promising (class_id, group)
+        // to branch on next, given the current partial state.  The solver picks the
+        // suggested class_id first and still tries all groups at that depth.
+        template<typename Policy>
+        concept Guided = Evaluatable<Policy> && requires(
+            const Policy& p,
+            const TimeTableState& state,
+            const TimeTableProblem& problem)
+        {
+            { p.suggest_next(state, problem) } -> std::same_as<std::pair<int,int>>;
+        };
+
+        // BoundEstimating — policy can compute a lower bound on its own final penalty
+        // contribution given the current partial state.  Used by the B&B solver to prune
+        // branches where the minimum achievable penalty is already worse than the best found.
+        //
+        // Contract: lower_bound(partial) <= weight * penalty(any valid completion of partial)
+        template<typename Policy>
+        concept BoundEstimating = Evaluatable<Policy> && requires(
+            const Policy& p,
+            const TimeTableState& state,
+            const TimeTableProblem& problem)
+        {
+            { p.lower_bound(state, problem) } -> std::convertible_to<double>;
+        };
+
+        // OrderSensitive — policy requires classes to be processed in a specific order
+        // for its penalty to be monotonically non-decreasing, which is necessary for
+        // lower_bound(partial) to be a valid lower bound on the final penalty.
+        //
+        // Returns one (class_id, representative_group) pair per class, sorted so that
+        // processing class_ids in this sequence maintains monotonicity.  The group in
+        // each pair is the one that determined the sort key (e.g. earliest start_time).
+        // The solver still tries all groups of each class at that depth.
+        //
+        // If more than one OrderSensitive policy is active in a sequence their required
+        // orders may conflict — see BranchAndBoundSolver for the runtime fallback policy.
+        template<typename Policy>
+        concept OrderSensitive = Evaluatable<Policy> && requires(
+            const Policy& p,
+            const TimeTableProblem& problem)
+        {
+            { p.class_order(problem) } -> std::same_as<std::vector<std::pair<int,int>>>;
         };
 
         // PartiallyEvaluatable — optional extension for solver_models::Evaluatable types.

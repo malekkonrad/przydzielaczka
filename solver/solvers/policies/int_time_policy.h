@@ -154,6 +154,65 @@ struct IntTimePolicy
         return penalty(state, problem) <= context[id] + slack;
     }
 
+    // -------------------- BoundEstimating interface --------------------
+    //
+    // lower_bound() is valid when the solver processes class_ids in the order
+    // given by class_order() (ascending start_time).  In that order each new
+    // attending class is appended at the latest position in the daily schedule,
+    // so no future assignment can split or reduce an existing gap.  The partial
+    // penalty is therefore a lower bound on the final penalty.
+    //
+    // Note: not-attending (negative-group) assignments do not contribute to
+    // gaps and are already skipped by penalty() via is_attended() checks.
+
+    [[nodiscard]] double lower_bound(const TimeTableState& state,
+                                     const TimeTableProblem& problem) const
+    {
+        return evaluate(state, problem);
+    }
+
+    // -------------------- OrderSensitive interface --------------------
+    //
+    // Returns one (class_id, representative_group) pair per class, sorted by
+    // the minimum start_time across all groups of that class.  The solver uses
+    // this to iterate class_ids from earliest to latest, which is the precondition
+    // for lower_bound() to be a valid lower bound on the final penalty.
+
+    [[nodiscard]] std::vector<std::pair<int,int>> class_order(
+        const TimeTableProblem& problem) const
+    {
+        const int n = static_cast<int>(problem.class_size());
+        std::vector<std::pair<int,int>> order;
+        order.reserve(n);
+
+        for (int cid = 0; cid < n; ++cid)
+        {
+            const int max_g = problem.get_max_group(cid);
+            int rep_group = 1;
+            const auto* rep = &problem.get_group(cid, 1);
+            for (int g = 2; g <= max_g; ++g)
+            {
+                const auto& cls = problem.get_group(cid, g);
+                if (cls.day < rep->day || (cls.day == rep->day && cls.start_time < rep->start_time))
+                {
+                    rep       = &cls;
+                    rep_group = g;
+                }
+            }
+            order.push_back({cid, rep_group});
+        }
+
+        std::ranges::sort(order, [&](const auto& a, const auto& b)
+        {
+            const auto& ca = problem.get_group(a.first, a.second);
+            const auto& cb = problem.get_group(b.first, b.second);
+            // if (ca.day != cb.day) return ca.day < cb.day;
+            return ca.start_time < cb.start_time;
+        });
+
+        return order;
+    }
+
     // -------------------- PartiallyEvaluatable interface --------------------
     //
     // Each partial_* method restricts computation to the (day, week) buckets that
@@ -260,6 +319,12 @@ static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
 
 static_assert(policies::Substitutable<IntTimePolicy>,
     "IntTimePolicy must satisfy policies::Substitutable");
+
+static_assert(policies::BoundEstimating<IntTimePolicy>,
+    "IntTimePolicy must satisfy policies::BoundEstimating");
+
+static_assert(policies::OrderSensitive<IntTimePolicy>,
+    "IntTimePolicy must satisfy policies::OrderSensitive");
 
 static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<true, IntTimePolicy>>,
     "PolicyEvaluator<IntTimePolicy> must satisfy the ConstraintEvaluator concept");

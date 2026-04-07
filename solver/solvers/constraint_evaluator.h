@@ -213,6 +213,23 @@ public:
     [[nodiscard]] bool   are_satisfied(const TimeTableState& state) const;
     [[nodiscard]] bool   are_feasible(const TimeTableState& state, const SequenceContext& context) const;
 
+    // B&B support — operates on the current sequence's soft goals.
+
+    // Sums lower_bound() for every BoundEstimating goal in this sequence.
+    // Non-BoundEstimating goals contribute 0 (optimistic: no remaining penalty).
+    // Used by BranchAndBoundSolver to prune branches whose minimum achievable
+    // penalty already exceeds the best solution found so far.
+    [[nodiscard]] double lower_bound(const TimeTableState& state) const;
+
+    // Returns the number of OrderSensitive policies active in the current sequence.
+    // BranchAndBoundSolver uses this at runtime to decide whether to apply B&B
+    // ordering (== 1) or fall back to plain backtracking (> 1).
+    [[nodiscard]] int count_order_sensitive() const;
+
+    // Returns the class_order() from the first OrderSensitive policy found in the
+    // current sequence, or an empty vector if none exists.
+    [[nodiscard]] std::vector<std::pair<int,int>> get_class_order() const;
+
     // Partial evaluation — operates on the (class_id, group) slot just placed in state.
     // For policy items that satisfy PartiallyEvaluatable, dedicated partial overloads are
     // called; all other items fall back to full-state evaluation.
@@ -395,6 +412,59 @@ bool PolicyEvaluator<UsePartial, Ps...>::partial_are_feasible(
         if (!ok) return false;
     }
     return true;
+}
+
+// Sums lower_bound() over BoundEstimating soft goals for the current sequence.
+template<bool UsePartial, policies::Substitutable... Ps>
+double PolicyEvaluator<UsePartial, Ps...>::lower_bound(const TimeTableState& state) const
+{
+    double bound = 0.0;
+    for (const auto& u : slice_goals(sequence_))
+        std::visit([&](const auto& x)
+        {
+            using T = std::decay_t<decltype(x)>;
+            if constexpr (policies::BoundEstimating<T>)
+                bound += x.lower_bound(state, problem_);
+            // else: not BoundEstimating — optimistically assume 0 remaining penalty
+        }, u);
+    return bound;
+}
+
+// Counts OrderSensitive policies in the current sequence (hard + soft).
+template<bool UsePartial, policies::Substitutable... Ps>
+int PolicyEvaluator<UsePartial, Ps...>::count_order_sensitive() const
+{
+    int count = 0;
+    for (const auto& u : slice_in(sequence_))
+        std::visit([&](const auto& x)
+        {
+            using T = std::decay_t<decltype(x)>;
+            if constexpr (policies::OrderSensitive<T>)
+                ++count;
+        }, u);
+    return count;
+}
+
+// Returns class_order() from the first OrderSensitive policy in the current sequence.
+template<bool UsePartial, policies::Substitutable... Ps>
+std::vector<std::pair<int,int>> PolicyEvaluator<UsePartial, Ps...>::get_class_order() const
+{
+    for (const auto& u : slice_in(sequence_))
+    {
+        std::vector<std::pair<int,int>> result;
+        bool found = false;
+        std::visit([&](const auto& x)
+        {
+            using T = std::decay_t<decltype(x)>;
+            if constexpr (policies::OrderSensitive<T>)
+            {
+                result = x.class_order(problem_);
+                found  = true;
+            }
+        }, u);
+        if (found) return result;
+    }
+    return {};
 }
 
 // ==================== EVALUATOR FREE FUNCTIONS ====================

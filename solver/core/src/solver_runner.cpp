@@ -8,7 +8,6 @@
 
 #include "constraints.h"
 #include "data_mapper.h"
-#include "simple_solver.h"
 #include "constraint_evaluator.h"
 #include "policies/int_time_policy.h"
 
@@ -50,9 +49,9 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     config.verbose = true;
     // TODO add some selector
     // SimpleFullSolver solver(problem, config);
-    OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy>> solver(problem, config);
+    // OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy>> solver(problem, config);
     // OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
-    // BranchAndBoundSolver solver(problem, config);
+    BranchAndBoundSolver<IntTimePolicy> solver(problem, config);
 
     const auto t_start = Clock::now();
     const std::vector<TimeTableState> solutions = solver.solve().extract_states();
