@@ -19,7 +19,8 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         core/src/sequence_context.cpp
         core/include/sequence_context.h
         solvers/policies/policies.h
-        solvers/policies/int_absence_policy.h)
+        solvers/policies/int_absence_policy.h
+        solvers/traits.h)
 
 # Public includes are available to anyone linking to solver_core
 target_include_directories(solver_core PUBLIC
