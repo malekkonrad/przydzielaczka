@@ -1,0 +1,15 @@
+# TODO for solvers
+- [ ] Add solver traits, hide everything behind solver_base, default to one evaluator
+- [ ] Add heuristics
+- [ ] MRV - chose most constraint groups first
+- [ ] Degree heuristic - chose group with most influence on others
+- [ ] Forward Checking - remove future conflicts, If i have 1 group and there are others conflicting don't go over them
+- [ ] Constraint Propagation - Arc Consistency, if there's a hard constraint to attend some group, just assigne student to that group
+- [ ] Branch and Bound - better upper bound
+- [ ] Caching - maybe cache some gaps, precompute them?
+- [ ] Sequence Squashing - squash hard constraints into one sequence
+- [ ] Precompute Conflicts
+- [ ] Bitset masks
+- [ ] Dominance Pruning - remove options that are always wors
+- [ ] Incremental scoring - just add new score without computing everything
+- [ ] Meet in the middle - Half from one side, Half from the other
