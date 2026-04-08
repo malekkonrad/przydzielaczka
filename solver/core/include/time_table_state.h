@@ -78,11 +78,19 @@ public:
     // Returns the raw stored value for class_id (may be negative or 0).
     // For attending classes this equals the group ID directly.
     // For not-attending classes use std::abs() to get the group ID.
-    [[nodiscard]] int get_group(int class_id) const;
+    [[nodiscard]] int get_raw_group(int class_id) const;
+    // Returns the assigned group for class_id (may be positive or 0 - UNASSIGNED).
+    [[nodiscard]] int get_assigned_group(int class_id) const;
 
     // Lazy ranges over class IDs — nothing is allocated, evaluated on demand.
     // Safe to use in range-for or pass to std::ranges algorithms.
     // Lifetime is tied to this TimeTableState — do not outlive it.
+
+    // Yields class_ids
+    [[nodiscard]] auto get_classes() const
+    {
+        return std::views::iota(0, static_cast<int>(groups_.size()));
+    }
 
     // Yields class_ids where groups_[id] != UNASSIGNED (attending or not).
     [[nodiscard]] auto get_assigned_classes() const

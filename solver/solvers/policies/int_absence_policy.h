@@ -113,7 +113,7 @@ struct IntAbsencePolicy
             if (!state.is_assigned(cid)) continue;
             if (state.is_unattended(cid)) return false;
             // any overlap with a lower-indexed attending class is a violation
-            const int g = state.get_group(cid);
+            const int g = state.get_raw_group(cid);
             const auto it = overlap_map_.find({cid, g});
             if (it == overlap_map_.end()) continue;
             for (const auto& [oid, og] : it->second)
@@ -199,7 +199,7 @@ private:
         if (state.is_unattended(class_id)) return 1.0;
         if (!state.is_attended(class_id))  return 0.0;
 
-        const int g  = state.get_group(class_id);
+        const int g  = state.get_raw_group(class_id);
         const auto it = overlap_map_.find({class_id, g});
         if (it == overlap_map_.end()) return 0.0;
 

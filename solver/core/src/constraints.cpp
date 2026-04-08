@@ -37,7 +37,7 @@ double MinimizeGapsConstraint::penalty(const TimeTableState& state,
         {
             continue;
         }
-        const auto& cls = problem.get_group(class_id, state.get_group(class_id));
+        const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
         if (cls.week.test(0))
         {
             by_day_week[{cls.day, 0}].push_back(&cls);
@@ -88,7 +88,7 @@ bool MinimizeGapsConstraint::is_satisfied(const TimeTableState& state,
     {
         if (!state.is_attended(class_id))
             continue;
-        const auto& cls = problem.get_group(class_id, state.get_group(class_id));
+        const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
         if (cls.week.test(0))
             by_day_week[{cls.day, 0}].push_back(&cls);
         if (cls.week.test(1))
@@ -155,7 +155,7 @@ double LecturerPreferenceConstraint::penalty(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
     if (!state.is_attended(class_id)) return 0.0;
-    const int group = state.get_group(class_id);
+    const int group = state.get_raw_group(class_id);
     return problem.get_group(class_id, group).lecturer == lecturer ? 0.0 : 1.0;
 }
 
@@ -272,8 +272,8 @@ double MinimizeTotalAbsenceConstraint::penalty(const TimeTableState& state,
             {
                 continue;
             }
-            const auto& class_a = problem.get_group(class_id, state.get_group(class_id));
-            const auto& class_b = problem.get_group(cid, state.get_group(cid));
+            const auto& class_a = problem.get_group(class_id, state.get_raw_group(class_id));
+            const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
             if (overlaps(class_a, class_b))
             {
                 counter++;
@@ -317,8 +317,8 @@ bool MinimizeTotalAbsenceConstraint::is_satisfied(const TimeTableState& state,
         {
             if (!state.is_attended(cid))
                 continue;
-            const auto& class_a = problem.get_group(class_id, state.get_group(class_id));
-            const auto& class_b = problem.get_group(cid, state.get_group(cid));
+            const auto& class_a = problem.get_group(class_id, state.get_raw_group(class_id));
+            const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
             if (overlaps(class_a, class_b))
             {
                 return false;
@@ -346,7 +346,7 @@ double TimeBlockDayConstraint::penalty(const TimeTableState& state,
     {
         if (!state.is_attended(class_id))
             continue;
-        const auto& cls = problem.get_group(class_id, state.get_group(class_id));
+        const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
         if (cls.day != day)
             continue;
         if (cls.start_time < end_time && start_time < cls.end_time)
@@ -385,7 +385,7 @@ double TimeBlockDateConstraint::penalty(const TimeTableState& state,
     for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
     {
         if (!state.is_attended(class_id)) continue;
-        const auto& cls = problem.get_group(class_id, state.get_group(class_id));
+        const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
         for (const auto& session : cls.sessions)
         {
             if (session.date != date) continue;
@@ -426,14 +426,14 @@ double PreferEdgeClassConstraint::penalty(const TimeTableState& state,
                                           const TimeTableProblem& problem) const
 {
     if (!state.is_attended(class_id)) return 0.0;
-    const auto& cls = problem.get_group(class_id, state.get_group(class_id));
+    const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
 
     int earliest = cls.start_time;
     int latest   = cls.end_time;
     for (int other_id = 0; other_id < static_cast<int>(state.size()); ++other_id)
     {
         if (!state.is_attended(other_id)) continue;
-        const auto& other = problem.get_group(other_id, state.get_group(other_id));
+        const auto& other = problem.get_group(other_id, state.get_raw_group(other_id));
         if (other.day != cls.day) continue;
         earliest = std::min(earliest, other.start_time);
         latest   = std::max(latest,   other.end_time);
@@ -478,7 +478,7 @@ double PreferEdgeGroupConstraint::penalty(const TimeTableState& state,
     for (int other_id = 0; other_id < static_cast<int>(state.size()); ++other_id)
     {
         if (!state.is_attended(other_id)) continue;
-        const auto& other = problem.get_group(other_id, state.get_group(other_id));
+        const auto& other = problem.get_group(other_id, state.get_raw_group(other_id));
         if (other.day != cls.day) continue;
         earliest = std::min(earliest, other.start_time);
         latest   = std::max(latest,   other.end_time);

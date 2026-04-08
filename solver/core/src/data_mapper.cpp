@@ -15,6 +15,7 @@
 #include <fstream>
 #include <map>
 #include <ostream>
+#include <set>
 #include <string>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json-schema.hpp>
@@ -870,8 +871,8 @@ Json DataMapper::get_solution() const
     {
         // Demap int IDs → string class_id + class_type, then find the full input class.
         Json chosen = Json::array();
-        const auto& groups = state.get_raw_groups();
-        for (int class_id = 0; class_id < groups.size(); class_id++)
+        const auto& groups = state.get_assigned_groups();
+        for (int class_id = 0; class_id < groups.size(); ++class_id)
         {
             const int group = groups[class_id];
             auto [class_id_str, class_type_str] = demap_class_id_and_class_type(class_id);
@@ -934,20 +935,32 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
     const auto& all_classes = timetable_->classes;
 
     // --- Collect chosen classes ---
+    // assigned_only_set: classes with negative group — student is assigned but does not attend
     std::vector<const input_models::Class*> chosen;
-    const auto& groups = state.get_raw_groups();
-    for (int class_id = 0; class_id < groups.size(); class_id++)
+    std::set<const input_models::Class*> assigned_only_set;
+    for (const int class_id : state.get_classes())
     {
-        const int group = groups[class_id];
+        const int group = state.get_raw_group(class_id);
+        if (group == TimeTableState::UNASSIGNED)
+        {
+            continue;
+        }
+        const bool assigned_only = group < 0;
+        const int effective_group = std::abs(group);
         const auto [cid_str, ctype_str] = demap_class_id_and_class_type(class_id);
         if (cid_str.empty())
+        {
+            std::cerr << "Skipping: " << class_id << " group: " << group << std::endl;
             continue;
-        const auto orig_group = demap_group(class_id, group);
+        }
+        const auto orig_group = demap_group(class_id, effective_group);
         for (const auto& c : all_classes)
         {
             if (c.group == orig_group && c.id == cid_str && c.class_type == ctype_str)
             {
                 chosen.push_back(&c);
+                if (assigned_only)
+                    assigned_only_set.insert(&c);
                 break;
             }
         }
@@ -960,23 +973,32 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
     static const std::string RESET = "\033[0m";
 
     // Assign a unique ANSI 256-color index to each (class_id, class_type) pair.
+    // Assigned-only classes are always gray and do not consume a palette slot.
     std::map<std::pair<std::string, std::string>, int> class_color;
     {
         int idx = 0;
         for (const auto* cls : chosen)
         {
+            if (assigned_only_set.contains(cls)) continue;
             auto key = std::make_pair(cls->id, cls->class_type);
             if (!class_color.contains(key))
                 class_color[key] = PALETTE[idx++ % static_cast<int>(PALETTE.size())];
         }
     }
 
+    static constexpr int GRAY_FG = 244; // medium gray foreground
+    static constexpr int GRAY_BG = 240; // dark gray background
+
     auto fg_code = [&](const input_models::Class* cls) -> std::string
     {
+        if (assigned_only_set.contains(cls))
+            return "\033[38;5;" + std::to_string(GRAY_FG) + "m";
         return "\033[38;5;" + std::to_string(class_color.at({cls->id, cls->class_type})) + "m";
     };
     auto bg_code = [&](const input_models::Class* cls) -> std::string
     {
+        if (assigned_only_set.contains(cls))
+            return "\033[48;5;" + std::to_string(GRAY_BG) + "m";
         return "\033[48;5;" + std::to_string(class_color.at({cls->id, cls->class_type})) + "m";
     };
 
@@ -1163,16 +1185,27 @@ void DataMapper::print_timetable(const TimeTableState& state, std::ostream& out)
     {
         const auto& [cid, ctype] = key;
         std::string lecturer;
+        bool is_assigned_only = false;
         for (const auto* cls : chosen)
         {
             if (cls->id == cid && cls->class_type == ctype)
             {
                 lecturer = cls->lecturer;
+                is_assigned_only = assigned_only_set.contains(cls);
                 break;
             }
         }
-        out << "\033[48;5;" << color_val << "m" << std::string(CELL_W, ' ') << RESET
-            << "  " << cid << "  [" << ctype << "]  " << lecturer << "\n";
+        if (is_assigned_only)
+        {
+            std::cout << "FUCK" << std::endl;
+            out << "\033[48;5;" << GRAY_BG << "m" << std::string(CELL_W, ' ') << RESET
+                << "  " << cid << "  [" << ctype << "]  " << lecturer << "  (assigned only)\n";
+        }
+        else
+        {
+            out << "\033[48;5;" << color_val << "m" << std::string(CELL_W, ' ') << RESET
+                << "  " << cid << "  [" << ctype << "]  " << lecturer << "\n";
+        }
     }
 }
 

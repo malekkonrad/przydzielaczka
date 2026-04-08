@@ -19,7 +19,7 @@
 //
 // At construction the entire (day, week) → sorted class entries table is built
 // once from the problem. penalty() and is_satisfied() then do no sorting and no
-// problem.get_group() calls at runtime — they only iterate the precomputed table
+// problem.get_raw_group() calls at runtime — they only iterate the precomputed table
 // and check state.is_attended() per entry.
 //
 // Satisfies solver_models::Evaluatable — can be used anywhere a constraint is

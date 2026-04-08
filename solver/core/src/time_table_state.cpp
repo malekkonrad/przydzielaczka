@@ -115,9 +115,14 @@ std::vector<int> TimeTableState::get_assigned_groups() const
     return groups;
 }
 
-int TimeTableState::get_group(const int class_id) const
+int TimeTableState::get_raw_group(const int class_id) const
 {
     return groups_[static_cast<size_t>(class_id)];
+}
+
+int TimeTableState::get_assigned_group(const int class_id) const
+{
+    return std::abs(groups_[static_cast<size_t>(class_id)]);
 }
 
 size_t TimeTableState::size() const
