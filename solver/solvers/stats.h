@@ -75,7 +75,7 @@ private:
         std::cout << prefix
                   << ansi::bold << ansi::cyan  << "[seq " << std::setw(3) << sequence_index << "]" << ansi::reset
                   << ansi::dim  << "  progress: " << ansi::reset
-                  << ansi::white << std::setw(8) << processed_leaves << "/" << std::setw(8) << leaves_total << ansi::reset
+                  << ansi::white << std::setw(10) << processed_leaves << "/" << std::setw(10) << leaves_total << ansi::reset
                   << ansi::yellow << " (" << std::setw(5) << std::fixed << std::setprecision(1) << node_pct << "%)" << ansi::reset
                   << ansi::dim  << "  visited: " << ansi::reset
                   << ansi::white << std::setw(8) << nodes_visited << ansi::reset
@@ -88,7 +88,7 @@ private:
                   << ansi::dim  << "  co=" << ansi::reset
                   << ansi::magenta<< std::setw(6) << nodes_constraint_cut   << " (" << std::setw(5) << co_pct << "%)" << ansi::reset
                   << ansi::dim  << "  best: " << ansi::reset
-                  << ansi::cyan  << std::setw(10) << std::fixed << std::setprecision(4) << best_eval << ansi::reset
+                  << ansi::cyan  << std::setw(8) << std::fixed << std::setprecision(2) << best_eval << ansi::reset
                   << ansi::dim  << "  time: " << ansi::reset
                   << ansi::white << std::setw(8) << std::fixed << std::setprecision(1) << display_time << " ms" << ansi::reset;
     }

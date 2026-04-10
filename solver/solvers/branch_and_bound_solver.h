@@ -223,6 +223,8 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 return;
             }
 
+            if (verbose) this->stats_print_inplace_throttled();
+
             const int class_id  = depth_to_class[depth];
             const int max_group = problem_.get_max_group(class_id);
 
