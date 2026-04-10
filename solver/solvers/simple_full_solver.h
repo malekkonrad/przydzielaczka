@@ -15,7 +15,10 @@
 #include <utility>
 #include <vector>
 
-// SimpleFullSolver — a concrete, non-template backtracking solver.
+#include "solver_base.h"
+#include "traits.h"
+
+// SimpleFullSolver<Traits> — baseline backtracking solver.
 //
 // Algorithm (one pass per sequence):
 //   1. Backtrack over all classes, pruning on time overlap.
@@ -27,30 +30,37 @@
 //   5. Repeat for the next sequence.
 //
 // This is the baseline: correctness over performance.
-// Constraint-level pruning (early backtracking) is left for derived solvers.
-class SimpleFullSolver : public SolverBase<>
+// Use OptimizedFullSolver or BranchAndBoundSolver for better pruning.
+
+// TODO for branch and bound the weights should always be positive and that creates a problem with deselecting a lecturer.
+
+template<typename Traits = SolverTraits>
+class SimpleFullSolver : public SolverBase<Traits>
 {
+    using SolverBase<Traits>::problem_;
+    using SolverBase<Traits>::config_;
+    using SolverBase<Traits>::evaluator_;
+
 public:
     explicit SimpleFullSolver(const TimeTableProblem& problem, const solver::config& config)
-        : SolverBase(problem, config) {}
+        : SolverBase<Traits>(problem, config) {}
 
     BoundedSolutionSet<SequenceContext> solve() override;
 };
 
-// TODO for branch and bound the weights should always be positive and that creates a problem with deselecting a lecturer.
-
 // ---------------------------------------------------------------------------
-// solve() — defined inline here because SimpleFullSolver is header-only.
+// solve() — defined inline because SimpleFullSolver is header-only.
 // ---------------------------------------------------------------------------
 
-inline BoundedSolutionSet<SequenceContext> SimpleFullSolver::solve()
+template<typename Traits>
+BoundedSolutionSet<SequenceContext> SimpleFullSolver<Traits>::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());
     const int n_seqs    = static_cast<int>(problem_.sequence_size());
     const size_t n_constraints = problem_.get_constraints().size();
     const bool verbose  = config_.verbose;
 
-    SequenceContext context(n_constraints); // empty — no prior sequence
+    SequenceContext context(n_constraints);
     BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
 
     for (int seq = 0; seq < n_seqs; ++seq)
@@ -58,9 +68,7 @@ inline BoundedSolutionSet<SequenceContext> SimpleFullSolver::solve()
         solutions.clear();
         evaluator_.set_sequence(seq);
         if (verbose)
-        {
             std::cout << "=== Sequence " << seq << " ===" << std::endl;
-        }
 
         int found_count = 0;
         TimeTableState current(n_classes);
@@ -115,23 +123,17 @@ inline BoundedSolutionSet<SequenceContext> SimpleFullSolver::solve()
         backtrack(0);
 
         if (verbose)
-        {
-            std::cout << std::endl; // close the \r line
-        }
+            std::cout << std::endl;
 
         if (found_count == 0)
         {
             if (verbose)
-            {
                 std::cout << "  no solutions in sequence " << seq << " — stopping" << std::endl;
-            }
             break;
         }
 
         if (verbose)
-        {
             std::cout << "  keeping " << solutions.size() << " solution(s)" << std::endl;
-        }
     }
 
     return solutions;

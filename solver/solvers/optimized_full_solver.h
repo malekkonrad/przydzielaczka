@@ -9,60 +9,57 @@
 #include <time_table_problem.h>
 #include <time_table_state.h>
 #include <constraint_evaluator.h>
+#include <solution_set.h>
 
 #include <functional>
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <solution_set.h>
 
 #include "constraint_evaluator.h"
 #include "solver_base.h"
+#include "traits.h"
 
-// OptimizedFullSolver — a template backtracking solver that accepts any Evaluatable.
+// OptimizedFullSolver<Traits> — backtracking solver driven by a SolverTraits configuration.
 //
 // Algorithm (one pass per sequence):
-//   1. Backtrack over all classes, pruning on time overlap.
-//   2. At the leaf, reject states that violate any hard constraint for this
-//      sequence or fail the slack-feasibility check from the previous sequence.
-//   3. Score accepted states by the soft goals of the current sequence.
+//   1. Backtrack over all classes.
+//   2. At each node, prune on hard constraints for this sequence and the
+//      slack-feasibility check from the previous sequence.
+//   3. At the leaf, score accepted states by the soft goals of this sequence.
 //   4. Build a SequenceContext from the minimum per-constraint penalty across
 //      all optimal-score states (most permissive bound for the next sequence).
 //   5. Repeat for the next sequence.
 //
-// Extra constructor arguments are forwarded to the Evaluator, so policies can
-// be injected: OptimizedFullSolver<PolicyConstraintEvaluator<IntTimePolicy>>(problem, cfg, policies)
-template<typename Evaluator>
-    requires concepts::ConstraintEvaluator<Evaluator>
-class OptimizedFullSolver : public SolverBase<Evaluator>
+// When Traits::config.use_partial_evaluation is true, pruning happens per
+// assignment (class_id, group) instead of only at the leaf.
+template<typename Traits = SolverTraits>
+class OptimizedFullSolver : public SolverBase<Traits>
 {
-    using SolverBase<Evaluator>::problem_;
-    using SolverBase<Evaluator>::config_;
-    using SolverBase<Evaluator>::evaluator_;
+    using SolverBase<Traits>::problem_;
+    using SolverBase<Traits>::config_;
+    using SolverBase<Traits>::evaluator_;
 
 public:
-    template<typename... Args>
-    explicit OptimizedFullSolver(const TimeTableProblem& problem, const solver::config& config,
-                                 Args&&... args)
-        : SolverBase<Evaluator>(problem, config, std::forward<Args>(args)...) {}
+    explicit OptimizedFullSolver(const TimeTableProblem& problem, const solver::config& config)
+        : SolverBase<Traits>(problem, config) {}
 
     BoundedSolutionSet<SequenceContext> solve() override;
 };
 
 // ---------------------------------------------------------------------------
-// solve() — defined inline here because OptimizedFullSolver is header-only.
+// solve() — defined inline because OptimizedFullSolver is header-only.
 // ---------------------------------------------------------------------------
 
-template<typename Evaluator>
-    requires concepts::ConstraintEvaluator<Evaluator>
-inline BoundedSolutionSet<SequenceContext> OptimizedFullSolver<Evaluator>::solve()
+template<typename Traits>
+BoundedSolutionSet<SequenceContext> OptimizedFullSolver<Traits>::solve()
 {
     const int n_classes = static_cast<int>(problem_.class_size());
     const int n_seqs    = static_cast<int>(problem_.sequence_size());
     const size_t n_constraints = problem_.get_constraints().size();
     const bool verbose  = config_.verbose;
 
-    SequenceContext context(n_constraints); // empty — no prior sequence
+    SequenceContext context(n_constraints);
     BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
 
     for (int seq = 0; seq < n_seqs; ++seq)
@@ -70,9 +67,7 @@ inline BoundedSolutionSet<SequenceContext> OptimizedFullSolver<Evaluator>::solve
         solutions.clear();
         evaluator_.set_sequence(seq);
         if (verbose)
-        {
             std::cout << "=== Sequence " << seq << " ===" << std::endl;
-        }
 
         int found_count = 0;
         TimeTableState current(n_classes);
@@ -100,7 +95,7 @@ inline BoundedSolutionSet<SequenceContext> OptimizedFullSolver<Evaluator>::solve
 
             auto try_state = [&](const int group)
             {
-                if constexpr (concepts::PartialConstraintEvaluator<Evaluator>)
+                if constexpr (Traits::config.use_partial_evaluation)
                 {
                     if (!evaluator_.partial_are_feasible(current, context, class_id, group))
                     {
@@ -143,23 +138,17 @@ inline BoundedSolutionSet<SequenceContext> OptimizedFullSolver<Evaluator>::solve
         backtrack(0);
 
         if (verbose)
-        {
-            std::cout << std::endl; // close the \r line
-        }
+            std::cout << std::endl;
 
         if (found_count == 0)
         {
             if (verbose)
-            {
                 std::cout << "  no solutions in sequence " << seq << " — stopping" << std::endl;
-            }
             break;
         }
 
         if (verbose)
-        {
             std::cout << "  keeping " << solutions.size() << " solution(s)" << std::endl;
-        }
     }
 
     return solutions;

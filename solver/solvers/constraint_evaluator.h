@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <concepts>
 #include <ranges>
-#include <unordered_set>
+#include <span>
 #include <variant>
 #include <vector>
 #include <constraint_variant_fwd.h>
@@ -15,148 +15,130 @@
 #include <time_table_state.h>
 #include <policies/policies.h>
 #include <sequence_context.h>
+#include <traits.h>
 
 // ==================== CONCEPTS ====================
 
-// Evaluatable — anything that can score and prune a TimeTableState.
+// SequenceEvaluator — anything that can score and prune a TimeTableState.
 //
 // The active sequence is set once per backtracking pass via set_sequence().
-// All five evaluation methods then operate on that stored sequence.
-// Both ConstraintEvaluator and PolicyConstraintEvaluator<P> satisfy this.
+// All evaluation methods then operate on that stored sequence.
 
-namespace concepts
+namespace evaluator
 {
-    template<typename E>
-    concept ConstraintEvaluator = requires(
-        E e,
-        const TimeTableState& state,
-        SequenceContext& ctx,
-        const SequenceContext& cctx,
-        int sequence)
+    inline namespace concepts
     {
-        { e.set_sequence(sequence)     } -> std::same_as<void>;
-        { e.score(state)               } -> std::same_as<SequenceContext>;
-        { e.update_context(ctx, state) } -> std::same_as<void>;
-        { e.evaluate(state)            } -> std::convertible_to<double>;
-        { e.are_satisfied(state)       } -> std::convertible_to<bool>;
-        { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
-    };
+        template<typename E>
+        concept SequenceEvaluator = requires(
+            E e,
+            const TimeTableState& state,
+            SequenceContext& ctx,
+            const SequenceContext& cctx,
+            int sequence)
+        {
+            { e.set_sequence(sequence)     } -> std::same_as<void>;
+            { e.score(state)               } -> std::same_as<SequenceContext>;
+            { e.update_context(ctx, state) } -> std::same_as<void>;
+            { e.evaluate(state)            } -> std::convertible_to<double>;
+            { e.are_satisfied(state)       } -> std::convertible_to<bool>;
+            { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
+        };
 
-    // PartialEvaluator — evaluator-level extension of Evaluator.
-    //
-    // Satisfied by PolicyConstraintEvaluator<P> (always, regardless of P), but not
-    // by the plain ConstraintEvaluator.  Solvers check this at compile time with
-    // if constexpr to dispatch to the cheaper per-(class_id, group) pruning path.
-    template<typename E>
-    concept PartialConstraintEvaluator = ConstraintEvaluator<E> && requires(
-        E e,
-        const TimeTableState& state,
-        const SequenceContext& ctx,
-        int class_id,
-        int group)
-    {
-        { e.partial_evaluate(state, class_id, group)          } -> std::convertible_to<double>;
-        { e.partial_are_satisfied(state, class_id, group)     } -> std::convertible_to<bool>;
-        { e.partial_are_feasible(state, ctx, class_id, group) } -> std::convertible_to<bool>;
-    };
-} // namespace concepts
+        // PartialConstraintEvaluator — evaluator-level extension of SequenceEvaluator.
+        //
+        // Satisfied by BasicConstraintEvaluator<Traits> whenever
+        // Traits::config.use_partial_evaluation is true (the partial_* methods exist
+        // regardless, but solvers use this concept at compile time to dispatch to the
+        // cheaper per-(class_id, group) pruning path).
+        template<typename E>
+        concept PartialConstraintEvaluator = SequenceEvaluator<E> && requires(
+            E e,
+            const TimeTableState& state,
+            const SequenceContext& ctx,
+            int class_id,
+            int group)
+        {
+            { e.partial_evaluate(state, class_id, group)          } -> std::convertible_to<double>;
+            { e.partial_are_satisfied(state, class_id, group)     } -> std::convertible_to<bool>;
+            { e.partial_are_feasible(state, ctx, class_id, group) } -> std::convertible_to<bool>;
+        };
+    } // namespace concepts
 
-// ==================== BASELINE EVALUATOR ====================
+    namespace detail {
+        // Appends a single type T to the alternatives of a std::variant.
+        template<typename V, typename T>
+        struct variant_append;
 
-// Non-template evaluator — delegates entirely to the constraint objects.
-class BaseEvaluator
+        template<typename... Ts, typename T>
+        struct variant_append<std::variant<Ts...>, T> { using type = std::variant<Ts..., T>; };
+
+        // Appends zero or more types to a variant (variadic fold).
+        template<typename V, typename... Ts>
+        struct variant_append_all { using type = V; };
+
+        template<typename V, typename T, typename... Ts>
+        struct variant_append_all<V, T, Ts...>
+            : variant_append_all<typename variant_append<V, T>::type, Ts...> {};
+
+        template<typename V, typename... Ts>
+        using variant_append_all_t = typename variant_append_all<V, Ts...>::type;
+
+        // True iff T appears in Ts...
+        template<typename T, typename... Ts>
+        inline constexpr bool contains_type_v = (std::is_same_v<T, Ts> || ...);
+
+        // True iff all types in Ts... are distinct.
+        template<typename... Ts>
+        inline constexpr bool all_unique_types_v = true;
+
+        template<typename T, typename... Ts>
+        inline constexpr bool all_unique_types_v<T, Ts...> =
+            !contains_type_v<T, Ts...> && all_unique_types_v<Ts...>;
+    } // namespace detail
+
+} // namespace evaluator
+
+// ==================== CONSTRAINT EVALUATOR ====================
+
+// Forward declaration — body lives in the partial specialization below.
+template<typename Traits = SolverTraits>
+class BasicConstraintEvaluator;
+
+// Partial specialization unpacking BasicSolverTraits<Config, Ps...>.
+//
+// Config.use_partial_evaluation — when true the partial_* methods dispatch to
+//   dedicated per-(class_id, group) overloads for items satisfying
+//   policies::PartiallyEvaluatable; otherwise they fall back to full-state eval.
+//
+// Ps... — zero or more Substitutable policy types.  For every constraint whose
+//   ConstraintType matches P{}.type, P::make(c, problem) replaces the original.
+//   Unmatched constraints are stored as-is.
+//
+// Construction: only the TimeTableProblem is passed; policies come from the type.
+//
+//   BasicConstraintEvaluator<>
+//   BasicConstraintEvaluator<SolverTraits::WithPolicies<IntTimePolicy>>
+//   BasicConstraintEvaluator<SolverTraits
+//       ::WithPartialEvaluation<true>
+//       ::WithPolicies<IntTimePolicy, IntAbsencePolicy>>
+//
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+class BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>
 {
-public:
-    explicit BaseEvaluator(const TimeTableProblem& problem)
-        : problem_(problem), sequence_(0) {}
-
-    void set_sequence(const int sequence) { sequence_ = sequence; }
-    int  get_sequence() const             { return sequence_; }
-
-    [[nodiscard]] SequenceContext score(const TimeTableState& state) const;
-    void update_context(SequenceContext& context, const TimeTableState& state) const;
-    [[nodiscard]] double evaluate(const TimeTableState& state) const;
-    [[nodiscard]] bool   are_satisfied(const TimeTableState& state) const;
-    [[nodiscard]] bool   are_feasible(const TimeTableState& state, const SequenceContext& context) const;
-
-private:
-    const TimeTableProblem& problem_;
-    int sequence_;
-};
-
-static_assert(concepts::ConstraintEvaluator<BaseEvaluator>,
-    "ConstraintEvaluator must satisfy Evaluatable");
-
-// ==================== POLICY EVALUATOR ====================
-
-namespace detail {
-    // Appends a single type T to the alternatives of a std::variant.
-    template<typename V, typename T>
-    struct variant_append;
-
-    template<typename... Ts, typename T>
-    struct variant_append<std::variant<Ts...>, T> { using type = std::variant<Ts..., T>; };
-
-    // Appends zero or more types to a variant (variadic fold).
-    template<typename V, typename... Ts>
-    struct variant_append_all { using type = V; };
-
-    template<typename V, typename T, typename... Ts>
-    struct variant_append_all<V, T, Ts...>
-        : variant_append_all<typename variant_append<V, T>::type, Ts...> {};
-
-    template<typename V, typename... Ts>
-    using variant_append_all_t = typename variant_append_all<V, Ts...>::type;
-
-    // True iff T does not appear in Ts...
-    template<typename T, typename... Ts>
-    inline constexpr bool contains_type_v = (std::is_same_v<T, Ts> || ...);
-
-    // True iff all types in Ts... are distinct.
-    template<typename... Ts>
-    inline constexpr bool all_unique_types_v = true;
-
-    template<typename T, typename... Ts>
-    inline constexpr bool all_unique_types_v<T, Ts...> =
-        !contains_type_v<T, Ts...> && all_unique_types_v<Ts...>;
-} // namespace detail
-
-// Template evaluator that combines any number of policy types with the remaining
-// problem constraints in a single sorted vector (UnifiedVariant), indexed by
-// pre-computed split points. This gives O(1) sequence slicing — no filter scans.
-//
-// Each Ps must satisfy policies::Substitutable.
-// If a policy type also satisfies policies::PartiallyEvaluatable, partial_*
-// methods use the cheaper per-(class_id, group) overloads for items of that type.
-//
-// Construction: pass one std::vector<Pi> per policy type.
-//   PolicyEvaluator<>          ev(problem);               // no policies
-//   PolicyEvaluator<A>         ev(problem, {a1, a2});     // one policy type
-//   PolicyEvaluator<A, B>      ev(problem, {a1}, {b1});   // two policy types
-//
-// Each Ps must also satisfy policies::Substitutable — provide a static make() factory.
-// For every constraint whose ConstraintType matches P{}.type, P::make(c, problem)
-// is called and the result replaces the original constraint. All other fields
-// (id, sequence, hard, weight, slack, plus any policy-specific fields) are copied
-// inside make(). Unmatched constraints are kept as-is.
-template<bool UsePartial = true, policies::Substitutable... Ps>
-class PolicyEvaluator
-{
-    static_assert(detail::all_unique_types_v<Ps...>,
-        "Each policy type must appear at most once in PolicyEvaluator<Ps...>");
+    static_assert(evaluator::detail::all_unique_types_v<Ps...>,
+        "Each policy type must appear at most once in Traits::WithPolicies<...>");
 
 public:
     // All constraint alternatives + every policy type in one flat variant.
-    using UnifiedVariant = detail::variant_append_all_t<solver_models::ConstraintVariant, Ps...>;
+    using UnifiedVariant = evaluator::detail::variant_append_all_t<solver_models::ConstraintVariant, Ps...>;
 
-    explicit PolicyEvaluator(const TimeTableProblem& problem)
+    explicit BasicConstraintEvaluator(const TimeTableProblem& problem)
         : problem_(problem), sequence_(0)
     {
         for (const auto& c : problem.get_constraints())
         {
             const auto ctype = std::visit([](const auto& cv) { return cv.type; }, c);
 
-            // Try each policy type in order; the first whose static type field matches wins.
             bool substituted = false;
             ([&]<typename P>(std::type_identity<P>) {
                 if (!substituted && P{}.type == ctype) {
@@ -169,7 +151,7 @@ public:
                 unified_.push_back(std::visit([](const auto& cv) -> UnifiedVariant { return cv; }, c));
         }
 
-        // Sort: ascending sequence, hard before soft within sequence.
+        // Sort: ascending sequence, hard before soft within a sequence.
         std::stable_sort(unified_.begin(), unified_.end(),
             [](const UnifiedVariant& a, const UnifiedVariant& b)
             {
@@ -204,8 +186,8 @@ public:
         }
     }
 
-    void set_sequence(const int sequence) { sequence_ = sequence; }
-    int  get_sequence() const             { return sequence_; }
+    void set_sequence(const int sequence)   { sequence_ = sequence; }
+    [[nodiscard]] int  get_sequence() const { return sequence_; }
 
     [[nodiscard]] SequenceContext score(const TimeTableState& state) const;
     void update_context(SequenceContext& context, const TimeTableState& state) const;
@@ -217,22 +199,18 @@ public:
 
     // Sums lower_bound() for every BoundEstimating goal in this sequence.
     // Non-BoundEstimating goals contribute 0 (optimistic: no remaining penalty).
-    // Used by BranchAndBoundSolver to prune branches whose minimum achievable
-    // penalty already exceeds the best solution found so far.
     [[nodiscard]] double lower_bound(const TimeTableState& state) const;
 
     // Returns the number of OrderSensitive policies active in the current sequence.
-    // BranchAndBoundSolver uses this at runtime to decide whether to apply B&B
-    // ordering (== 1) or fall back to plain backtracking (> 1).
     [[nodiscard]] int count_order_sensitive() const;
 
-    // Returns the class_order() from the first OrderSensitive policy found in the
-    // current sequence, or an empty vector if none exists.
+    // Returns class_order() from the first OrderSensitive policy in the current sequence.
     [[nodiscard]] std::vector<std::pair<int,int>> get_class_order() const;
 
-    // Partial evaluation — operates on the (class_id, group) slot just placed in state.
-    // For policy items that satisfy PartiallyEvaluatable, dedicated partial overloads are
-    // called; all other items fall back to full-state evaluation.
+    // Partial evaluation — operates on the (class_id, group) slot just placed.
+    // When Config.use_partial_evaluation is true and the item satisfies
+    // PartiallyEvaluatable, dedicated partial overloads are used; otherwise falls
+    // back to full-state evaluation.
     [[nodiscard]] double partial_evaluate(const TimeTableState& state, int class_id, int group) const;
     [[nodiscard]] bool   partial_are_satisfied(const TimeTableState& state, int class_id, int group) const;
     [[nodiscard]] bool   partial_are_feasible(const TimeTableState& state, const SequenceContext& context, int class_id, int group) const;
@@ -240,8 +218,8 @@ public:
 private:
     const TimeTableProblem& problem_;
     std::vector<UnifiedVariant> unified_;
-    std::vector<int> split_point_;      // split_point_[seq]      = one-past-end of seq's entries
-    std::vector<int> soft_hard_split_;  // soft_hard_split_[seq]  = first soft entry of seq
+    std::vector<int> split_point_;      // split_point_[seq]     = one-past-end of seq's entries
+    std::vector<int> soft_hard_split_;  // soft_hard_split_[seq] = first soft entry of seq
     int sequence_;
 
     // All (hard+soft) entries for exactly seq.
@@ -289,9 +267,8 @@ private:
 
 // -------------------- Inline implementations --------------------
 
-// Fills context with penalties for every entry up to and including sequence.
-template<bool UsePartial, policies::Substitutable... Ps>
-SequenceContext PolicyEvaluator<UsePartial, Ps...>::score(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+SequenceContext BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::score(
     const TimeTableState& state) const
 {
     SequenceContext context(problem_.get_constraints().size());
@@ -300,9 +277,8 @@ SequenceContext PolicyEvaluator<UsePartial, Ps...>::score(
     return context;
 }
 
-// Updates context with lower penalties found in this sequence (hard + soft).
-template<bool UsePartial, policies::Substitutable... Ps>
-void PolicyEvaluator<UsePartial, Ps...>::update_context(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+void BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::update_context(
     SequenceContext& context, const TimeTableState& state) const
 {
     for (const auto& u : slice_in(sequence_))
@@ -316,9 +292,8 @@ void PolicyEvaluator<UsePartial, Ps...>::update_context(
         }, u);
 }
 
-// Sums soft goals for this sequence.
-template<bool UsePartial, policies::Substitutable... Ps>
-double PolicyEvaluator<UsePartial, Ps...>::evaluate(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+double BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::evaluate(
     const TimeTableState& state) const
 {
     double total = 0.0;
@@ -327,9 +302,8 @@ double PolicyEvaluator<UsePartial, Ps...>::evaluate(
     return total;
 }
 
-// True if all hard entries in this sequence are satisfied.
-template<bool UsePartial, policies::Substitutable... Ps>
-bool PolicyEvaluator<UsePartial, Ps...>::are_satisfied(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+bool BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::are_satisfied(
     const TimeTableState& state) const
 {
     for (const auto& u : slice_hard(sequence_))
@@ -341,9 +315,8 @@ bool PolicyEvaluator<UsePartial, Ps...>::are_satisfied(
     return true;
 }
 
-// True if all entries from previous sequences are still feasible.
-template<bool UsePartial, policies::Substitutable... Ps>
-bool PolicyEvaluator<UsePartial, Ps...>::are_feasible(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+bool BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::are_feasible(
     const TimeTableState& state, const SequenceContext& context) const
 {
     for (const auto& u : slice_before(sequence_))
@@ -355,9 +328,8 @@ bool PolicyEvaluator<UsePartial, Ps...>::are_feasible(
     return true;
 }
 
-// Sums soft goals; items satisfying PartiallyEvaluatable use the partial overload.
-template<bool UsePartial, policies::Substitutable... Ps>
-double PolicyEvaluator<UsePartial, Ps...>::partial_evaluate(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+double BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::partial_evaluate(
     const TimeTableState& state, const int class_id, const int group) const
 {
     double total = 0.0;
@@ -365,7 +337,7 @@ double PolicyEvaluator<UsePartial, Ps...>::partial_evaluate(
         std::visit([&](const auto& x)
         {
             using T = std::decay_t<decltype(x)>;
-            if constexpr (UsePartial && policies::PartiallyEvaluatable<T>)
+            if constexpr (Config.use_partial_evaluation && policies::PartiallyEvaluatable<T>)
                 total += x.partial_evaluate(state, problem_, class_id, group);
             else
                 total += x.evaluate(state, problem_);
@@ -373,9 +345,8 @@ double PolicyEvaluator<UsePartial, Ps...>::partial_evaluate(
     return total;
 }
 
-// True if all hard entries are satisfied; partial overloads used where available.
-template<bool UsePartial, policies::Substitutable... Ps>
-bool PolicyEvaluator<UsePartial, Ps...>::partial_are_satisfied(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+bool BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::partial_are_satisfied(
     const TimeTableState& state, const int class_id, const int group) const
 {
     for (const auto& u : slice_hard(sequence_))
@@ -383,7 +354,7 @@ bool PolicyEvaluator<UsePartial, Ps...>::partial_are_satisfied(
         const bool ok = std::visit([&](const auto& x) -> bool
         {
             using T = std::decay_t<decltype(x)>;
-            if constexpr (UsePartial && policies::PartiallyEvaluatable<T>)
+            if constexpr (Config.use_partial_evaluation && policies::PartiallyEvaluatable<T>)
                 return x.partial_is_satisfied(state, problem_, class_id, group);
             else
                 return x.is_satisfied(state, problem_);
@@ -393,9 +364,8 @@ bool PolicyEvaluator<UsePartial, Ps...>::partial_are_satisfied(
     return true;
 }
 
-// True if all previous-sequence entries are feasible; partial overloads used where available.
-template<bool UsePartial, policies::Substitutable... Ps>
-bool PolicyEvaluator<UsePartial, Ps...>::partial_are_feasible(
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+bool BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::partial_are_feasible(
     const TimeTableState& state, const SequenceContext& context,
     const int class_id, const int group) const
 {
@@ -404,7 +374,7 @@ bool PolicyEvaluator<UsePartial, Ps...>::partial_are_feasible(
         const bool ok = std::visit([&](const auto& x) -> bool
         {
             using T = std::decay_t<decltype(x)>;
-            if constexpr (UsePartial && policies::PartiallyEvaluatable<T>)
+            if constexpr (Config.use_partial_evaluation && policies::PartiallyEvaluatable<T>)
                 return x.partial_is_feasible(state, problem_, context, class_id, group);
             else
                 return x.is_feasible(state, problem_, context);
@@ -414,9 +384,9 @@ bool PolicyEvaluator<UsePartial, Ps...>::partial_are_feasible(
     return true;
 }
 
-// Sums lower_bound() over BoundEstimating soft goals for the current sequence.
-template<bool UsePartial, policies::Substitutable... Ps>
-double PolicyEvaluator<UsePartial, Ps...>::lower_bound(const TimeTableState& state) const
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+double BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::lower_bound(
+    const TimeTableState& state) const
 {
     double bound = 0.0;
     for (const auto& u : slice_goals(sequence_))
@@ -430,9 +400,8 @@ double PolicyEvaluator<UsePartial, Ps...>::lower_bound(const TimeTableState& sta
     return bound;
 }
 
-// Counts OrderSensitive policies in the current sequence (hard + soft).
-template<bool UsePartial, policies::Substitutable... Ps>
-int PolicyEvaluator<UsePartial, Ps...>::count_order_sensitive() const
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+int BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::count_order_sensitive() const
 {
     int count = 0;
     for (const auto& u : slice_in(sequence_))
@@ -445,9 +414,9 @@ int PolicyEvaluator<UsePartial, Ps...>::count_order_sensitive() const
     return count;
 }
 
-// Returns class_order() from the first OrderSensitive policy in the current sequence.
-template<bool UsePartial, policies::Substitutable... Ps>
-std::vector<std::pair<int,int>> PolicyEvaluator<UsePartial, Ps...>::get_class_order() const
+template<detail::SolverConfig Config, policies::Substitutable... Ps>
+std::vector<std::pair<int,int>>
+BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::get_class_order() const
 {
     for (const auto& u : slice_in(sequence_))
     {
@@ -467,13 +436,19 @@ std::vector<std::pair<int,int>> PolicyEvaluator<UsePartial, Ps...>::get_class_or
     return {};
 }
 
+// Default alias — no policies, no partial evaluation.
+using ConstraintEvaluator = BasicConstraintEvaluator<>;
+
+static_assert(evaluator::SequenceEvaluator<BasicConstraintEvaluator<>>,
+    "BasicConstraintEvaluator<> must satisfy SequenceEvaluator");
+
 // ==================== EVALUATOR FREE FUNCTIONS ====================
-// Work at the evaluator level (sequence-aware): take an Evaluatable evaluator.
+// Work at the evaluator level (sequence-aware): take any SequenceEvaluator.
 
 namespace evaluator {
 
 // Sums the soft-goal score across all sequences.
-template<concepts::ConstraintEvaluator E>
+template<concepts::SequenceEvaluator E>
 double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 {
     double total = 0.0;
@@ -486,7 +461,7 @@ double evaluate_all(E& ev, const TimeTableState& state, const int n_sequences)
 }
 
 // Returns true if all hard constraints are satisfied across all sequences.
-template<concepts::ConstraintEvaluator E>
+template<concepts::SequenceEvaluator E>
 bool all_satisfied(E& ev, const TimeTableState& state, const int n_sequences)
 {
     for (int seq = 0; seq < n_sequences; ++seq)

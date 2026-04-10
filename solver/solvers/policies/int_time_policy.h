@@ -326,5 +326,6 @@ static_assert(policies::BoundEstimating<IntTimePolicy>,
 static_assert(policies::OrderSensitive<IntTimePolicy>,
     "IntTimePolicy must satisfy policies::OrderSensitive");
 
-static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<true, IntTimePolicy>>,
-    "PolicyEvaluator<IntTimePolicy> must satisfy the ConstraintEvaluator concept");
+static_assert(evaluator::SequenceEvaluator<
+    BasicConstraintEvaluator<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>>>,
+    "BasicConstraintEvaluator<...IntTimePolicy> must satisfy SequenceEvaluator");

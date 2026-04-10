@@ -48,10 +48,11 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     config.max_solutions = static_cast<size_t>(max_solutions_);
     config.verbose = true;
     // TODO add some selector
-    // SimpleFullSolver solver(problem, config);
-    // OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy>> solver(problem, config);
-    // OptimizedFullSolver<PolicyEvaluator<true, IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
-    BranchAndBoundSolver<IntTimePolicy> solver(problem, config);
+    // SimpleFullSolver<> solver(problem, config);
+    // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>> solver(problem, config);
+    // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
+    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>;
+    BranchAndBoundSolver<BnBTraits> solver(problem, config);
 
     const auto t_start = Clock::now();
     const std::vector<TimeTableState> solutions = solver.solve().extract_states();

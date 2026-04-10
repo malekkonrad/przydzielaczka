@@ -24,7 +24,7 @@ namespace policies {
         concept Evaluatable = constraints::Evaluatable<Policy>;
 
         // Substitutable — policy can construct itself from a matching ConstraintVariant.
-        // PolicyEvaluator uses this to automatically replace all constraints whose
+        // BasicConstraintEvaluator uses this to automatically replace all constraints whose
         // ConstraintType matches P{}.type, copying all fields via the factory method.
         template<typename Policy>
         concept Substitutable = Evaluatable<Policy> && requires(
@@ -164,7 +164,6 @@ namespace policies {
     // ==================== NULL POLICY ====================
 
     // No-op policy — always satisfied, zero penalty.
-    // Used as the default template argument for PolicyEvaluator.
     struct NullPolicy
     {
         int id       = -1;

@@ -223,5 +223,6 @@ static_assert(policies::PartiallyEvaluatable<IntAbsencePolicy>,
 static_assert(policies::Substitutable<IntAbsencePolicy>,
     "IntAbsencePolicy must satisfy policies::Substitutable");
 
-static_assert(concepts::ConstraintEvaluator<PolicyEvaluator<true, IntAbsencePolicy>>,
-    "PolicyEvaluator<IntAbsencePolicy> must satisfy the ConstraintEvaluator concept");
+static_assert(evaluator::SequenceEvaluator<
+    BasicConstraintEvaluator<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntAbsencePolicy>>>,
+    "BasicConstraintEvaluator<...IntAbsencePolicy> must satisfy SequenceEvaluator");
