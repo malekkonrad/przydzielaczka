@@ -55,15 +55,14 @@ protected:
     // nodes_total  — total tree nodes (internal + leaves) for progress reporting (0 = unknown).
     // leaves_total — total leaf nodes; denominator for per-mechanism leaf percentages (0 = unknown).
     void stats_begin_sequence(const int seq_index,
-                              const long long nodes_total  = 0,
                               const long long leaves_total = 0)
     {
         seq_stats_                = SequenceStats{};
         seq_stats_.sequence_index = seq_index;
-        seq_stats_.nodes_total    = nodes_total;
         seq_stats_.leaves_total   = leaves_total;
         seq_start_  = std::chrono::steady_clock::now();
         last_print_ = seq_start_;
+        SequenceStats::print_header();
     }
 
     // Call once after the search for a sequence finishes.

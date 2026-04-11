@@ -192,7 +192,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
             nodes_total = (nodes_total > MAX_NODES - level_count) ? MAX_NODES : nodes_total + level_count;
         }
 
-        this->stats_begin_sequence(seq, nodes_total, suffix_leaves[0]);
+        this->stats_begin_sequence(seq, suffix_leaves[0]);
 
         // ---- Backtracking search with B&B pruning ----
 

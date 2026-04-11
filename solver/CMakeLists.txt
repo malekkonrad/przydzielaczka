@@ -21,6 +21,7 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         solvers/policies/int_absence_policy.h
         solvers/traits.h
         solvers/stats.h
+        solvers/stats.cpp
 )
 
 # Public includes are available to anyone linking to solver_core
