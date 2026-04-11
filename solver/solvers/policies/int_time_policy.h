@@ -63,7 +63,9 @@ struct IntTimePolicy
             p.weight   = src.weight;
             p.slack    = src.slack;
             if constexpr (requires { src.min_break; })
+            {
                 p.min_break = src.min_break;
+            }
             p.precompute(problem);
             return p;
         }, c);
@@ -96,7 +98,9 @@ struct IntTimePolicy
         }
         // Sort each bucket by start_time once — never sorted again at runtime.
         for (auto& entries : lookup_ | std::views::values)
+        {
             std::ranges::sort(entries, {}, &Entry::start_time);
+        }
     }
 
     // -------------------- Evaluatable interface --------------------
@@ -110,12 +114,17 @@ struct IntTimePolicy
             int prev_end = -1;
             for (const auto& e : entries)
             {
-                if (!state.is_attended(e.class_id, e.group)) continue;
+                if (!state.is_attended(e.class_id, e.group))
+                {
+                    continue;
+                }
                 if (prev_end >= 0)
                 {
                     const int gap = e.start_time - prev_end;
                     if (gap > min_break)
+                    {
                         p += static_cast<double>(gap - min_break);
+                    }
                 }
                 prev_end = e.end_time;
             }
@@ -132,7 +141,7 @@ struct IntTimePolicy
     [[nodiscard]] bool is_satisfied(const TimeTableState& state,
                                     const TimeTableProblem& /*problem*/) const
     {
-        for (const auto& [key, entries] : lookup_)
+        for (const auto& entries : lookup_ | std::views::values)
         {
             int prev_end = -1;
             for (const auto& e : entries)
@@ -183,26 +192,17 @@ struct IntTimePolicy
     {
         const int n = static_cast<int>(problem.class_size());
         std::vector<std::pair<int,int>> order;
-        order.reserve(n);
 
         for (int cid = 0; cid < n; ++cid)
         {
             const int max_g = problem.get_max_group(cid);
-            int rep_group = 1;
-            const auto* rep = &problem.get_group(cid, 1);
-            for (int g = 2; g <= max_g; ++g)
+            for (int group = 1; group <= max_g; ++group)
             {
-                const auto& cls = problem.get_group(cid, g);
-                if (cls.day < rep->day || (cls.day == rep->day && cls.start_time < rep->start_time))
-                {
-                    rep       = &cls;
-                    rep_group = g;
-                }
+                order.push_back({cid, group});
             }
-            order.push_back({cid, rep_group});
         }
 
-        std::ranges::sort(order, [&](const auto& a, const auto& b)
+        std::ranges::stable_sort(order, [&](const auto& a, const auto& b)
         {
             const auto& ca = problem.get_group(a.first, a.second);
             const auto& cb = problem.get_group(b.first, b.second);

@@ -130,6 +130,12 @@ struct IntAbsencePolicy
         return penalty(state, problem) <= context[id] + slack;
     }
 
+    [[nodiscard]] double lower_bound(const TimeTableState& state,
+                                     const TimeTableProblem& problem) const
+    {
+        return evaluate(state, problem);
+    }
+
     // -------------------- PartiallyEvaluatable interface --------------------
     //
     // Correctness argument:
@@ -219,6 +225,9 @@ static_assert(policies::Evaluatable<IntAbsencePolicy>,
 
 static_assert(policies::PartiallyEvaluatable<IntAbsencePolicy>,
     "IntAbsencePolicy must satisfy policies::PartiallyEvaluatable");
+
+static_assert(policies::BoundEstimating<IntAbsencePolicy>,
+    "IntAbsencePolicy must satisfy policies::BoundEstimating");
 
 static_assert(policies::Substitutable<IntAbsencePolicy>,
     "IntAbsencePolicy must satisfy policies::Substitutable");

@@ -31,7 +31,7 @@ double MinimizeGapsConstraint::penalty(const TimeTableState& state,
                                        const TimeTableProblem& problem) const
 {
     std::map<std::pair<int,int>, std::vector<const Class*>> by_day_week;
-    for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
+    for (int class_id = 0; class_id < state.size(); ++class_id)
     {
         if (!state.is_attended(class_id))
         {
@@ -87,7 +87,9 @@ bool MinimizeGapsConstraint::is_satisfied(const TimeTableState& state,
     for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
     {
         if (!state.is_attended(class_id))
+        {
             continue;
+        }
         const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
         if (cls.week.test(0))
             by_day_week[{cls.day, 0}].push_back(&cls);

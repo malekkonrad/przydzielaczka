@@ -54,7 +54,7 @@ void SequenceStats::print_final() const
 
 void SequenceStats::print_line(const double display_time) const
 {
-    const long long processed_leaves = leaves_pruned + leaves_feasibility_cut + leaves_constraint_cut;
+    const long long processed_leaves = leaves_pruned + leaves_feasibility_cut + leaves_constraint_cut + solutions_found;
     const double node_pct = leaves_total > 0
         ? 100.0 * static_cast<double>(processed_leaves)       / static_cast<double>(leaves_total) : 0.0;
     const double lb_nodes_pct = nodes_visited > 0

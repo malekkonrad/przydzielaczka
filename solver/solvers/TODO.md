@@ -1,5 +1,6 @@
 # TODO for solvers
-- [ ] Add solver traits, hide everything behind solver_base, default to one evaluator
+- [x] Add solver traits, hide everything behind solver_base, default to one evaluator
+- [ ] IMPORTANT IntTimePolicy has incorrect lower bound, idk why
 - [ ] Add heuristics
 - [ ] MRV - chose most constraint groups first
 - [ ] Degree heuristic - chose group with most influence on others

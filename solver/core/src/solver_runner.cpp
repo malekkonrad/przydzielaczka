@@ -51,7 +51,7 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     // SimpleFullSolver<> solver(problem, config);
     // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>> solver(problem, config);
     // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
-    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>;
+    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
     BranchAndBoundSolver<BnBTraits> solver(problem, config);
 
     const auto t_start = Clock::now();

@@ -8,6 +8,7 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <iostream>
 #include <optional>
 #include <utility>
 #include <vector>

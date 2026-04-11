@@ -32,6 +32,7 @@ template<SolverTraitsConcept Traits = SolverTraits>
 class SolverBase
 {
 public:
+    // TODO inform if the evaluator supports partial and change Traits
     using Evaluator = BasicConstraintEvaluator<Traits>;
 
     explicit SolverBase(const TimeTableProblem& problem, const solver::config& config)
@@ -50,6 +51,32 @@ protected:
     // -----------------------------------------------------------------------
     // Stats helpers — thin wrappers so subclasses never touch stats_ directly.
     // -----------------------------------------------------------------------
+
+    long long count_leaves(const TimeTableState& state) const
+    {
+        long long leaves = 1;
+        const auto groups = state.get_raw_groups();
+        for (int i = 0; i < groups.size(); ++i)
+        {
+            const auto group = groups[i];
+            if (group == TimeTableState::UNASSIGNED)
+            {
+                leaves *= problem_.get_max_group(i) * 2LL;
+            }
+        }
+        return leaves;
+    }
+
+    long long count_leaves() const
+    {
+        long long leaves = 1;;
+        for (int i = 0; i < problem_.class_size(); ++i)
+        {
+            leaves *= problem_.get_max_group(i) * 2LL;
+
+        }
+        return leaves;
+    }
 
     // Call once at the beginning of a sequence.
     // nodes_total  — total tree nodes (internal + leaves) for progress reporting (0 = unknown).
@@ -77,7 +104,7 @@ protected:
 
     // Individual event counters — call at the relevant point in the search.
     // The `leaves` parameter is the number of leaf nodes in the eliminated subtree.
-    void stats_record_visited()                              { ++seq_stats_.nodes_visited; }
+    void stats_record_visited()                                   { ++seq_stats_.nodes_visited; }
     void stats_record_pruned         (const long long leaves = 0) { ++seq_stats_.nodes_pruned;          seq_stats_.leaves_pruned          += leaves; }
     void stats_record_feasibility_cut(const long long leaves = 0) { ++seq_stats_.nodes_feasibility_cut; seq_stats_.leaves_feasibility_cut += leaves; }
     void stats_record_constraint_cut (const long long leaves = 0) { ++seq_stats_.nodes_constraint_cut;  seq_stats_.leaves_constraint_cut  += leaves; }
@@ -85,9 +112,12 @@ protected:
     // Call when a complete, evaluated solution is found.
     void stats_record_solution(const double eval)
     {
+        ++seq_stats_.leaves_total;
         ++seq_stats_.solutions_found;
         if (eval < seq_stats_.best_eval)
+        {
             seq_stats_.best_eval = eval;
+        }
     }
 
     // Call after trimming the solution set to record how many were kept overall.

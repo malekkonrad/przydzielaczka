@@ -4,8 +4,8 @@
             "constraint_type": "minimize_total_absence",
             "sequence": 1,
             "weight": 1,
-            "hard": true,
-            "slack": 2
+            "hard": false,
+            "slack": 0
         },
         {
             "constraint_type": "minimize_gaps",

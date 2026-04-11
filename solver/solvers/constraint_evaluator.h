@@ -44,14 +44,14 @@ namespace evaluator
             { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
         };
 
-        // PartialConstraintEvaluator — evaluator-level extension of SequenceEvaluator.
+        // PartialSequenceEvaluator — evaluator-level extension of SequenceEvaluator.
         //
         // Satisfied by BasicConstraintEvaluator<Traits> whenever
         // Traits::config.use_partial_evaluation is true (the partial_* methods exist
         // regardless, but solvers use this concept at compile time to dispatch to the
         // cheaper per-(class_id, group) pruning path).
         template<typename E>
-        concept PartialConstraintEvaluator = SequenceEvaluator<E> && requires(
+        concept PartialSequenceEvaluator = SequenceEvaluator<E> && requires(
             E e,
             const TimeTableState& state,
             const SequenceContext& ctx,
@@ -140,15 +140,19 @@ public:
             const auto ctype = std::visit([](const auto& cv) { return cv.type; }, c);
 
             bool substituted = false;
-            ([&]<typename P>(std::type_identity<P>) {
-                if (!substituted && P{}.type == ctype) {
+            ([&]<typename P>(std::type_identity<P>)
+            {
+                if (!substituted && P{}.type == ctype)
+                {
                     unified_.push_back(P::make(c, problem));
                     substituted = true;
                 }
             }(std::type_identity<Ps>{}), ...);
 
             if (!substituted)
+            {
                 unified_.push_back(std::visit([](const auto& cv) -> UnifiedVariant { return cv; }, c));
+            }
         }
 
         // Sort: ascending sequence, hard before soft within a sequence.
@@ -205,7 +209,7 @@ public:
     [[nodiscard]] int count_order_sensitive() const;
 
     // Returns class_order() from the first OrderSensitive policy in the current sequence.
-    [[nodiscard]] std::vector<std::pair<int,int>> get_class_order() const;
+    [[nodiscard]] std::vector<std::pair<int,int>> get_class_group_order() const;
 
     // Partial evaluation — operates on the (class_id, group) slot just placed.
     // When Config.use_partial_evaluation is true and the item satisfies
@@ -394,7 +398,9 @@ double BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::lower_bound(
         {
             using T = std::decay_t<decltype(x)>;
             if constexpr (policies::BoundEstimating<T>)
+            {
                 bound += x.lower_bound(state, problem_);
+            }
             // else: not BoundEstimating — optimistically assume 0 remaining penalty
         }, u);
     return bound;
@@ -416,7 +422,7 @@ int BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::count_order_sens
 
 template<detail::SolverConfig Config, policies::Substitutable... Ps>
 std::vector<std::pair<int,int>>
-BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::get_class_order() const
+BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::get_class_group_order() const
 {
     for (const auto& u : slice_in(sequence_))
     {
