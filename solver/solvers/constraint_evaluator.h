@@ -10,7 +10,7 @@
 #include <span>
 #include <variant>
 #include <vector>
-#include <constraint_variant_fwd.h>
+#include <constraints.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
 #include <policies/policies.h>

@@ -11,7 +11,7 @@
 #include <solution_set.h>
 #include "constraint_evaluator.h"
 #include "solver_base.h"
-#include "solver_config.h"
+#include "../core/include/solver_config.h"
 #include "traits.h"
 
 #include <functional>
@@ -121,11 +121,15 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
 
     SequenceContext context(n_constraints);
     BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
+    BoundedSolutionSet<double> intermediate_solutions(config_.max_solutions);
 
     auto class_groups_range = ClassGroupRange(problem_);
+    std::vector<std::pair<int,int>> order;
 
     for (int seq = 0; seq < n_seqs; ++seq)
     {
+        bool stop = false;
+
         solutions.clear();
         evaluator_.set_sequence(seq);
 
@@ -145,7 +149,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
 
         if (use_bnb && n_os == 1)
         {
-            std::vector<std::pair<int, int>> order = evaluator_.get_class_group_order();
+            order = evaluator_.get_class_group_order();
             if (order.size() == problem_.size())
             {
                 class_groups_range = ClassGroupRange(problem_, order);
@@ -155,8 +159,8 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 if (verbose)
                 {
                     std::cout << "  class_order() returned " << order.size()
-                              << " entries (expected " << n_classes
-                              << ") — using default order.\n";
+                              << " entries (expected " << problem_.size()
+                              << ") — using default order." << std::endl;
                 }
             }
         }
@@ -184,6 +188,12 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 SequenceContext ctx = evaluator_.score(current);
                 evaluator_.update_context(context, current);
                 solutions.insert(std::move(ctx), current);
+                intermediate_solutions.insert(eval, current);
+
+                if (config_.early_stopping && intermediate_solutions.worst_score() == best_eval && intermediate_solutions.size() == config_.max_solutions)
+                {
+                    stop = true;
+                }
 
                 if (verbose)
                 {
@@ -246,6 +256,8 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
 
             for (const auto [class_id, group] : class_groups)
             {
+                if (stop) return;
+
                 position++;
                 current.attend(class_id, group);
                 try_state(class_id, group);

@@ -5,10 +5,9 @@
 #pragma once
 
 #include "time_table_state.h"
-#include <constraint_variant_fwd.h>
 
 #include <concepts>
-#include <time_table_problem.h>
+#include <span>
 #include <variant>
 #include <vector>
 
@@ -33,65 +32,11 @@ namespace constraints
         MinimizeGroupAbsence,
         MinimizeTotalAbsence,
     };
-
-    // -------------------- CONCEPT --------------------
-
-    inline namespace concepts
-    {
-        // Requires that a type exposes all four evaluation methods.
-        // TimeTableProblem is forward-declared here; the static_assert in constraints.cpp
-        // fires with the full definition, so the check is complete at that point.
-        template<typename T>
-        concept Evaluatable = requires(
-            const T& c,
-            const TimeTableState& s,
-            const TimeTableProblem& p,
-            const SequenceContext& ctx)
-        {
-            { c.penalty(s, p) }           -> std::convertible_to<double>;
-            { c.evaluate(s, p) }          -> std::convertible_to<double>;
-            { c.is_satisfied(s, p) }      -> std::convertible_to<bool>;
-            { c.is_feasible(s, p, ctx) }  -> std::convertible_to<bool>;
-            { c.id }                      -> std::convertible_to<int>;
-            { c.sequence }                -> std::convertible_to<int>;
-            { c.hard }                    -> std::convertible_to<bool>;
-            { c.type }                    -> std::convertible_to<ConstraintType>;
-        };
-
-        namespace detail {
-            template<typename Variant>
-            struct all_evaluatable_impl : std::false_type {};
-
-            template<typename... Ts>
-            struct all_evaluatable_impl<std::variant<Ts...>>
-                : std::bool_constant<(Evaluatable<Ts> && ...)> {};
-        } // namespace detail
-
-        // True if every alternative in Variant satisfies Evaluatable.
-        template<typename Variant>
-        inline constexpr bool all_evaluatable_v = detail::all_evaluatable_impl<Variant>::value;
-    } // namespace concepts
-
-    // -------------------- FREE FUNCTIONS --------------------
-
-    double evaluate_all(const TimeTableProblem& problem,
-                        const TimeTableState& state);
-
-    double evaluate_all(const std::span<const solver_models::ConstraintVariant>& constraints,
-                        const TimeTableProblem& problem,
-                        const TimeTableState& state);
-
-    bool are_satisfied(const std::span<const solver_models::ConstraintVariant>& constraints,
-                       const TimeTableProblem& problem,
-                       const TimeTableState& state);
-
-    bool are_feasible(const std::span<const solver_models::ConstraintVariant>& constraints,
-                      const TimeTableProblem& problem,
-                      const TimeTableState& state,
-                      const SequenceContext& context);
-
 } // namespace constraints
 
+
+// solver_models structs + ConstraintVariant must be defined before the
+// constraints free functions that reference solver_models::ConstraintVariant.
 
 namespace solver_models {
 
@@ -267,4 +212,77 @@ namespace solver_models {
         [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
+    using ConstraintVariant = std::variant<
+        MinimizeGapsConstraint,
+        GroupPreferenceConstraint,
+        LecturerPreferenceConstraint,
+        TimeBlockDayConstraint,
+        TimeBlockDateConstraint,
+        PreferEdgeClassConstraint,
+        PreferEdgeGroupConstraint,
+        MinimizeClassAbsenceConstraint,
+        MinimizeGroupAbsenceConstraint,
+        MinimizeTotalAbsenceConstraint
+    >;
 } // namespace solver_models
+
+
+namespace constraints
+{
+    // -------------------- CONCEPT --------------------
+
+    inline namespace concepts
+    {
+        // Requires that a type exposes all four evaluation methods.
+        // TimeTableProblem is forward-declared here; the static_assert in constraints.cpp
+        // fires with the full definition, so the check is complete at that point.
+        template<typename T>
+        concept Evaluatable = requires(
+            const T& c,
+            const TimeTableState& s,
+            const TimeTableProblem& p,
+            const SequenceContext& ctx)
+        {
+            { c.penalty(s, p) }           -> std::convertible_to<double>;
+            { c.evaluate(s, p) }          -> std::convertible_to<double>;
+            { c.is_satisfied(s, p) }      -> std::convertible_to<bool>;
+            { c.is_feasible(s, p, ctx) }  -> std::convertible_to<bool>;
+            { c.id }                      -> std::convertible_to<int>;
+            { c.sequence }                -> std::convertible_to<int>;
+            { c.hard }                    -> std::convertible_to<bool>;
+            { c.type }                    -> std::convertible_to<ConstraintType>;
+        };
+
+        namespace detail {
+            template<typename Variant>
+            struct all_evaluatable_impl : std::false_type {};
+
+            template<typename... Ts>
+            struct all_evaluatable_impl<std::variant<Ts...>>
+                : std::bool_constant<(Evaluatable<Ts> && ...)> {};
+        } // namespace detail
+
+        // True if every alternative in Variant satisfies Evaluatable.
+        template<typename Variant>
+        inline constexpr bool all_evaluatable_v = detail::all_evaluatable_impl<Variant>::value;
+    } // namespace concepts
+
+    // -------------------- FREE FUNCTIONS --------------------
+
+    double evaluate_all(const TimeTableProblem& problem,
+                        const TimeTableState& state);
+
+    double evaluate_all(const std::span<const solver_models::ConstraintVariant>& constraints,
+                        const TimeTableProblem& problem,
+                        const TimeTableState& state);
+
+    bool are_satisfied(const std::span<const solver_models::ConstraintVariant>& constraints,
+                       const TimeTableProblem& problem,
+                       const TimeTableState& state);
+
+    bool are_feasible(const std::span<const solver_models::ConstraintVariant>& constraints,
+                      const TimeTableProblem& problem,
+                      const TimeTableState& state,
+                      const SequenceContext& context);
+
+} // namespace constraints

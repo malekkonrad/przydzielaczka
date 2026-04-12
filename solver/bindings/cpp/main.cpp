@@ -4,10 +4,10 @@
 
 #include <iostream>
 #include <string>
-#include "constraints.h"
 
 #include <nlohmann/json.hpp>
 
+#include "solver_config.h"
 #include "data_mapper.h"
 #include "solver_runner.h"
 
@@ -31,7 +31,11 @@ void test_simple_solver(const std::string& input_file_name)
 
     std::cout << "Input: " << input_file_name << "\n";
 
-    SolverRunner runner(5);
+    solver::config config;
+    config.max_solutions = 5;
+    config.verbose = true;
+    config.early_stopping = false;
+    const SolverRunner runner(config);
     std::cout << runner << "\n\n";
 
     // Run the full pipeline with verbose output:

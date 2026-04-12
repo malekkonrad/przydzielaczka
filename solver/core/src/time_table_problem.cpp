@@ -9,6 +9,7 @@
 #include <ostream>
 #include <span>
 #include <variant>
+#include <ranges>
 
 // -------------------- HELPERS --------------------
 
@@ -42,11 +43,11 @@ TimeTableProblem::TimeTableProblem(
     classes_.resize(max_group_.size());
     for (int i = 0; i < max_group_.size(); i++)
     {
-        classes_[i].resize(max_group_[i] + 1);
+        classes_[i].resize(max_group_[i]);
     }
     for (const auto& clazz : classes)
     {
-        classes_[clazz.id][clazz.group] = clazz;
+        classes_[clazz.id][clazz.group - 1] = clazz;
     }
 
     // Sort: ascending sequence, hard before soft within the same sequence.
@@ -125,7 +126,8 @@ TimeTableProblem& TimeTableProblem::operator=(TimeTableProblem&& other) noexcept
 
 size_t TimeTableProblem::size() const
 {
-    return classes_.size();
+    return std::transform_reduce(classes_.begin(), classes_.end(), 0ULL, std::plus{},
+        [](const auto& v) { return v.size(); });
 }
 
 size_t TimeTableProblem::sequence_size() const
@@ -160,7 +162,7 @@ const std::vector<solver_models::Class>& TimeTableProblem::get_groups(const int 
 
 const solver_models::Class& TimeTableProblem::get_group(const int class_id, const int group) const
 {
-    return classes_[class_id][group];
+    return classes_[class_id][group - 1];
 }
 
 const std::vector<solver_models::ConstraintVariant>& TimeTableProblem::get_constraints() const

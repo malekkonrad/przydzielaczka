@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <constraint_variant_fwd.h>
+#include <constraints.h>
 
 #include "data_models.h"
 

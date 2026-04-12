@@ -29,8 +29,8 @@ using Clock = std::chrono::steady_clock;
 
 // -------------------- CONSTRUCTORS --------------------
 
-SolverRunner::SolverRunner(const int max_solutions)
-    : max_solutions_(max_solutions)
+SolverRunner::SolverRunner(const solver::config& config)
+    : config_(config)
 {
 }
 
@@ -44,15 +44,12 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     const int n_classes     = static_cast<int>(problem.get_classes().size());
     const int n_constraints = static_cast<int>(problem.get_constraints().size());
 
-    solver::config config;
-    config.max_solutions = static_cast<size_t>(max_solutions_);
-    config.verbose = true;
     // TODO add some selector
     // SimpleFullSolver<> solver(problem, config);
     // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>> solver(problem, config);
     // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
     using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
-    BranchAndBoundSolver<BnBTraits> solver(problem, config);
+    BranchAndBoundSolver<BnBTraits> solver(problem, config_);
 
     const auto t_start = Clock::now();
     const std::vector<TimeTableState> solutions = solver.solve().extract_states();
@@ -97,7 +94,7 @@ Json SolverRunner::run(const std::string& input_path, const bool verbose) const
 
 std::ostream& operator<<(std::ostream& out, const SolverRunner& r)
 {
-    out << "SolverRunner{ max_solutions=" << r.max_solutions_ << " }";
+    out << "SolverRunner{ config=" << r.config_ << " }";
     return out;
 }
 
