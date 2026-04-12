@@ -206,7 +206,7 @@ struct IntTimePolicy
         {
             const auto& ca = problem.get_group(a.first, a.second);
             const auto& cb = problem.get_group(b.first, b.second);
-            // if (ca.day != cb.day) return ca.day < cb.day;
+            if (ca.day != cb.day) return ca.day < cb.day;
             return ca.start_time < cb.start_time;
         });
 

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <class_group_range.h>
 #include <constraints.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
@@ -152,13 +153,16 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
             }
         };
 
+        std::vector<std::pair<int,int>> order;
+        auto class_groups_range = ClassGroupRange(problem_);
+
         if (use_bnb && n_os == 1)
         {
             constexpr int EMPTY = -1;
             int depth = 0;
             std::vector<int> class_to_depth(n_classes, EMPTY);
             std::vector<std::vector<int>> class_to_group(n_classes, std::vector<int>());
-            const auto order = evaluator_.get_class_group_order();
+            order = evaluator_.get_class_group_order();
 
             for (const auto [class_id, group] : order)
             {
@@ -191,6 +195,11 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 depth_to_class_group[i] = std::make_pair(class_id, class_to_group[class_id]);
             }
 
+            if (correct)
+            {
+                class_groups_range = ClassGroupRange(problem_, order);
+            }
+
             if (!correct)
             {
                 if (verbose)
@@ -216,7 +225,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
         double best_eval = std::numeric_limits<double>::infinity();
         TimeTableState current(n_classes);
 
-        std::function<void(int)> backtrack = [&](const int depth)
+        std::function<void(int, int)> backtrack = [&](const int depth, int position)
         {
             if (verbose) this->stats_print_inplace_throttled();
 
@@ -249,9 +258,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 }
             }
 
-            const auto [class_id, groups] = depth_to_class_group[depth];
-
-            auto try_state = [&](const int group)
+            auto try_state = [&](const int class_id, const int group)
             {
                 this->stats_record_visited();
 
@@ -288,21 +295,27 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                     return;
                 }
 
-                backtrack(depth + 1);
+                backtrack(depth + 1, position);
                 current.unassign(class_id);
             };
 
-            for (const int group : groups)
+            // const auto [class_id, groups] = depth_to_class_group[depth];
+            const auto class_groups = class_groups_range.get_class_groups(current, position);
+
+            // for (const auto group : groups)
+            for (const auto [class_id, group] : class_groups)
             {
+                position++;
                 current.attend(class_id, group);
-                try_state(group);
+                try_state(class_id, group);
 
                 current.assign(class_id, group);
-                try_state(group);
+                try_state(class_id, group);
             }
+
         };
 
-        backtrack(0);
+        backtrack(0, 0);
 
         this->stats_commit_sequence();
         this->stats_set_solutions_kept(static_cast<int>(solutions.size()));

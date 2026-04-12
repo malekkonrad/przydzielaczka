@@ -22,6 +22,7 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         solvers/traits.h
         solvers/stats.h
         solvers/stats.cpp
+        solvers/class_group_range.h
 )
 
 # Public includes are available to anyone linking to solver_core
