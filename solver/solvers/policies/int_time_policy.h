@@ -198,7 +198,7 @@ struct IntTimePolicy
             const int max_g = problem.get_max_group(cid);
             for (int group = 1; group <= max_g; ++group)
             {
-                order.push_back({cid, group});
+                order.emplace_back(cid, group);
             }
         }
 
@@ -206,6 +206,7 @@ struct IntTimePolicy
         {
             const auto& ca = problem.get_group(a.first, a.second);
             const auto& cb = problem.get_group(b.first, b.second);
+            if ((ca.week & cb.week) == 0) return ca.week.test(1);
             if (ca.day != cb.day) return ca.day < cb.day;
             return ca.start_time < cb.start_time;
         });

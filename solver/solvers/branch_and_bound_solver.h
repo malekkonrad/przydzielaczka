@@ -122,6 +122,8 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
     SequenceContext context(n_constraints);
     BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
 
+    auto class_groups_range = ClassGroupRange(problem_);
+
     for (int seq = 0; seq < n_seqs; ++seq)
     {
         solutions.clear();
@@ -141,66 +143,14 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
             use_bnb = (n_os <= 1);
         }
 
-        std::vector<std::pair<int, std::vector<int>>> depth_to_class_group(n_classes);
-
-        auto default_class_group = [&]()
-        {
-            for (int i = 0; i < n_classes; ++i)
-            {
-                std::vector<int> groups(problem_.get_max_group(i));
-                std::iota(groups.begin(), groups.end(), 1);
-                depth_to_class_group[i] = std::make_pair(i, groups);
-            }
-        };
-
-        std::vector<std::pair<int,int>> order;
-        auto class_groups_range = ClassGroupRange(problem_);
-
         if (use_bnb && n_os == 1)
         {
-            constexpr int EMPTY = -1;
-            int depth = 0;
-            std::vector<int> class_to_depth(n_classes, EMPTY);
-            std::vector<std::vector<int>> class_to_group(n_classes, std::vector<int>());
-            order = evaluator_.get_class_group_order();
-
-            for (const auto [class_id, group] : order)
-            {
-                if (class_to_depth[class_id] == EMPTY)
-                {
-                    class_to_depth[class_id] = depth;
-                    ++depth;
-                    class_to_group[class_id].reserve(problem_.get_max_group(class_id));
-                }
-
-                class_to_group[class_id].push_back(group);
-            }
-
-            bool correct = true;
-            for (int i = 0; i < n_classes; ++i)
-            {
-                const auto it = std::ranges::find(class_to_depth, i);
-                if (it == class_to_depth.end())
-                {
-                    break;
-                }
-
-                const int class_id = static_cast<int>(it - class_to_depth.begin());
-                if (class_to_group[class_id].size() != problem_.get_max_group(class_id))
-                {
-                    correct = false;
-                    break;
-                }
-
-                depth_to_class_group[i] = std::make_pair(class_id, class_to_group[class_id]);
-            }
-
-            if (correct)
+            std::vector<std::pair<int, int>> order = evaluator_.get_class_group_order();
+            if (order.size() == problem_.size())
             {
                 class_groups_range = ClassGroupRange(problem_, order);
             }
-
-            if (!correct)
+            else
             {
                 if (verbose)
                 {
@@ -208,14 +158,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                               << " entries (expected " << n_classes
                               << ") — using default order.\n";
                 }
-                depth_to_class_group.clear();
-                depth_to_class_group.resize(n_classes);
-                default_class_group();
             }
-        }
-        else
-        {
-            default_class_group();
         }
 
         this->stats_begin_sequence(seq, this->count_leaves());
@@ -254,7 +197,8 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 const double lb = evaluator_.lower_bound(current);
                 if (lb > best_eval)
                 {
-                    this->stats_record_pruned(this->count_leaves(current)); return;
+                    this->stats_record_pruned(class_groups_range.count_leaves(current, position));
+                    return;
                 }
             }
 
@@ -274,7 +218,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
 
                 if (!are_feasible)
                 {
-                    this->stats_record_feasibility_cut(this->count_leaves(current));
+                    this->stats_record_feasibility_cut(class_groups_range.count_leaves(current, position));
                     current.unassign(class_id);
                     return;
                 }
@@ -290,27 +234,26 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 }
                 if (!are_satisfied)
                 {
-                    this->stats_record_constraint_cut(this->count_leaves(current));
+                    this->stats_record_constraint_cut(class_groups_range.count_leaves(current, position));
                     current.unassign(class_id);
                     return;
                 }
 
                 backtrack(depth + 1, position);
-                current.unassign(class_id);
             };
 
-            // const auto [class_id, groups] = depth_to_class_group[depth];
             const auto class_groups = class_groups_range.get_class_groups(current, position);
 
-            // for (const auto group : groups)
             for (const auto [class_id, group] : class_groups)
             {
                 position++;
                 current.attend(class_id, group);
                 try_state(class_id, group);
+                current.unassign(class_id);
 
                 current.assign(class_id, group);
                 try_state(class_id, group);
+                current.unassign(class_id);
             }
 
         };

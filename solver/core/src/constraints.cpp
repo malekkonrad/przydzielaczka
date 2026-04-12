@@ -156,7 +156,7 @@ bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
 double LecturerPreferenceConstraint::penalty(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
-    if (!state.is_attended(class_id)) return 0.0;
+    if (!state.is_attended(class_id)) return 1.0;
     const int group = state.get_raw_group(class_id);
     return problem.get_group(class_id, group).lecturer == lecturer ? 0.0 : 1.0;
 }

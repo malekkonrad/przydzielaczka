@@ -61,6 +61,7 @@
       "constraint_type": "minimize_total_absence",
       "sequence": 5,
       "weight": 6,
+      "hard": true,
       "slack": 0
     },
     {

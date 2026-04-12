@@ -52,10 +52,10 @@ protected:
     // Stats helpers — thin wrappers so subclasses never touch stats_ directly.
     // -----------------------------------------------------------------------
 
-    long long count_leaves(const TimeTableState& state) const
+    [[nodiscard]] long long count_leaves(const TimeTableState& state) const
     {
         long long leaves = 1;
-        const auto groups = state.get_raw_groups();
+        const auto& groups = state.get_raw_groups();
         for (int i = 0; i < groups.size(); ++i)
         {
             const auto group = groups[i];
@@ -67,7 +67,7 @@ protected:
         return leaves;
     }
 
-    long long count_leaves() const
+    [[nodiscard]] long long count_leaves() const
     {
         long long leaves = 1;;
         for (int i = 0; i < problem_.class_size(); ++i)
