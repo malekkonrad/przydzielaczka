@@ -78,7 +78,9 @@ struct IntAbsencePolicy
                     {
                         const auto& b = problem.get_group(cj, gj);
                         if (time_overlaps(a, b))
+                        {
                             overlap_map_[{ci, gi}].push_back({cj, gj});
+                        }
                     }
                 }
             }
@@ -88,13 +90,35 @@ struct IntAbsencePolicy
     // -------------------- Evaluatable interface --------------------
 
     [[nodiscard]] double penalty(const TimeTableState& state,
-                                 const TimeTableProblem& /*problem*/) const
+                                 const TimeTableProblem& problem) const
     {
         double count = 0.0;
         for (int cid = 0; cid < static_cast<int>(state.size()); ++cid)
         {
-            if (!state.is_assigned(cid)) continue;
-            count += incremental_penalty(state, cid);
+            if (state.is_unattended(cid))
+            {
+                count += 1;
+                continue;
+            }
+            if (!state.is_attended(cid))
+            {
+                continue;
+            }
+
+            for (int class_a_id = cid + 1; class_a_id < static_cast<int>(state.size()); ++class_a_id)
+            {
+                if (!state.is_attended(class_a_id))
+                {
+                    continue;
+                }
+
+                const auto& class_a = problem.get_group(class_a_id, state.get_raw_group(class_a_id));
+                const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
+                if (time_overlaps(class_a, class_b))
+                {
+                    count += 1;
+                }
+            }
         }
         return count;
     }
@@ -106,7 +130,7 @@ struct IntAbsencePolicy
     }
 
     [[nodiscard]] bool is_satisfied(const TimeTableState& state,
-                                    const TimeTableProblem& /*problem*/) const
+                                    const TimeTableProblem& problem) const
     {
         for (int cid = 0; cid < static_cast<int>(state.size()); ++cid)
         {
@@ -152,36 +176,30 @@ struct IntAbsencePolicy
     //   in the final state too — safe to prune.
 
     [[nodiscard]] double partial_evaluate(const TimeTableState& state,
-                                          const TimeTableProblem& /*problem*/,
-                                          const int class_id, const int /*group*/) const
+                                          const TimeTableProblem& problem,
+                                          const int class_id, const int group) const
     {
         return weight * incremental_penalty(state, class_id);
     }
 
     [[nodiscard]] bool partial_is_satisfied(const TimeTableState& state,
-                                             const TimeTableProblem& /*problem*/,
+                                             const TimeTableProblem& problem,
                                              const int class_id, const int group) const
     {
-        if (state.is_unattended(class_id)) return false;
-        if (!state.is_attended(class_id))  return true;
-
-        const auto it = overlap_map_.find({class_id, group});
-        if (it == overlap_map_.end()) return true;
-        for (const auto& [oid, og] : it->second)
-            if (state.is_attended(oid, og)) return false;
-        return true;
+        // return incremental_penalty(state, class_id) == 0.0; // TODO overlap is not correct, incremental penalty does not work
+        return penalty(state, problem) == 0.0;
     }
 
     [[nodiscard]] bool partial_is_feasible(const TimeTableState& state,
                                             const TimeTableProblem& problem,
                                             const SequenceContext& context,
-                                            const int /*class_id*/, const int /*group*/) const
+                                            const int class_id, const int group) const
     {
         if (!context.has_score(id)) return true;
         // penalty() on a partial state skips UNASSIGNED entries — it is the
         // running total for the assigned classes so far, which is a lower bound
         // on the final penalty.  Pruning here is therefore sound.
-        return penalty(state, problem) <= context[id] + slack;
+        return incremental_penalty(state, class_id) <= context[id] + slack;
     }
 
 private:
@@ -192,7 +210,7 @@ private:
     {
         if (a.day != b.day)              return false;
         if (!(a.week & b.week).any())    return false;
-        return a.start_time < b.end_time && b.start_time < a.end_time;
+        return !(b.end_time < a.start_time || a.end_time < b.start_time);
     }
 
     // Incremental penalty contribution of placing class_id:
@@ -211,7 +229,9 @@ private:
 
         double count = 0.0;
         for (const auto& [oid, og] : it->second)
+        {
             if (state.is_attended(oid, og)) count += 1.0;
+        }
         return count;
     }
 

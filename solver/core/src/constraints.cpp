@@ -252,7 +252,7 @@ double MinimizeTotalAbsenceConstraint::penalty(const TimeTableState& state,
     {
         if (a.day != b.day) return false;
         if (!(a.week & b.week).any()) return false;
-        return a.start_time < b.end_time && b.start_time < a.end_time;
+        return !(b.end_time < a.start_time || a.end_time < b.start_time);
     };
 
     int counter = 0;

@@ -190,7 +190,9 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                 solutions.insert(std::move(ctx), current);
                 intermediate_solutions.insert(eval, current);
 
-                if (config_.early_stopping && intermediate_solutions.worst_score() == best_eval && intermediate_solutions.size() == config_.max_solutions)
+                if (config_.early_stopping
+                    && intermediate_solutions.worst_score() == best_eval
+                    && intermediate_solutions.size() == config_.max_solutions)
                 {
                     stop = true;
                 }

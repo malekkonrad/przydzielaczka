@@ -32,7 +32,7 @@ void test_simple_solver(const std::string& input_file_name)
     std::cout << "Input: " << input_file_name << "\n";
 
     solver::config config;
-    config.max_solutions = 50;
+    config.max_solutions = 5;
     config.verbose = true;
     config.early_stopping = false;
     const SolverRunner runner(config);
@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 {
     const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI.json";
     // const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI_EIT.json";
+    // const std::string input_file_name = "../../../../tests/data/classes_2526_test.json";
     // const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI_complex_test.json";
 
     // test_print(input_file_name);
