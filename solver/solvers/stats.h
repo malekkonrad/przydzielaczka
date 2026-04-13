@@ -24,7 +24,7 @@ namespace ansi {
 namespace display
 {
     inline constexpr int SEQUENCE_WIDTH              = 3;
-    inline constexpr int PROGRESS_WIDTH              = 11;  // leaf counts (processed, total)
+    inline constexpr int PROGRESS_WIDTH              = 15;  // leaf counts (processed, total)
     inline constexpr int VISITED_WIDTH               = 8;   // nodes visited
     inline constexpr int FOUND_WIDTH                 = 6;   // solutions found
     inline constexpr int NODES_PRUNED_CUT_WIDTH      = 8;   // node counts per cut type
