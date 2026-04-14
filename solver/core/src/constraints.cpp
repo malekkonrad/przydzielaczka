@@ -31,47 +31,101 @@ static_assert(
 double MinimizeGapsConstraint::penalty(const TimeTableState& state,
                                        const TimeTableProblem& problem) const
 {
-    std::map<std::pair<int,int>, std::vector<const Class*>> by_day_week;
+    struct TimeEntry
+    {
+        int start_time;
+        int end_time;
+    };
+
+    std::vector<std::vector<TimeEntry>> by_date(problem.get_max_date() + 1, std::vector<TimeEntry>());
+
+    const std::function<bool(const TimeEntry&, const TimeEntry&)> class_time_cmp = [](const TimeEntry& a, const TimeEntry& b)
+    {
+        if (a.start_time == b.start_time)
+        {
+            return a.end_time < b.end_time;
+        }
+        return a.start_time < b.start_time;
+    };
+
     for (int class_id = 0; class_id < state.size(); ++class_id)
     {
         if (!state.is_attended(class_id))
         {
             continue;
         }
+
         const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
-        if (cls.week.test(0))
+        for (const auto& s : cls.sessions)
         {
-            by_day_week[{cls.day, 0}].push_back(&cls);
-        }
-        if (cls.week.test(1))
-        {
-            by_day_week[{cls.day, 1}].push_back(&cls);
+            auto& day_classes = by_date[s.date];
+            day_classes.emplace_back(s.start_time, s.end_time);
         }
     }
 
-    double penalty = 0.0;
-    for (auto& day_classes : by_day_week | std::views::values)
+    double breaks = 0.0;
+    for (auto& day_classes : by_date)
     {
-        std::sort(day_classes.begin(), day_classes.end(),
-            [](const Class* a, const Class* b)
-            {
-                if (a->start_time == b->start_time)
-                {
-                    return a->end_time < b->end_time;
-                }
-                return a->start_time < b->start_time;
-            });
+        if (day_classes.size() < 2)
+        {
+            continue;
+        }
+
+        std::ranges::sort(day_classes, class_time_cmp);
 
         for (size_t i = 1; i < day_classes.size(); ++i)
         {
-            const int gap = day_classes[i]->start_time - day_classes[i - 1]->end_time;
+            const int gap = day_classes[i].start_time - day_classes[i - 1].end_time;
             if (gap > min_break)
             {
-                penalty += static_cast<double>(gap - min_break);
+                breaks += static_cast<double>(gap - min_break);
             }
         }
     }
-    return penalty;
+    breaks /= problem.get_weeks();
+    return breaks;
+
+    // std::map<std::pair<int,int>, std::vector<const Class*>> by_day_week;
+    // for (int class_id = 0; class_id < state.size(); ++class_id)
+    // {
+    //     if (!state.is_attended(class_id))
+    //     {
+    //         continue;
+    //     }
+    //     const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
+    //     if (cls.week.test(0))
+    //     {
+    //         by_day_week[{cls.day, 0}].push_back(&cls);
+    //     }
+    //     if (cls.week.test(1))
+    //     {
+    //         by_day_week[{cls.day, 1}].push_back(&cls);
+    //     }
+    // }
+    //
+    // double penalty = 0.0;
+    // for (auto& day_classes : by_day_week | std::views::values)
+    // {
+    //     std::sort(day_classes.begin(), day_classes.end(),
+    //         [](const Class* a, const Class* b)
+    //         {
+    //             if (a->start_time == b->start_time)
+    //             {
+    //                 return a->end_time < b->end_time;
+    //             }
+    //             return a->start_time < b->start_time;
+    //         });
+    //
+    //     for (size_t i = 1; i < day_classes.size(); ++i)
+    //     {
+    //         const int gap = day_classes[i]->start_time - day_classes[i - 1]->end_time;
+    //         if (gap > min_break)
+    //         {
+    //             penalty += static_cast<double>(gap - min_break);
+    //         }
+    //     }
+    // }
+    // return penalty;
 }
 
 double MinimizeGapsConstraint::evaluate(const TimeTableState& state,

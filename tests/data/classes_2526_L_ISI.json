@@ -10,7 +10,7 @@
         {
             "constraint_type": "minimize_gaps",
             "min_break_duration": 0,
-            "sequence": 2,
+            "sequence": 1,
             "weight": 1,
             "hard": false,
             "slack": 0

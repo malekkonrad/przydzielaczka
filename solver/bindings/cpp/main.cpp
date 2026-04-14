@@ -50,10 +50,10 @@ void test_simple_solver(const std::string& input_file_name)
 
 int main(int argc, char* argv[])
 {
-    // const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI.json";
+    const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI.json";
     // const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI_EIT.json";
     // const std::string input_file_name = "../../../../tests/data/classes_2526_test.json";
-    const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI_complex_test.json";
+    // const std::string input_file_name = "../../../../tests/data/classes_2526_L_ISI_complex_test.json";
 
     // test_print(input_file_name);
     test_simple_solver(input_file_name);

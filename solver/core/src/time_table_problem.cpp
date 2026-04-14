@@ -29,6 +29,7 @@ TimeTableProblem::TimeTableProblem(
     std::vector<solver_models::Class> classes,
     std::vector<solver_models::ConstraintVariant> constraints)
     : constraints_(std::move(constraints))
+    , max_date_(0)
 {
     const int max_class_id = std::max_element(classes.begin(), classes.end(),
         [](const auto& a, const auto& b){return a.id < b.id;})->id;
@@ -98,6 +99,15 @@ TimeTableProblem::TimeTableProblem(
             }
         }
     }
+
+    // Get the max date
+    for (const auto& c : classes)
+    {
+        for (const auto& s: c.sessions)
+        {
+            max_date_ = std::max(max_date_, s.date);
+        }
+    }
 }
 
 TimeTableProblem::TimeTableProblem(TimeTableProblem&& other) noexcept
@@ -106,6 +116,8 @@ TimeTableProblem::TimeTableProblem(TimeTableProblem&& other) noexcept
     , constraints_(std::move(other.constraints_))
     , sequence_soft_hard_split_point_(std::move(other.sequence_soft_hard_split_point_))
     , sequence_split_point_(std::move(other.sequence_split_point_))
+    , max_date_(std::move(other.max_date_))
+    , weeks_(std::move(other.weeks_))
 {
 }
 
@@ -118,6 +130,8 @@ TimeTableProblem& TimeTableProblem::operator=(TimeTableProblem&& other) noexcept
         constraints_           = std::move(other.constraints_);
         sequence_soft_hard_split_point_ = std::move(other.sequence_soft_hard_split_point_);
         sequence_split_point_  = std::move(other.sequence_split_point_);
+        max_date_              = std::move(other.max_date_);
+        weeks_                 = std::move(other.weeks_);
     }
     return *this;
 }
@@ -148,6 +162,16 @@ const std::vector<int>& TimeTableProblem::get_max_group() const
 int TimeTableProblem::get_max_group(const int class_id) const
 {
     return max_group_[class_id];
+}
+
+int TimeTableProblem::get_max_date() const
+{
+    return max_date_;
+}
+
+int TimeTableProblem::get_weeks() const
+{
+    return weeks_;
 }
 
 const std::vector<std::vector<solver_models::Class>>& TimeTableProblem::get_classes() const
