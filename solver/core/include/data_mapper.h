@@ -69,6 +69,7 @@ private:
 	[[nodiscard]] int map_location(const input_models::Location& location);
 	[[nodiscard]] int map_lecturer(const std::string& lecturer);
 	[[nodiscard]] int map_sequence(int sequence);
+	void		      remove_sequence(int sequence);
 
 	// Demappers: solver int id -> domain value
 	[[nodiscard]] std::tuple<std::string, std::string> demap_class_id_and_class_type(int id) const;

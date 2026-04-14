@@ -38,6 +38,8 @@ public:
     [[nodiscard]] bool operator==(const SequenceContext& other) const;
     [[nodiscard]] bool operator!=(const SequenceContext& other) const;
 
+    friend std::ostream& operator<<(std::ostream& out, const SequenceContext& context);
+
 private:
     std::vector<double> scores_;
 };

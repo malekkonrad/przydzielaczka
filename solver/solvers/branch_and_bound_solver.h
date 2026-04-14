@@ -82,9 +82,9 @@ namespace detail {
 template<SolverTraitsConcept Traits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>>
 class BranchAndBoundSolver : public SolverBase<Traits>
 {
-    static_assert(Traits::config.use_partial_evaluation,
-        "BranchAndBoundSolver requires Traits::config.use_partial_evaluation == true. "
-        "Use SolverTraits::WithPartialEvaluation<true> in your Traits.");
+    // static_assert(Traits::config.use_partial_evaluation,
+    //     "BranchAndBoundSolver requires Traits::config.use_partial_evaluation == true. "
+    //     "Use SolverTraits::WithPartialEvaluation<true> in your Traits.");
 
     using SolverBase<Traits>::problem_;
     using SolverBase<Traits>::config_;

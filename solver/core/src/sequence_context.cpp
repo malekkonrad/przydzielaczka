@@ -30,3 +30,18 @@ bool SequenceContext::operator<=(const SequenceContext& o) const { return scores
 bool SequenceContext::operator>=(const SequenceContext& o) const { return scores_ >= o.scores_; }
 bool SequenceContext::operator==(const SequenceContext& o) const { return scores_ == o.scores_; }
 bool SequenceContext::operator!=(const SequenceContext& o) const { return scores_ != o.scores_; }
+
+std::ostream& operator<<(std::ostream& out, const SequenceContext& context)
+{
+    out << "SequenceContext{ ";
+    if (context.scores_.size() > 0)
+    {
+        for (int i = 0; i < context.size() - 1; ++i)
+        {
+            out << context[i] << ", ";
+        }
+        out << context[context.size() - 1];
+        out << " }";
+    }
+    return out;
+}

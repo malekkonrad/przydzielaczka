@@ -11,6 +11,7 @@
 #include <sequence_context.h>
 #include <variant>
 #include <vector>
+#include <iostream>
 
 using namespace solver_models;
 
@@ -127,6 +128,7 @@ bool MinimizeGapsConstraint::is_feasible(const TimeTableState& state,
 double GroupPreferenceConstraint::penalty(const TimeTableState& state,
                                           const TimeTableProblem& problem) const
 {
+    if (!state.is_assigned(class_id)) return 0.0;
     return state.is_attended(class_id, group) ? 0.0 : 1.0;
 }
 
@@ -140,7 +142,7 @@ double GroupPreferenceConstraint::evaluate(const TimeTableState& state,
 bool GroupPreferenceConstraint::is_satisfied(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
-    return state.is_attended(class_id, group);
+    return penalty(state, problem) == 0.0;
 }
 
 bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
@@ -156,6 +158,7 @@ bool GroupPreferenceConstraint::is_feasible(const TimeTableState& state,
 double LecturerPreferenceConstraint::penalty(const TimeTableState& state,
                                              const TimeTableProblem& problem) const
 {
+    if (!state.is_assigned(class_id)) return 0.0;
     if (!state.is_attended(class_id)) return 1.0;
     const int group = state.get_raw_group(class_id);
     return problem.get_group(class_id, group).lecturer == lecturer ? 0.0 : 1.0;

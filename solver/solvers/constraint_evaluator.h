@@ -180,7 +180,9 @@ public:
                 const bool is_hard = std::visit([](const auto& x) { return x.hard; },     unified_[i]);
                 split_point_[seq] = i + 1;
                 if (!is_hard && soft_hard_split_[seq] == static_cast<int>(unified_.size()))
+                {
                     soft_hard_split_[seq] = i;
+                }
             }
             for (int i = 0; i < static_cast<int>(split_point_.size()); ++i)
             {

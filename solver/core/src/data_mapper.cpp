@@ -427,6 +427,15 @@ int DataMapper::map_sequence(const int sequence)
     return id;
 }
 
+void DataMapper::remove_sequence(const int sequence)
+{
+    const auto it = sequence_mapper_.find(sequence);
+    if (it != sequence_mapper_.end())
+    {
+        sequence_mapper_.erase(sequence);
+    }
+}
+
 // -------------------- DEMAPPERS --------------------
 
 std::tuple<std::string, std::string>
@@ -604,6 +613,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!cid)
                 {
                     std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
@@ -628,6 +638,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!cid)
                 {
                     std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
@@ -650,6 +661,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
             }
         }
@@ -667,6 +679,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!cid)
                 {
                     std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
@@ -699,6 +712,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!start_time)
                 {
                     std::cerr << "Could not find mapped time for: " << c.start_time.value() << std::endl;
@@ -729,6 +743,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!start_time)
                 {
                     std::cerr << "Could not find mapped time for: " << c.start_time.value() << std::endl;
@@ -765,6 +780,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!cid)
                 {
                     std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
@@ -799,6 +815,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
             }
             else
             {
+                remove_sequence(sequence);
                 if (!cid)
                 {
                     std::cerr << "Could not find mapped class for: " << c.class_id.value() << " with type: " << c.class_type.value() << std::endl;
@@ -815,6 +832,7 @@ std::vector<solver_models::ConstraintVariant> DataMapper::map_constraints()
         }
         else
         {
+            remove_sequence(sequence);
             std::cerr << "Could not find mapped constraint for: " << c.type << std::endl;
         }
     }

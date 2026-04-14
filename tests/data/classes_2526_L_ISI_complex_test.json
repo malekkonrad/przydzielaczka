@@ -10,8 +10,18 @@
         {
             "constraint_type": "minimize_gaps",
             "min_break_duration": 0,
-            "sequence": 2,
+            "sequence": 1,
             "weight": 1,
+            "hard": false,
+            "slack": 0
+        },
+        {
+            "constraint_type": "group_preference",
+            "class_id": "120-ISI-1S-755",
+            "class_type": "CWP",
+            "group": 3,
+            "sequence": 2,
+            "weight": 5,
             "hard": false,
             "slack": 0
         },
@@ -20,18 +30,8 @@
             "class_id": "120-ISI-1S-547",
             "class_type": "CWP",
             "lecturer": "Jarosław Wąs",
-            "sequence": 3,
-            "weight": 30,
-            "hard": false,
-            "slack": 0
-        },
-        {
-            "constraint_type": "group_preference",
-            "class_id": "120-ISI-1S-755",
-            "class_type": "CWP",
-            "group": 1,
-            "sequence": 3,
-            "weight": 60,
+            "sequence": 2,
+            "weight": 5,
             "hard": false,
             "slack": 0
         }
@@ -4963,7 +4963,7 @@
         },
         {
             "day": 5,
-            "lecturer": "Jaros\u0142aw W\u0105s",
+            "lecturer": "Jarosław Wąs",
             "week": "AB",
             "location": {
                 "room": "106",

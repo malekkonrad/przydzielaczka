@@ -291,7 +291,8 @@ struct IntTimePolicy
                                             const int class_id, const int group) const
     {
         if (!context.has_score(id)) return true;
-        return partial_penalty(state, problem, class_id, group) <= context[id] + slack;
+        // return partial_penalty(state, problem, class_id, group) <= context[id] + slack;
+        return penalty(state, problem) <= context[id] + slack;
     }
 
 private:
