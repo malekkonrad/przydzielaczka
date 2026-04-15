@@ -11,7 +11,7 @@
 #include <solution_set.h>
 #include "constraint_evaluator.h"
 #include "solver_base.h"
-#include "../core/include/solver_config.h"
+#include "config.h"
 #include "traits.h"
 
 #include <functional>
@@ -45,9 +45,9 @@ namespace detail {
     template<SolverTraitsConcept Traits>
     struct order_sensitive_count;
 
-    template<::detail::SolverConfig Config, policies::Substitutable... Ps>
+    template<SolverConfig Config, template<typename> class... Ps>
     struct order_sensitive_count<BasicSolverTraits<Config, Ps...>>
-        : std::integral_constant<int, (0 + ... + int(policies::OrderSensitive<Ps>))>
+        : std::integral_constant<int, (0 + ... + int(policies::OrderSensitive<Ps<BasicSolverTraits<Config, Ps...>>>))>
     {};
 
     template<SolverTraitsConcept Traits>
@@ -82,10 +82,6 @@ namespace detail {
 template<SolverTraitsConcept Traits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>>
 class BranchAndBoundSolver : public SolverBase<Traits>
 {
-    // static_assert(Traits::config.use_partial_evaluation,
-    //     "BranchAndBoundSolver requires Traits::config.use_partial_evaluation == true. "
-    //     "Use SolverTraits::WithPartialEvaluation<true> in your Traits.");
-
     using SolverBase<Traits>::problem_;
     using SolverBase<Traits>::config_;
     using SolverBase<Traits>::evaluator_;

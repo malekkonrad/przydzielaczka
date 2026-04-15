@@ -11,7 +11,7 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         core/include/time_table_state.h
         core/include/data_models.h
         utils/tuple_hash.h
-        core/include/solver_config.h
+        core/include/config.h
         solvers/simple_full_solver.h
         core/include/constraint_variant_fwd.h
         solvers/optimized_full_solver.h
@@ -19,6 +19,7 @@ add_library(solver_core STATIC ${CORE_SOURCES}
         core/include/sequence_context.h
         solvers/policies/policies.h
         solvers/policies/int_absence_policy.h
+        solvers/policies/null_policy.h
         solvers/traits.h
         solvers/stats.h
         solvers/stats.cpp

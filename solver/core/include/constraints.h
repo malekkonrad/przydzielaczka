@@ -9,7 +9,6 @@
 #include <concepts>
 #include <span>
 #include <variant>
-#include <vector>
 
 class TimeTableProblem;
 class SequenceContext;
@@ -43,7 +42,7 @@ namespace solver_models {
     enum class EdgePosition { Start, End };
 
     // -------------------- CONSTRAINT STRUCTS --------------------
-
+    template<bool Simplified = true>
     struct MinimizeGapsConstraint
     {
         int sequence{};
@@ -60,6 +59,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using MinimizeGapsConstraintWeekly = MinimizeGapsConstraint<true>;
+    using MinimizeGapsConstraintYearly = MinimizeGapsConstraint<false>;
+
+    template<bool Simplified = true>
     struct GroupPreferenceConstraint
     {
         int sequence{};
@@ -77,6 +80,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using GroupPreferenceConstraintWeekly = GroupPreferenceConstraint<true>;
+    using GroupPreferenceConstraintYearly = GroupPreferenceConstraint<false>;
+
+    template<bool Simplified = true>
     struct LecturerPreferenceConstraint
     {
         int sequence{};
@@ -94,6 +101,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using LecturerPreferenceConstraintWeekly = LecturerPreferenceConstraint<true>;
+    using LecturerPreferenceConstraintYearly = LecturerPreferenceConstraint<false>;
+
+    template<bool Simplified = true>
     struct TimeBlockDayConstraint
     {
         int sequence{};
@@ -112,6 +123,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using TimeBlockDayConstraintWeekly = TimeBlockDayConstraint<true>;
+    using TimeBlockDayConstraintYearly = TimeBlockDayConstraint<false>;
+
+    template<bool Simplified = true>
     struct TimeBlockDateConstraint
     {
         int sequence{};
@@ -130,6 +145,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using TimeBlockDateConstraintWeekly = TimeBlockDateConstraint<true>;
+    using TimeBlockDateConstraintYearly = TimeBlockDateConstraint<false>;
+
+    template<bool Simplified = true>
     struct PreferEdgeClassConstraint
     {
         int sequence{};
@@ -147,6 +166,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using PreferEdgeClassConstraintWeekly = PreferEdgeClassConstraint<true>;
+    using PreferEdgeClassConstraintYearly = PreferEdgeClassConstraint<false>;
+
+    template<bool Simplified = true>
     struct PreferEdgeGroupConstraint
     {
         int sequence{};
@@ -165,6 +188,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using PreferEdgeGroupConstraintWeekly = PreferEdgeGroupConstraint<true>;
+    using PreferEdgeGroupConstraintYearly = PreferEdgeGroupConstraint<false>;
+
+    template<bool Simplified = true>
     struct MinimizeClassAbsenceConstraint
     {
         int sequence{};
@@ -181,6 +208,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using MinimizeClassAbsenceConstraintWeekly = MinimizeClassAbsenceConstraint<true>;
+    using MinimizeClassAbsenceConstraintYearly = MinimizeClassAbsenceConstraint<false>;
+
+    template<bool Simplified = true>
     struct MinimizeGroupAbsenceConstraint
     {
         int sequence{};
@@ -198,6 +229,10 @@ namespace solver_models {
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
 
+    using MinimizeGroupAbsenceConstraintWeekly = MinimizeGroupAbsenceConstraint<true>;
+    using MinimizeGroupAbsenceConstraintYearly = MinimizeGroupAbsenceConstraint<false>;
+
+    template<bool Simplified = true>
     struct MinimizeTotalAbsenceConstraint
     {
         int sequence{};
@@ -212,18 +247,50 @@ namespace solver_models {
         [[nodiscard]] bool   is_satisfied(const TimeTableState& state, const TimeTableProblem& problem) const;
         [[nodiscard]] bool   is_feasible(const TimeTableState& state, const TimeTableProblem& problem, const SequenceContext& context) const;
     };
+
+    using MinimizeTotalAbsenceConstraintWeekly = MinimizeTotalAbsenceConstraint<true>;
+    using MinimizeTotalAbsenceConstraintYearly = MinimizeTotalAbsenceConstraint<false>;
+
     using ConstraintVariant = std::variant<
-        MinimizeGapsConstraint,
-        GroupPreferenceConstraint,
-        LecturerPreferenceConstraint,
-        TimeBlockDayConstraint,
-        TimeBlockDateConstraint,
-        PreferEdgeClassConstraint,
-        PreferEdgeGroupConstraint,
-        MinimizeClassAbsenceConstraint,
-        MinimizeGroupAbsenceConstraint,
-        MinimizeTotalAbsenceConstraint
+        MinimizeGapsConstraint<true>,
+        GroupPreferenceConstraint<true>,
+        LecturerPreferenceConstraint<true>,
+        TimeBlockDayConstraint<true>,
+        TimeBlockDateConstraint<true>,
+        PreferEdgeClassConstraint<true>,
+        PreferEdgeGroupConstraint<true>,
+        MinimizeClassAbsenceConstraint<true>,
+        MinimizeGroupAbsenceConstraint<true>,
+        MinimizeTotalAbsenceConstraint<true>
     >;
+
+    using YearlyConstraintVariant = std::variant<
+        MinimizeGapsConstraint<false>,
+        GroupPreferenceConstraint<false>,
+        LecturerPreferenceConstraint<false>,
+        TimeBlockDayConstraint<false>,
+        TimeBlockDateConstraint<false>,
+        PreferEdgeClassConstraint<false>,
+        PreferEdgeGroupConstraint<false>,
+        MinimizeClassAbsenceConstraint<false>,
+        MinimizeGroupAbsenceConstraint<false>,
+        MinimizeTotalAbsenceConstraint<false>
+    >;
+
+    template<bool Simplified>
+    using ConstraintVariantFor = std::conditional_t<Simplified,
+        ConstraintVariant,
+        YearlyConstraintVariant
+    >;
+
+    template<typename T>
+    struct as_yearly;
+
+    template<template<bool> class C>
+    struct as_yearly<C<true>> { using type = C<false>; };
+
+    template<typename T>
+    using as_yearly_t = typename as_yearly<T>::type;
 } // namespace solver_models
 
 

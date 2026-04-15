@@ -6,8 +6,10 @@
 
 #include <constraint_evaluator.h>
 #include <constraints.h>
+#include <solver_config.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
+#include <traits.h>
 
 #include <algorithm>
 #include <map>
@@ -29,6 +31,7 @@
 // to the (day, week) buckets that contain the given (class_id, group), so the
 // backtracking solver can prune after each individual assignment rather than only
 // at the leaf.
+template<SolverTraitsConcept Traits>
 struct IntTimePolicy
 {
     int sequence{};
@@ -55,7 +58,7 @@ struct IntTimePolicy
     // Substitutable factory — constructs from the matching MinimizeGapsConstraint.
     static IntTimePolicy make(const solver_models::ConstraintVariant& c, const TimeTableProblem& problem)
     {
-        return std::visit([&](const auto& src) -> IntTimePolicy {
+        return std::visit([&](const auto& src) -> IntTimePolicy<Traits> {
             IntTimePolicy p;
             p.id       = src.id;
             p.sequence = src.sequence;
@@ -232,14 +235,14 @@ private:
     std::map<std::pair<int,int>, std::vector<std::pair<int,int>>> class_group_to_keys_;
 };
 
-static_assert(policies::Evaluatable<IntTimePolicy>,
+static_assert(policies::Evaluatable<IntTimePolicy<SolverTraits>>,
     "IntTimePolicy must satisfy policies::Evaluatable");
 
-static_assert(policies::Substitutable<IntTimePolicy>,
+static_assert(policies::Substitutable<IntTimePolicy<SolverTraits>, SolverTraits>,
     "IntTimePolicy must satisfy policies::Substitutable");
 
-static_assert(policies::BoundEstimating<IntTimePolicy>,
+static_assert(policies::BoundEstimating<IntTimePolicy<SolverTraits>>,
     "IntTimePolicy must satisfy policies::BoundEstimating");
 
-static_assert(policies::OrderSensitive<IntTimePolicy>,
+static_assert(policies::OrderSensitive<IntTimePolicy<SolverTraits>>,
     "IntTimePolicy must satisfy policies::OrderSensitive");

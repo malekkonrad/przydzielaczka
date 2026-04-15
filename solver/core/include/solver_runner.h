@@ -6,7 +6,7 @@
 
 #include <filesystem>
 #include <iosfwd>
-#include <solver_config.h>
+#include <config.h>
 #include <string>
 
 #include <nlohmann/json_fwd.hpp>
@@ -23,7 +23,7 @@ using Json = nlohmann::json;
 class SolverRunner
 {
 public:
-    explicit SolverRunner(const solver::config& config);
+    explicit SolverRunner(const input_models::config& config);
 
     [[nodiscard]] Json run(const Json& input, bool verbose = false) const;
     [[nodiscard]] Json run(const std::filesystem::path& input_path, bool verbose = false) const;
@@ -32,7 +32,7 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const SolverRunner& r);
 
 private:
-    solver::config config_;
+    input_models::config config_;
 
     // Builds the "meta" object added to the output JSON.
     [[nodiscard]] static Json build_meta(

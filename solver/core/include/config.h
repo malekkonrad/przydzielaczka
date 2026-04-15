@@ -9,7 +9,7 @@
 
 class TimeTableState;
 
-namespace solver
+namespace input_models
 {
     struct config
     {
@@ -18,6 +18,7 @@ namespace solver
         size_t max_runtime = 10000; // time in seconds
         bool verbose = false;
         bool early_stopping = false;
+        bool simplified_evaluation = false;
         std::function<void(const TimeTableState& state)> intermediate_solution_callback = [](const TimeTableState& state){};
     };
     inline std::ostream& operator<<(std::ostream& os, const config& c)

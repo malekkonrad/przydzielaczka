@@ -8,7 +8,6 @@
 
 #include "constraints.h"
 #include "data_mapper.h"
-#include "constraint_evaluator.h"
 #include "policies/int_time_policy.h"
 
 #include <chrono>
@@ -18,7 +17,6 @@
 #include <iostream>
 #include <optimized_full_solver.h>
 #include <ostream>
-#include <simple_full_solver.h>
 #include <sstream>
 
 #include <nlohmann/json.hpp>
@@ -29,7 +27,7 @@ using Clock = std::chrono::steady_clock;
 
 // -------------------- CONSTRUCTORS --------------------
 
-SolverRunner::SolverRunner(const solver::config& config)
+SolverRunner::SolverRunner(const input_models::config& config)
     : config_(config)
 {
 }
@@ -44,14 +42,22 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
     const int n_classes     = static_cast<int>(problem.get_classes().size());
     const int n_constraints = static_cast<int>(problem.get_constraints().size());
 
+    const solver::config config {
+        .max_keep_solutions = config_.max_keep_solutions,
+        .max_solutions = config_.max_solutions,
+        .max_runtime = config_.max_runtime,
+        .verbose = config_.verbose,
+        .early_stopping = config_.early_stopping
+    };
+
     // TODO add some selector
     // SimpleFullSolver<> solver(problem, config);
     // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>> solver(problem, config);
     // OptimizedFullSolver<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>> solver(problem, config);
     using BaseTraits = SolverTraits;
     using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
-    // BranchAndBoundSolver<BnBTraits> solver(problem, config_);
-    BranchAndBoundSolver<BaseTraits> solver(problem, config_);
+    BranchAndBoundSolver<BnBTraits> solver(problem, config);
+    // BranchAndBoundSolver<BaseTraits> solver(problem, config);
 
     const auto t_start = Clock::now();
     const std::vector<TimeTableState> solutions = solver.solve().extract_states();
@@ -96,7 +102,7 @@ Json SolverRunner::run(const std::string& input_path, const bool verbose) const
 
 std::ostream& operator<<(std::ostream& out, const SolverRunner& r)
 {
-    out << "SolverRunner{ config=" << r.config_ << " }";
+    out << "SolverRunner{ config=" << std::endl << r.config_ << " }";
     return out;
 }
 

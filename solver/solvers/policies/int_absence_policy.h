@@ -7,8 +7,10 @@
 #include <constraint_evaluator.h>
 #include <constraints.h>
 #include <data_models.h>
+#include <solver_config.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
+#include <traits.h>
 
 #include <map>
 #include <utility>
@@ -34,6 +36,7 @@
 // Precomputation at construction:
 //   overlap_map_[(class_id, group)] = list of (other_id, other_group) with
 //   other_id < class_id that overlap this slot.  Built once in O(n^2 * g^2).
+template<SolverTraitsConcept Traits>
 struct IntAbsencePolicy
 {
     int sequence{};
@@ -49,15 +52,17 @@ struct IntAbsencePolicy
     static IntAbsencePolicy make(const solver_models::ConstraintVariant& c,
                                  const TimeTableProblem& problem)
     {
-        const auto& base = std::get<solver_models::MinimizeTotalAbsenceConstraint>(c);
-        IntAbsencePolicy p;
-        p.id       = base.id;
-        p.sequence = base.sequence;
-        p.hard     = base.hard;
-        p.weight   = base.weight;
-        p.slack    = base.slack;
-        p.precompute(problem);
-        return p;
+        return std::visit([&](const auto& src) -> IntAbsencePolicy<Traits>
+        {
+            IntAbsencePolicy p;
+            p.id       = src.id;
+            p.sequence = src.sequence;
+            p.hard     = src.hard;
+            p.weight   = src.weight;
+            p.slack    = src.slack;
+            p.precompute(problem);
+            return p;
+        }, c);
     }
 
     void precompute(const TimeTableProblem& problem)
@@ -198,11 +203,11 @@ private:
     std::map<std::pair<int,int>, std::vector<OverlapEntry>> overlap_map_;
 };
 
-static_assert(policies::Evaluatable<IntAbsencePolicy>,
+static_assert(policies::Evaluatable<IntAbsencePolicy<SolverTraits>>,
     "IntAbsencePolicy must satisfy policies::Evaluatable");
 
-static_assert(policies::BoundEstimating<IntAbsencePolicy>,
+static_assert(policies::BoundEstimating<IntAbsencePolicy<SolverTraits>>,
     "IntAbsencePolicy must satisfy policies::BoundEstimating");
 
-static_assert(policies::Substitutable<IntAbsencePolicy>,
+static_assert(policies::Substitutable<IntAbsencePolicy<SolverTraits>, SolverTraits>,
     "IntAbsencePolicy must satisfy policies::Substitutable");

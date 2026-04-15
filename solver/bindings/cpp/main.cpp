@@ -7,7 +7,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "solver_config.h"
+#include "config.h"
 #include "data_mapper.h"
 #include "solver_runner.h"
 
@@ -31,7 +31,7 @@ void test_simple_solver(const std::string& input_file_name)
 
     std::cout << "Input: " << input_file_name << "\n";
 
-    solver::config config;
+    input_models::config config;
     config.max_solutions = 5;
     config.verbose = true;
     config.early_stopping = false;

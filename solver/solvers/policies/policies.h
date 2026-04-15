@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 #include <constraints.h>
+#include <solver_config.h>
 #include <time_table_problem.h>
 #include <time_table_state.h>
 
@@ -26,8 +27,9 @@ namespace policies {
         // Substitutable — policy can construct itself from a matching ConstraintVariant.
         // BasicConstraintEvaluator uses this to automatically replace all constraints whose
         // ConstraintType matches P{}.type, copying all fields via the factory method.
-        template<typename Policy>
-        concept Substitutable = Evaluatable<Policy> && requires(
+        // Traits is passed so policies can specialise make() based on solver configuration.
+        template<typename Policy, typename Traits>
+        concept Substitutable = Evaluatable<Policy> && SolverTraitsConcept<Traits> && requires(
             const solver_models::ConstraintVariant& c,
             const TimeTableProblem& problem)
         {
@@ -143,23 +145,4 @@ namespace policies {
             return e.is_feasible(state, problem, context);
         });
     }
-
-    // ==================== NULL POLICY ====================
-
-    // No-op policy — always satisfied, zero penalty.
-    struct NullPolicy
-    {
-        int id       = -1;
-        int sequence = -1;
-        bool hard    = false;
-        constraints::ConstraintType type = constraints::ConstraintType::Null;
-
-        static NullPolicy make(const solver_models::ConstraintVariant&, const TimeTableProblem&) { return {}; }
-
-        [[nodiscard]] double penalty(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }
-        [[nodiscard]] double evaluate(const TimeTableState&, const TimeTableProblem&) const { return 0.0; }
-        [[nodiscard]] bool   is_satisfied(const TimeTableState&, const TimeTableProblem&) const { return true; }
-        [[nodiscard]] bool   is_feasible(const TimeTableState&, const TimeTableProblem&, const SequenceContext&) const { return true; }
-    };
-
 } // namespace policies
