@@ -82,9 +82,11 @@ double MinimizeGapsConstraint::penalty(const TimeTableState& state,
             }
         }
     }
-    breaks /= problem.get_weeks();
+    breaks /= static_cast<double>(by_date.size());
+    breaks *= problem.get_max_day() + 1;
     return breaks;
 
+    // ====== OLD PER WEEK GAPS =========
     // std::map<std::pair<int,int>, std::vector<const Class*>> by_day_week;
     // for (int class_id = 0; class_id < state.size(); ++class_id)
     // {
@@ -138,35 +140,7 @@ double MinimizeGapsConstraint::evaluate(const TimeTableState& state,
 bool MinimizeGapsConstraint::is_satisfied(const TimeTableState& state,
                                           const TimeTableProblem& problem) const
 {
-    std::map<std::pair<int,int>, std::vector<const Class*>> by_day_week;
-    for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
-    {
-        if (!state.is_attended(class_id))
-        {
-            continue;
-        }
-        const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
-        if (cls.week.test(0))
-            by_day_week[{cls.day, 0}].push_back(&cls);
-        if (cls.week.test(1))
-            by_day_week[{cls.day, 1}].push_back(&cls);
-    }
-
-    for (auto& day_classes : by_day_week | std::views::values)
-    {
-        std::sort(day_classes.begin(), day_classes.end(),
-            [](const Class* a, const Class* b) { return a->start_time < b->start_time; });
-
-        for (size_t i = 1; i < day_classes.size(); ++i)
-        {
-            const int gap = day_classes[i]->start_time - day_classes[i - 1]->end_time;
-            if (gap < min_break)
-            {
-                return false;
-            }
-        }
-    }
-    return true;
+    return penalty(state, problem) == 0.0;
 }
 
 bool MinimizeGapsConstraint::is_feasible(const TimeTableState& state,
@@ -244,6 +218,7 @@ bool LecturerPreferenceConstraint::is_feasible(const TimeTableState& state,
 double MinimizeClassAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& /*problem*/) const
 {
+    if (!state.is_assigned(class_id)) return 0.0;
     return state.is_attended(class_id) ? 0.0 : 1.0;
 }
 
@@ -257,7 +232,7 @@ double MinimizeClassAbsenceConstraint::evaluate(const TimeTableState& state,
 bool MinimizeClassAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
-    return state.is_attended(class_id);
+    return penalty(state, problem) == 0.0;
 }
 
 bool MinimizeClassAbsenceConstraint::is_feasible(const TimeTableState& state,
@@ -273,6 +248,7 @@ bool MinimizeClassAbsenceConstraint::is_feasible(const TimeTableState& state,
 double MinimizeGroupAbsenceConstraint::penalty(const TimeTableState& state,
                                                   const TimeTableProblem& /*problem*/) const
 {
+    if (!state.is_assigned(class_id)) return 0.0;
     return state.is_attended(class_id, group) ? 0.0 : 1.0;
 }
 
@@ -286,7 +262,7 @@ double MinimizeGroupAbsenceConstraint::evaluate(const TimeTableState& state,
 bool MinimizeGroupAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                      const TimeTableProblem& problem) const
 {
-    return state.is_attended(class_id, group);
+    return penalty(state, problem) == 0.0;
 }
 
 bool MinimizeGroupAbsenceConstraint::is_feasible(const TimeTableState& state,
@@ -300,46 +276,118 @@ bool MinimizeGroupAbsenceConstraint::is_feasible(const TimeTableState& state,
 // -------------------- MinimizeTotalAbsenceConstraint --------------------
 
 double MinimizeTotalAbsenceConstraint::penalty(const TimeTableState& state,
-                                                  const TimeTableProblem& problem) const
+                                               const TimeTableProblem& problem) const
 {
-    const size_t total = problem.class_size();
-    if (total == 0) return 0.0;
-
-    auto overlaps = [](const solver_models::Class& a, const solver_models::Class& b)
+    struct TimeEntry
     {
-        if (a.day != b.day) return false;
-        if (!(a.week & b.week).any()) return false;
-        return !(b.end_time < a.start_time || a.end_time < b.start_time);
+        int class_id;
+        int start_time;
+        int end_time;
     };
 
-    int counter = 0;
+    std::vector<std::vector<TimeEntry>> by_date(problem.get_max_date() + 1, std::vector<TimeEntry>());
 
-    for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
+    for (int class_id = 0; class_id < state.size(); ++class_id)
     {
-        if (state.is_unattended(class_id))
-        {
-            counter++;
-            continue;
-        }
-        if (!state.is_assigned(class_id))
+        if (!state.is_attended(class_id))
         {
             continue;
         }
-        for (int cid = class_id + 1; cid < static_cast<int>(state.size()); ++cid)
+
+        const auto& cls = problem.get_group(class_id, state.get_raw_group(class_id));
+        for (const auto& s : cls.sessions)
         {
-            if (!state.is_attended(cid))
-            {
-                continue;
-            }
-            const auto& class_a = problem.get_group(class_id, state.get_raw_group(class_id));
-            const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
-            if (overlaps(class_a, class_b))
-            {
-                counter++;
-            }
+            auto& day_classes = by_date[s.date];
+            day_classes.emplace_back(class_id, s.start_time, s.end_time);
         }
     }
-    return counter;
+
+    std::vector<double> attendance(state.size(), 0.0);
+    for (auto& day_classes : by_date)
+    {
+        if (day_classes.empty())
+        {
+            continue;
+        }
+
+        for (size_t i = 0; i < day_classes.size(); ++i)
+        {
+            int overlapped_count = 1;
+            for (size_t j = 0; j < day_classes.size(); ++j)
+            {
+                if (i == j)
+                {
+                    continue;
+                }
+
+                const auto& class_a = day_classes[i];
+                const auto& class_b = day_classes[j];
+                const bool overlaps = !(class_b.end_time < class_a.start_time || class_a.end_time < class_b.start_time);
+                if (overlaps)
+                {
+                    overlapped_count++;
+                }
+            }
+            const auto class_id = day_classes[i].class_id;
+            attendance[class_id] += 1.0 / overlapped_count;
+        }
+    }
+
+    double penalty = 0.0;
+    for (int class_id = 0; class_id < state.size(); ++class_id)
+    {
+        if (!state.is_attended(class_id))
+        {
+            continue;
+        }
+
+        const int group = state.get_raw_group(class_id);
+        const auto session_count = static_cast<int>(problem.get_group(class_id, group).sessions.size());
+        const auto absences = session_count - attendance[class_id];
+        const double absence_fraq = static_cast<double>(absences) / static_cast<double>(session_count);
+        penalty += absence_fraq;
+    }
+    return penalty;
+
+    // ====== OLD PER WEEK OVERLAP ======
+    // const size_t total = problem.class_size();
+    // if (total == 0) return 0.0;
+    //
+    // auto overlaps = [](const solver_models::Class& a, const solver_models::Class& b)
+    // {
+    //     if (a.day != b.day) return false;
+    //     if (!(a.week & b.week).any()) return false;
+    //     return !(b.end_time < a.start_time || a.end_time < b.start_time);
+    // };
+    //
+    // int counter = 0;
+    //
+    // for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
+    // {
+    //     if (state.is_unattended(class_id))
+    //     {
+    //         counter++;
+    //         continue;
+    //     }
+    //     if (!state.is_assigned(class_id))
+    //     {
+    //         continue;
+    //     }
+    //     for (int cid = class_id + 1; cid < static_cast<int>(state.size()); ++cid)
+    //     {
+    //         if (!state.is_attended(cid))
+    //         {
+    //             continue;
+    //         }
+    //         const auto& class_a = problem.get_group(class_id, state.get_raw_group(class_id));
+    //         const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
+    //         if (overlaps(class_a, class_b))
+    //         {
+    //             counter++;
+    //         }
+    //     }
+    // }
+    // return counter;
 }
 
 double MinimizeTotalAbsenceConstraint::evaluate(const TimeTableState& state,
@@ -352,39 +400,7 @@ double MinimizeTotalAbsenceConstraint::evaluate(const TimeTableState& state,
 bool MinimizeTotalAbsenceConstraint::is_satisfied(const TimeTableState& state,
                                                   const TimeTableProblem& problem) const
 {
-    const size_t total = problem.class_size();
-    if (total == 0) return true;
-
-    auto overlaps = [](const solver_models::Class& a, const solver_models::Class& b)
-    {
-        if (a.day != b.day) return false;
-        if (!(a.week & b.week).any()) return false;
-        return a.start_time < b.end_time && b.start_time < a.end_time;
-    };
-
-    for (int class_id = 0; class_id < static_cast<int>(state.size()); ++class_id)
-    {
-        if (state.is_unattended(class_id))
-        {
-            return false;
-        }
-        if (!state.is_assigned(class_id))
-        {
-            continue;
-        }
-        for (int cid = class_id + 1; cid < static_cast<int>(state.size()); ++cid)
-        {
-            if (!state.is_attended(cid))
-                continue;
-            const auto& class_a = problem.get_group(class_id, state.get_raw_group(class_id));
-            const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
-            if (overlaps(class_a, class_b))
-            {
-                return false;
-            }
-        }
-    }
-    return true;
+    return penalty(state, problem) == 0.0;
 }
 
 bool MinimizeTotalAbsenceConstraint::is_feasible(const TimeTableState& state,

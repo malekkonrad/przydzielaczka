@@ -29,6 +29,7 @@ public:
     [[nodiscard]] const std::vector<int>& get_max_group() const;
     [[nodiscard]] int get_max_group(int class_id) const;
     [[nodiscard]] int get_max_date() const;
+    [[nodiscard]] int get_max_day() const;
     [[nodiscard]] int get_weeks() const;
     [[nodiscard]] const std::vector<std::vector<solver_models::Class>>& get_classes() const;
     [[nodiscard]] const std::vector<solver_models::Class>& get_groups(int class_id) const;
@@ -49,5 +50,6 @@ private:
     std::vector<int> sequence_soft_hard_split_point_;
     std::vector<int> sequence_split_point_;
     int max_date_;
+    int max_day_;
     int weeks_ = 14;
 };
