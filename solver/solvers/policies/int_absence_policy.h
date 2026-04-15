@@ -160,48 +160,6 @@ struct IntAbsencePolicy
         return evaluate(state, problem);
     }
 
-    // -------------------- PartiallyEvaluatable interface --------------------
-    //
-    // Correctness argument:
-    //   partial_evaluate sums only the NEW penalty introduced by placing class_id.
-    //   Summing partial_evaluate over all placed classes yields the full penalty.
-    //
-    //   partial_is_satisfied catches violations at the earliest possible depth:
-    //     - unattended: caught immediately when the class is placed as absent.
-    //     - overlap with future class: caught when that future class is placed.
-    //
-    //   partial_is_feasible uses the running total (penalty on the partial state,
-    //   which skips UNASSIGNED entries).  Because adding more classes can only
-    //   increase the penalty, exceeding the bound now means it will be exceeded
-    //   in the final state too — safe to prune.
-
-    [[nodiscard]] double partial_evaluate(const TimeTableState& state,
-                                          const TimeTableProblem& problem,
-                                          const int class_id, const int group) const
-    {
-        return weight * incremental_penalty(state, class_id);
-    }
-
-    [[nodiscard]] bool partial_is_satisfied(const TimeTableState& state,
-                                             const TimeTableProblem& problem,
-                                             const int class_id, const int group) const
-    {
-        // return incremental_penalty(state, class_id) == 0.0; // TODO overlap is not correct, incremental penalty does not work
-        return penalty(state, problem) == 0.0;
-    }
-
-    [[nodiscard]] bool partial_is_feasible(const TimeTableState& state,
-                                            const TimeTableProblem& problem,
-                                            const SequenceContext& context,
-                                            const int class_id, const int group) const
-    {
-        if (!context.has_score(id)) return true;
-        // penalty() on a partial state skips UNASSIGNED entries — it is the
-        // running total for the assigned classes so far, which is a lower bound
-        // on the final penalty.  Pruning here is therefore sound.
-        return incremental_penalty(state, class_id) <= context[id] + slack;
-    }
-
 private:
     struct OverlapEntry { int class_id; int group; };
 
@@ -243,15 +201,8 @@ private:
 static_assert(policies::Evaluatable<IntAbsencePolicy>,
     "IntAbsencePolicy must satisfy policies::Evaluatable");
 
-static_assert(policies::PartiallyEvaluatable<IntAbsencePolicy>,
-    "IntAbsencePolicy must satisfy policies::PartiallyEvaluatable");
-
 static_assert(policies::BoundEstimating<IntAbsencePolicy>,
     "IntAbsencePolicy must satisfy policies::BoundEstimating");
 
 static_assert(policies::Substitutable<IntAbsencePolicy>,
     "IntAbsencePolicy must satisfy policies::Substitutable");
-
-static_assert(evaluator::SequenceEvaluator<
-    BasicConstraintEvaluator<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntAbsencePolicy>>>,
-    "BasicConstraintEvaluator<...IntAbsencePolicy> must satisfy SequenceEvaluator");

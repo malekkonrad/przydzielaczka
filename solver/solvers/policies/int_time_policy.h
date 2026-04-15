@@ -214,87 +214,6 @@ struct IntTimePolicy
         return order;
     }
 
-    // -------------------- PartiallyEvaluatable interface --------------------
-    //
-    // Each partial_* method restricts computation to the (day, week) buckets that
-    // contain the given (class_id, group).  This is correct because:
-    //
-    //   partial_penalty <= full_penalty  (subset of buckets)
-    //
-    // For is_satisfied / is_feasible this means: if the constraint is violated in
-    // any affected bucket it is detected immediately; violations in unaffected
-    // buckets were already caught when those classes were assigned.
-    //
-    // For is_feasible: if even the partial penalty exceeds best+slack then the
-    // full penalty certainly does too → safe to prune.  The reverse is not true,
-    // so some prune opportunities are missed, but no valid state is ever rejected.
-
-    [[nodiscard]] double partial_penalty(const TimeTableState& state,
-                                         const TimeTableProblem& /*problem*/,
-                                         const int class_id, const int group) const
-    {
-        const auto it = class_group_to_keys_.find({class_id, group});
-        if (it == class_group_to_keys_.end()) return 0.0;
-
-        double p = 0.0;
-        for (const auto& key : it->second)
-        {
-            const auto& entries = lookup_.at(key);
-            int prev_end = -1;
-            for (const auto& e : entries)
-            {
-                if (!state.is_attended(e.class_id, e.group)) continue;
-                if (prev_end >= 0)
-                {
-                    const int gap = e.start_time - prev_end;
-                    if (gap > min_break)
-                        p += static_cast<double>(gap - min_break);
-                }
-                prev_end = e.end_time;
-            }
-        }
-        return p;
-    }
-
-    [[nodiscard]] double partial_evaluate(const TimeTableState& state,
-                                          const TimeTableProblem& problem,
-                                          const int class_id, const int group) const
-    {
-        return weight * partial_penalty(state, problem, class_id, group);
-    }
-
-    [[nodiscard]] bool partial_is_satisfied(const TimeTableState& state,
-                                             const TimeTableProblem& /*problem*/,
-                                             const int class_id, const int group) const
-    {
-        const auto it = class_group_to_keys_.find({class_id, group});
-        if (it == class_group_to_keys_.end()) return true;
-
-        for (const auto& key : it->second)
-        {
-            const auto& entries = lookup_.at(key);
-            int prev_end = -1;
-            for (const auto& e : entries)
-            {
-                if (!state.is_attended(e.class_id, e.group)) continue;
-                if (prev_end >= 0 && e.start_time - prev_end < min_break)
-                    return false;
-                prev_end = e.end_time;
-            }
-        }
-        return true;
-    }
-
-    [[nodiscard]] bool partial_is_feasible(const TimeTableState& state,
-                                            const TimeTableProblem& problem,
-                                            const SequenceContext& context,
-                                            const int class_id, const int group) const
-    {
-        if (!context.has_score(id)) return true;
-        // return partial_penalty(state, problem, class_id, group) <= context[id] + slack;
-        return penalty(state, problem) <= context[id] + slack;
-    }
-
 private:
     struct Entry
     {
@@ -316,9 +235,6 @@ private:
 static_assert(policies::Evaluatable<IntTimePolicy>,
     "IntTimePolicy must satisfy policies::Evaluatable");
 
-static_assert(policies::PartiallyEvaluatable<IntTimePolicy>,
-    "IntTimePolicy must satisfy PartiallyEvaluatable");
-
 static_assert(policies::Substitutable<IntTimePolicy>,
     "IntTimePolicy must satisfy policies::Substitutable");
 
@@ -327,7 +243,3 @@ static_assert(policies::BoundEstimating<IntTimePolicy>,
 
 static_assert(policies::OrderSensitive<IntTimePolicy>,
     "IntTimePolicy must satisfy policies::OrderSensitive");
-
-static_assert(evaluator::SequenceEvaluator<
-    BasicConstraintEvaluator<SolverTraits::WithPartialEvaluation<true>::WithPolicies<IntTimePolicy>>>,
-    "BasicConstraintEvaluator<...IntTimePolicy> must satisfy SequenceEvaluator");

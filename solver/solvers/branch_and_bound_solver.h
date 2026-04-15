@@ -218,15 +218,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
             {
                 this->stats_record_visited();
 
-                bool are_feasible;
-                if constexpr (Traits::config.use_partial_evaluation)
-                {
-                    are_feasible = evaluator_.partial_are_feasible(current, context, class_id, group);
-                }
-                else
-                {
-                    are_feasible = evaluator_.are_feasible(current, context);
-                }
+                bool are_feasible = evaluator_.are_feasible(current, context);
 
                 if (!are_feasible)
                 {
@@ -235,15 +227,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                     return;
                 }
 
-                bool are_satisfied;
-                if constexpr (Traits::config.use_partial_evaluation)
-                {
-                    are_satisfied = evaluator_.partial_are_satisfied(current, class_id, group);
-                }
-                else
-                {
-                    are_satisfied = evaluator_.are_satisfied(current);
-                }
+                bool are_satisfied = evaluator_.are_satisfied(current);
                 if (!are_satisfied)
                 {
                     this->stats_record_constraint_cut(class_groups_range.count_leaves(current, position));

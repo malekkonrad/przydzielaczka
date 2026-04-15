@@ -78,25 +78,6 @@ namespace policies {
         {
             { p.class_order(problem) } -> std::same_as<std::vector<std::pair<int,int>>>;
         };
-
-        // PartiallyEvaluatable — optional extension for solver_models::Evaluatable types.
-        //
-        // Policies that implement this concept can be evaluated against a single
-        // (class_id, group) assignment instead of the full state, enabling finer-grained
-        // pruning. PolicyConstraintEvaluator<P> checks this at compile time and dispatches
-        // to the partial overloads when available, falling back to full evaluation otherwise.
-        template<typename Policy>
-        concept PartiallyEvaluatable = Evaluatable<Policy> && requires(
-            const Policy& p,
-            const TimeTableState& state,
-            const TimeTableProblem& problem,
-            const SequenceContext& ctx,
-            int class_id, int group)
-        {
-            { p.partial_evaluate(state, problem, class_id, group)         } -> std::convertible_to<double>;
-            { p.partial_is_satisfied(state, problem, class_id, group)     } -> std::convertible_to<bool>;
-            { p.partial_is_feasible(state, problem, ctx, class_id, group) } -> std::convertible_to<bool>;
-        };
     } // namespace concepts
 
     // ==================== POLICY FREE FUNCTIONS ====================
@@ -134,7 +115,9 @@ namespace policies {
     {
         double total = 0.0;
         for (const auto& e : range)
+        {
             total += e.evaluate(state, problem);
+        }
         return total;
     }
 

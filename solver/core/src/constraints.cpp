@@ -344,8 +344,8 @@ double MinimizeTotalAbsenceConstraint::penalty(const TimeTableState& state,
         const int group = state.get_raw_group(class_id);
         const auto session_count = static_cast<int>(problem.get_group(class_id, group).sessions.size());
         const auto absences = session_count - attendance[class_id];
-        const double absence_fraq = static_cast<double>(absences) / static_cast<double>(session_count);
-        penalty += absence_fraq;
+        const double absence_frac = static_cast<double>(absences) / static_cast<double>(session_count);
+        penalty += absence_frac;
     }
     return penalty;
 
@@ -411,6 +411,7 @@ bool MinimizeTotalAbsenceConstraint::is_feasible(const TimeTableState& state,
     return penalty(state, problem) <= context[id] + slack;
 }
 
+// TODO add per session evaluation
 // -------------------- TimeBlockDayConstraint --------------------
 
 double TimeBlockDayConstraint::penalty(const TimeTableState& state,
