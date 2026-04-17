@@ -214,8 +214,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
             {
                 this->stats_record_visited();
 
-                bool are_feasible = evaluator_.are_feasible(current, context);
-
+                const bool are_feasible = evaluator_.are_feasible(current, context);
                 if (!are_feasible)
                 {
                     this->stats_record_feasibility_cut(class_groups_range.count_leaves(current, position));
@@ -223,7 +222,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
                     return;
                 }
 
-                bool are_satisfied = evaluator_.are_satisfied(current);
+                const bool are_satisfied = evaluator_.are_satisfied(current);
                 if (!are_satisfied)
                 {
                     this->stats_record_constraint_cut(class_groups_range.count_leaves(current, position));
