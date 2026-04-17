@@ -1,16 +1,19 @@
 # TODO for solvers
 - [x] Add solver traits, hide everything behind solver_base, default to one evaluator
-- [ ] IMPORTANT IntTimePolicy has incorrect lower bound, idk why
+- [x] IMPORTANT IntTimePolicy has incorrect lower bound, idk why
+- [ ] Add attendance percentage to the TimeTableState - for faster eval
+- [ ] Add better handling for unassigned subjects. Subjects could be attended with some preference. At the beginning we go somewhere then we go on different subject.
 - [ ] Add heuristics
 - [ ] MRV - chose most constraint groups first
 - [ ] Degree heuristic - chose group with most influence on others
 - [ ] Forward Checking - remove future conflicts, If i have 1 group and there are others conflicting don't go over them
-- [ ] Constraint Propagation - Arc Consistency, if there's a hard constraint to attend some group, just assigne student to that group
-- [ ] Branch and Bound - better upper bound
+- [ ] Constraint Propagation - Arc Consistency, if there's a hard constraint to attend some group, just assigned student to that group
+- [x] Branch and Bound - better upper bound
 - [ ] Caching - maybe cache some gaps, precompute them?
 - [ ] Sequence Squashing - squash hard constraints into one sequence
+- [ ] Sequence Squashing 2.0 - squash all the sequences into one with complex comparison and complex lowerbound
 - [ ] Precompute Conflicts
 - [ ] Bitset masks
-- [ ] Dominance Pruning - remove options that are always wors
+- [ ] Dominance Pruning - remove options that are always worse
 - [ ] Incremental scoring - just add new score without computing everything
 - [ ] Meet in the middle - Half from one side, Half from the other
