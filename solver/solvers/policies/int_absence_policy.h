@@ -13,6 +13,7 @@
 #include <traits.h>
 
 #include <map>
+#include <set>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -67,24 +68,74 @@ struct IntAbsencePolicy
 
     void precompute(const TimeTableProblem& problem)
     {
-        overlap_map_.clear();
-        const int n = static_cast<int>(problem.class_size());
-
-        for (int ci = 0; ci < n; ++ci)
+        if constexpr (Traits::config.use_simplified_evaluation)
         {
-            const int max_gi = problem.get_max_group(ci);
-            for (int gi = 1; gi <= max_gi; ++gi)
+            overlap_map_.clear();
+            const int n = static_cast<int>(problem.class_size());
+
+            for (int ci = 0; ci < n; ++ci)
             {
-                const auto& a = problem.get_group(ci, gi);
-                for (int cj = 0; cj < ci; ++cj)         // only lower-index classes
+                const int max_gi = problem.get_max_group(ci);
+                for (int gi = 1; gi <= max_gi; ++gi)
                 {
-                    const int max_gj = problem.get_max_group(cj);
-                    for (int gj = 1; gj <= max_gj; ++gj)
+                    const auto& a = problem.get_group(ci, gi);
+                    for (int cj = 0; cj < ci; ++cj)         // only lower-index classes
                     {
-                        const auto& b = problem.get_group(cj, gj);
-                        if (time_overlaps(a, b))
+                        const int max_gj = problem.get_max_group(cj);
+                        for (int gj = 1; gj <= max_gj; ++gj)
                         {
-                            overlap_map_[{ci, gi}].push_back({cj, gj});
+                            const auto& b = problem.get_group(cj, gj);
+                            if (weekly_time_overlaps(a, b))
+                            {
+                                overlap_map_[{ci, gi}].push_back({cj, gj});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            overlap_map_.clear();
+            const int n_classes = static_cast<int>(problem.class_size());
+
+            for (int ci = 0; ci < n_classes; ++ci)
+            {
+                const int max_gi = problem.get_max_group(ci);
+                for (int gi = 1; gi <= max_gi; ++gi)
+                {
+                    const auto& class_a = problem.get_group(ci, gi);
+                    auto& entry = overlap_map_[{ci, gi}];
+                    entry.first = static_cast<int>(class_a.sessions.size());
+
+                    for (int cj = 0; cj < n_classes; ++cj)
+                    {
+                        if (ci == cj) continue;
+                        const int max_gj = problem.get_max_group(cj);
+                        for (int gj = 1; gj <= max_gj; ++gj)
+                        {
+                            const auto& class_b = problem.get_group(cj, gj);
+                            // Collect dates where class_a and class_b share an overlapping session.
+                            // Each date appears at most once — overlap_per_date[d] then counts
+                            // distinct overlapping CLASS-GROUP pairs, not session pairs.
+                            std::set<int> common_dates;
+                            for (const auto& sa : class_a.sessions)
+                            {
+                                for (const auto& sb : class_b.sessions)
+                                {
+                                    if (sa.date == sb.date &&
+                                        !(sb.end_time < sa.start_time || sa.end_time < sb.start_time))
+                                    {
+                                        common_dates.insert(sa.date);
+                                        break; // one match per sa is enough
+                                    }
+                                }
+                            }
+                            if (!common_dates.empty())
+                            {
+                                entry.second.push_back({cj, gj,
+                                    std::vector<int>(common_dates.begin(), common_dates.end())});
+                            }
                         }
                     }
                 }
@@ -97,35 +148,83 @@ struct IntAbsencePolicy
     [[nodiscard]] double penalty(const TimeTableState& state,
                                  const TimeTableProblem& problem) const
     {
-        double count = 0.0;
-        for (int cid = 0; cid < static_cast<int>(state.size()); ++cid)
+        if constexpr (Traits::config.use_simplified_evaluation)
         {
-            if (state.is_unattended(cid))
+            // Count: +1 per unattended class, +1 per overlapping attending pair.
+            double count = 0.0;
+            for (int cid = 0; cid < static_cast<int>(state.size()); ++cid)
             {
-                count += 1;
-                continue;
-            }
-            if (!state.is_attended(cid))
-            {
-                continue;
-            }
-
-            for (int class_a_id = cid + 1; class_a_id < static_cast<int>(state.size()); ++class_a_id)
-            {
-                if (!state.is_attended(class_a_id))
+                if (state.is_unattended(cid))
+                {
+                    count += 1;
+                    continue;
+                }
+                if (!state.is_attended(cid))
                 {
                     continue;
                 }
 
-                const auto& class_a = problem.get_group(class_a_id, state.get_raw_group(class_a_id));
-                const auto& class_b = problem.get_group(cid, state.get_raw_group(cid));
-                if (time_overlaps(class_a, class_b))
+                for (int aid = cid + 1; aid < static_cast<int>(state.size()); ++aid)
                 {
-                    count += 1;
+                    if (!state.is_attended(aid)) continue;
+                    const auto& ca = problem.get_group(cid, state.get_raw_group(cid));
+                    const auto& cb = problem.get_group(aid, state.get_raw_group(aid));
+                    if (weekly_time_overlaps(ca, cb))
+                    {
+                        count += 1;
+                    }
                 }
             }
+            return count;
         }
-        return count;
+        else
+        {
+            // Yearly: sum of per-class absence fractions.
+            // For each session on date d, attendance = 1 / (1 + oc) where oc is the number
+            // of other attending class-group pairs that overlap on date d.
+            // Absence per session = oc / (1 + oc).  Computing absence directly (not 1 - attendance)
+            // keeps the == 0.0 check stable: sessions with no overlap contribute exactly 0.
+            double total_absence = 0.0;
+            for (int cid = 0; cid < static_cast<int>(state.size()); ++cid)
+            {
+                if (!state.is_assigned(cid)) continue;
+                if (state.is_unattended(cid)) { total_absence += 1.0; continue; }
+                if (!state.is_attended(cid))  { continue; }
+
+                const int g  = state.get_raw_group(cid);
+                const auto it = overlap_map_.find({cid, g});
+                if (it == overlap_map_.end()) continue;
+
+                const auto& [n_sessions, overlapping] = it->second;
+                if (n_sessions == 0) continue;
+
+                // Accumulate per-date overlap counts from currently attending classes.
+                std::map<int, int> overlap_per_date;
+                for (const auto& ovl : overlapping)
+                {
+                    if (!state.is_attended(ovl.class_id, ovl.group)) continue;
+                    for (int d : ovl.overlapping_dates)
+                        ++overlap_per_date[d];
+                }
+
+                if (overlap_per_date.empty()) continue; // no overlaps → zero absence
+
+                // Sum oc/(1+oc) over sessions that have at least one overlap.
+                const auto& cls = problem.get_group(cid, g);
+                double absence = 0.0;
+                for (const auto& s : cls.sessions)
+                {
+                    const auto jt = overlap_per_date.find(s.date);
+                    if (jt != overlap_per_date.end())
+                    {
+                        const int oc = jt->second;
+                        absence += static_cast<double>(oc) / static_cast<double>(1 + oc);
+                    }
+                }
+                total_absence += absence / static_cast<double>(n_sessions);
+            }
+            return total_absence;
+        }
     }
 
     [[nodiscard]] double evaluate(const TimeTableState& state,
@@ -145,8 +244,21 @@ struct IntAbsencePolicy
             const int g = state.get_raw_group(cid);
             const auto it = overlap_map_.find({cid, g});
             if (it == overlap_map_.end()) continue;
-            for (const auto& [oid, og] : it->second)
-                if (state.is_attended(oid, og)) return false;
+            if constexpr (Traits::config.use_simplified_evaluation)
+            {
+                for (const auto& [oid, og] : it->second)
+                {
+                    if (state.is_attended(oid, og)) return false;
+                }
+            }
+            else
+            {
+                const auto& [count, overlapping_groups] = it->second;
+                for (const auto& [oid, og, _] : overlapping_groups)
+                {
+                    if (state.is_attended(oid, og)) return false;
+                }
+            }
         }
         return true;
     }
@@ -166,41 +278,24 @@ struct IntAbsencePolicy
     }
 
 private:
-    struct OverlapEntry { int class_id; int group; };
+    struct WeeklyOverlapEntry { int class_id; int group; };
+    struct YearlyOverlapEntry { int class_id; int group; std::vector<int> overlapping_dates;};
 
-    static bool time_overlaps(const solver_models::Class& a,
-                               const solver_models::Class& b) noexcept
+    static bool weekly_time_overlaps(const solver_models::Class& a,
+                                     const solver_models::Class& b) noexcept
     {
         if (a.day != b.day)              return false;
         if (!(a.week & b.week).any())    return false;
         return !(b.end_time < a.start_time || a.end_time < b.start_time);
     }
 
-    // Incremental penalty contribution of placing class_id:
-    //   +1  if unattended
-    //   +N  where N = number of precomputed lower-indexed overlapping pairs
-    //              whose partner is currently attending
-    [[nodiscard]] double incremental_penalty(const TimeTableState& state,
-                                              const int class_id) const
-    {
-        if (state.is_unattended(class_id)) return 1.0;
-        if (!state.is_attended(class_id))  return 0.0;
-
-        const int g  = state.get_raw_group(class_id);
-        const auto it = overlap_map_.find({class_id, g});
-        if (it == overlap_map_.end()) return 0.0;
-
-        double count = 0.0;
-        for (const auto& [oid, og] : it->second)
-        {
-            if (state.is_attended(oid, og)) count += 1.0;
-        }
-        return count;
-    }
-
     // (class_id, group) → overlapping (other_id, other_group) pairs
     // where other_id < class_id.  Built once in precompute().
-    std::map<std::pair<int,int>, std::vector<OverlapEntry>> overlap_map_;
+    using Overlap = std::conditional_t<Traits::config.use_simplified_evaluation,
+        std::vector<WeeklyOverlapEntry>, std::pair<int, std::vector<YearlyOverlapEntry>>
+    >;
+    std::map<std::pair<int,int>, Overlap> overlap_map_;
+
 };
 
 static_assert(policies::Evaluatable<IntAbsencePolicy<SolverTraits>>,
