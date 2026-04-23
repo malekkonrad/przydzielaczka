@@ -267,8 +267,8 @@ struct IntAbsencePolicy
                                    const TimeTableProblem& problem,
                                    const SequenceContext& context) const
     {
-        if (!context.has_score(id)) return true;
-        return penalty(state, problem) <= context[id] + slack;
+        if (!context.has_constraint_score(id)) return true;
+        return penalty(state, problem) <= context.get_constraint_score(id) + slack;
     }
 
     [[nodiscard]] double lower_bound(const TimeTableState& state,

@@ -53,6 +53,7 @@ namespace detail {
         bool use_sequence_squashing     = false;
         bool use_meet_in_the_middle     = false;
         bool use_incremental_scoring    = false;
+        bool use_multi_goal_evaluation  = false;
 
         [[nodiscard]] constexpr SolverConfig with_partial_evaluation(const bool v) const     { auto c=*this; c.use_partial_evaluation=v;     return c; }
         [[nodiscard]] constexpr SolverConfig with_simplified_evaluation(const bool v) const  { auto c=*this; c.use_simplified_evaluation=v;  return c; }
@@ -67,6 +68,7 @@ namespace detail {
         [[nodiscard]] constexpr SolverConfig with_sequence_squashing(const bool v) const     { auto c=*this; c.use_sequence_squashing=v;     return c; }
         [[nodiscard]] constexpr SolverConfig with_meet_in_the_middle(const bool v) const     { auto c=*this; c.use_meet_in_the_middle=v;     return c; }
         [[nodiscard]] constexpr SolverConfig with_incremental_scoring(const bool v) const    { auto c=*this; c.use_incremental_scoring=v;    return c; }
+        [[nodiscard]] constexpr SolverConfig with_multi_goal_evaluation(const bool v) const    { auto c=*this; c.use_multi_goal_evaluation=v;return c; }
     };
 
 } // namespace detail

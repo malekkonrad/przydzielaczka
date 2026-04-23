@@ -16,16 +16,19 @@ class SequenceContext
 public:
     static constexpr double EMPTY = std::numeric_limits<double>::infinity();
 
-    explicit SequenceContext(size_t size);
+    explicit SequenceContext(size_t constraint_size, size_t sequence_size);
+    explicit SequenceContext(size_t constraint_size, size_t sequence_size, int value);
 
-    [[nodiscard]] bool   has_score(int id) const;
-    void                 set_score(int id, double score);
-    [[nodiscard]] double get_score(int id) const;
+    [[nodiscard]] bool   has_sequence_score(int id) const;
+    void                 set_sequence_score(int id, double score);
+    [[nodiscard]] double get_sequence_score(int id) const;
 
-    double& operator[](int id);
-    double  operator[](int id) const;
+    [[nodiscard]] bool   has_constraint_score(int id) const;
+    void                 set_constraint_score(int id, double score);
+    [[nodiscard]] double get_constraint_score(int id) const;
 
-    [[nodiscard]] size_t size() const;
+    [[nodiscard]] size_t sequence_size() const;
+    [[nodiscard]] size_t constraint_size() const;
 
     // Sum of all finite (non-EMPTY) scores — useful for display.
     [[nodiscard]] double sum() const;
@@ -41,5 +44,6 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const SequenceContext& context);
 
 private:
-    std::vector<double> scores_;
+    std::vector<double> sequence_scores_;
+    std::vector<double> constraint_scores_;
 };

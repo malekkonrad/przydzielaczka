@@ -52,7 +52,7 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
 
     // TODO add some selector
     using BaseTraits = SolverTraits;
-    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
+    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithMultiGoalEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
 
     // BranchAndBoundSolver<BaseTraits> solver(problem, config);
     BranchAndBoundSolver<BnBTraits> solver(problem, config);

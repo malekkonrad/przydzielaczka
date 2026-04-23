@@ -4,13 +4,13 @@
             "constraint_type": "minimize_total_absence",
             "sequence": 1,
             "weight": 1,
-            "hard": true,
+            "hard": false,
             "slack": 0
         },
         {
             "constraint_type": "minimize_gaps",
             "min_break_duration": 0,
-            "sequence": 1,
+            "sequence": 2,
             "weight": 1,
             "hard": false,
             "slack": 0

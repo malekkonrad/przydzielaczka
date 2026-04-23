@@ -101,6 +101,10 @@ public:
     }
 
     BoundedSolutionSet<SequenceContext> solve() override;
+
+private:
+    BoundedSolutionSet<SequenceContext> solve_single_goal();
+    BoundedSolutionSet<SequenceContext> solve_multi_goal();
 };
 
 // ---------------------------------------------------------------------------
@@ -110,12 +114,21 @@ public:
 template<SolverTraitsConcept Traits>
 BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
 {
+    if constexpr (Traits::config.use_multi_goal_evaluation)
+        return solve_multi_goal();
+    else
+        return solve_single_goal();
+}
+
+template<SolverTraitsConcept Traits>
+BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve_single_goal()
+{
     const int    n_classes     = static_cast<int>(problem_.class_size());
     const int    n_seqs        = static_cast<int>(problem_.sequence_size());
     const size_t n_constraints = problem_.get_constraints().size();
     const bool   verbose       = config_.verbose;
 
-    SequenceContext context(n_constraints);
+    SequenceContext context(n_constraints, n_seqs);
     BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
     BoundedSolutionSet<double> intermediate_solutions(config_.max_solutions);
 
@@ -273,6 +286,169 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve()
         {
             std::cout << "  keeping " << solutions.size() << " solution(s)\n";
         }
+    }
+
+    if (verbose)
+    {
+        stats_.print();
+    }
+
+    return solutions;
+}
+
+
+template<SolverTraitsConcept Traits>
+BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve_multi_goal()
+{
+    const int    n_classes     = static_cast<int>(problem_.class_size());
+    const int    n_seqs        = static_cast<int>(problem_.sequence_size());
+    const size_t n_constraints = problem_.get_constraints().size();
+    const bool   verbose       = config_.verbose;
+
+    SequenceContext context(n_constraints, n_seqs);
+    BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
+
+    auto class_groups_range = ClassGroupRange(problem_);
+    std::vector<std::pair<int,int>> order;
+
+    // TODO count order sensitive is wrong
+    int n_os = 0;
+    for (int seq = 0; seq < n_seqs; seq++)
+    {
+        evaluator_.set_sequence(seq);
+        n_os += evaluator_.count_order_sensitive();
+    }
+
+    evaluator_.set_sequence(n_seqs - 1);
+
+    if (n_os > 1 && verbose)
+        std::cout << "  " << n_os << " OrderSensitive policies active — "
+                  << "class order is ambiguous, falling back to plain backtracking.\n";
+
+    bool use_bnb = false;
+    if constexpr (Traits::config.use_branch_and_bound)
+    {
+        use_bnb = (n_os <= 1);
+    }
+
+    if (use_bnb && n_os == 1)
+    {
+        order = evaluator_.get_class_group_order();
+        if (order.size() == problem_.size())
+        {
+            class_groups_range = ClassGroupRange(problem_, order);
+        }
+        else
+        {
+            if (verbose)
+            {
+                std::cout << "  class_order() returned " << order.size()
+                          << " entries (expected " << problem_.size()
+                          << ") — using default order." << std::endl;
+            }
+        }
+    }
+
+    this->stats_begin_sequence(0, this->count_leaves());
+
+    // ---- Backtracking search with B&B pruning ----
+
+    auto best_eval = SequenceContext(n_constraints, n_seqs);
+    TimeTableState current(n_classes);
+
+    std::function<void(int, int)> backtrack = [&](const int depth, int position)
+    {
+        if (verbose) this->stats_print_inplace_throttled();
+
+        if (depth == n_classes)
+        {
+            SequenceContext eval = evaluator_.score_all(current);
+            if (eval < best_eval)
+            {
+                best_eval = eval;
+            }
+            this->stats_record_solution(eval.sum());
+
+            for (int i = 0; i < best_eval.sequence_size(); ++i)
+            {
+                const double penalty = best_eval.get_constraint_score(i);
+                if (penalty < context.get_constraint_score(i))
+                {
+                    context.set_constraint_score(i, penalty);
+                }
+            }
+
+            solutions.insert(std::move(eval), current);
+
+            if (verbose)
+            {
+                this->stats_print_inplace_throttled();
+            }
+            return;
+        }
+
+        if (use_bnb)
+        {
+            const auto lb = evaluator_.score_all(current);
+            if (lb > best_eval)
+            {
+                this->stats_record_pruned(class_groups_range.count_leaves(current, position));
+                return;
+            }
+        }
+
+        auto try_state = [&](const int class_id, const int group)
+        {
+            this->stats_record_visited();
+
+            const bool are_feasible = evaluator_.are_feasible(current, context);
+            if (!are_feasible)
+            {
+                this->stats_record_feasibility_cut(class_groups_range.count_leaves(current, position));
+                current.unassign(class_id);
+                return;
+            }
+
+            const bool are_satisfied = evaluator_.are_satisfied(current);
+            if (!are_satisfied)
+            {
+                this->stats_record_constraint_cut(class_groups_range.count_leaves(current, position));
+                current.unassign(class_id);
+                return;
+            }
+
+            backtrack(depth + 1, position);
+        };
+
+        const auto class_groups = class_groups_range.get_class_groups(current, position);
+
+        for (const auto [class_id, group] : class_groups)
+        {
+            position++;
+            current.attend(class_id, group);
+            try_state(class_id, group);
+            current.unassign(class_id);
+
+            current.assign(class_id, group);
+            try_state(class_id, group);
+            current.unassign(class_id);
+        }
+
+    };
+
+    backtrack(0, 0);
+
+    this->stats_commit_sequence();
+    this->stats_set_solutions_kept(static_cast<int>(solutions.size()));
+
+    if (verbose)
+    {
+        this->current_seq_stats().print_final();
+    }
+
+    if (verbose)
+    {
+        std::cout << "  keeping " << solutions.size() << " solution(s)\n";
     }
 
     if (verbose)

@@ -160,8 +160,8 @@ bool MinimizeGapsConstraint<Simplified>::is_feasible(
     const TimeTableProblem& problem,
     const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- GroupPreferenceConstraint --------------------
@@ -198,8 +198,8 @@ bool GroupPreferenceConstraint<Simplified>::is_feasible(
     const TimeTableProblem& problem,
     const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- LecturerPreferenceConstraint --------------------
@@ -238,8 +238,8 @@ bool LecturerPreferenceConstraint<Simplified>::is_feasible(
    const TimeTableProblem& problem,
    const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- MinimizeClassAbsenceConstraint --------------------
@@ -276,8 +276,8 @@ bool MinimizeClassAbsenceConstraint<Simplified>::is_feasible(
     const TimeTableProblem& problem,
     const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- MinimizeGroupAbsenceConstraint --------------------
@@ -314,8 +314,8 @@ bool MinimizeGroupAbsenceConstraint<Simplified>::is_feasible(
     const TimeTableProblem& problem,
     const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- MinimizeTotalAbsenceConstraint --------------------
@@ -462,8 +462,8 @@ bool MinimizeTotalAbsenceConstraint<Simplified>::is_feasible(const TimeTableStat
                                                     const TimeTableProblem& problem,
                                                     const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // TODO add per session evaluation
@@ -507,8 +507,8 @@ bool TimeBlockDayConstraint<Simplified>::is_feasible(const TimeTableState& state
                                          const TimeTableProblem& problem,
                                          const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- TimeBlockDateConstraint --------------------
@@ -555,8 +555,8 @@ bool TimeBlockDateConstraint<Simplified>::is_feasible(const TimeTableState& stat
                                           const TimeTableProblem& problem,
                                           const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- PreferEdgeClassConstraint --------------------
@@ -604,8 +604,8 @@ bool PreferEdgeClassConstraint<Simplified>::is_feasible(const TimeTableState& st
                                             const TimeTableProblem& problem,
                                             const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- PreferEdgeGroupConstraint --------------------
@@ -653,8 +653,8 @@ bool PreferEdgeGroupConstraint<Simplified>::is_feasible(const TimeTableState& st
                                             const TimeTableProblem& problem,
                                             const SequenceContext& context) const
 {
-    if (!context.has_score(id)) return true;
-    return penalty(state, problem) <= context[id] + slack;
+    if (!context.has_sequence_score(id)) return true;
+    return penalty(state, problem) <= context.get_constraint_score(id) + slack;
 }
 
 // -------------------- PUBLIC API --------------------

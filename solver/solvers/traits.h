@@ -37,6 +37,7 @@ struct BasicSolverTraits {
     template<bool V> using WithSequenceSquashing     = BasicSolverTraits<Config.with_sequence_squashing(V),     Ps...>;
     template<bool V> using WithMeetInTheMiddle       = BasicSolverTraits<Config.with_meet_in_the_middle(V),     Ps...>;
     template<bool V> using WithIncrementalScoring    = BasicSolverTraits<Config.with_incremental_scoring(V),    Ps...>;
+    template<bool V> using WithMultiGoalEvaluation   = BasicSolverTraits<Config.with_multi_goal_evaluation(V),  Ps...>;
 
     // Replace the active policy list entirely.
     template<template<typename> class... NewPs>

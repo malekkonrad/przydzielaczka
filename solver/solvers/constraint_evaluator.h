@@ -42,6 +42,7 @@ namespace evaluator
             { e.evaluate(state)            } -> std::convertible_to<double>;
             { e.are_satisfied(state)       } -> std::convertible_to<bool>;
             { e.are_feasible(state, cctx)  } -> std::convertible_to<bool>;
+            { e.score_all(state)           } -> std::same_as<SequenceContext>;
         };
 
         // PartialSequenceEvaluator — evaluator-level extension of SequenceEvaluator.
@@ -210,6 +211,7 @@ public:
     [[nodiscard]] int  get_sequence() const { return sequence_; }
 
     [[nodiscard]] SequenceContext score(const TimeTableState& state) const;
+    [[nodiscard]] SequenceContext score_all(const TimeTableState& state) const;
     void update_context(SequenceContext& context, const TimeTableState& state) const;
     [[nodiscard]] double evaluate(const TimeTableState& state) const;
     [[nodiscard]] bool   are_satisfied(const TimeTableState& state) const;
@@ -283,9 +285,26 @@ template<detail::SolverConfig Config, template<typename> class... Ps>
 SequenceContext BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::score(
     const TimeTableState& state) const
 {
-    SequenceContext context(problem_.get_constraints().size());
+    SequenceContext context(problem_.get_constraints().size(), problem_.sequence_size());
     for (const auto& u : slice_up_to(sequence_))
-        std::visit([&](const auto& x){ context[x.id] = x.penalty(state, problem_); }, u);
+        std::visit([&](const auto& x){ context.set_constraint_score(x.id, x.penalty(state, problem_)); }, u);
+    return context;
+}
+
+template<detail::SolverConfig Config, template<typename> class... Ps>
+SequenceContext BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::score_all(
+    const TimeTableState& state) const
+{
+    SequenceContext context(problem_.get_constraints().size(), problem_.sequence_size(), 0);
+    for (const auto& u : unified_)
+        std::visit([&](const auto& x)
+        {
+            const double penalty = x.penalty(state, problem_);
+            const double evaluation = x.weight * penalty;
+            const double score = context.get_sequence_score(x.sequence);
+            context.set_sequence_score(x.sequence, score + evaluation);
+            context.set_constraint_score(x.id, penalty);
+        }, u);
     return context;
 }
 
@@ -296,10 +315,13 @@ void BasicConstraintEvaluator<BasicSolverTraits<Config, Ps...>>::update_context(
     for (const auto& u : slice_in(sequence_))
         std::visit([&](const auto& x)
         {
-            if (context[x.id] != 0.0)
+            if (context.get_constraint_score(x.id) != 0.0)
             {
                 const double pen = x.penalty(state, problem_);
-                if (pen < context[x.id]) context[x.id] = pen;
+                if (pen < context.get_constraint_score(x.id))
+                {
+                    context.set_constraint_score(x.id, pen);
+                }
             }
         }, u);
 }
