@@ -390,6 +390,7 @@ BoundedSolutionSet<SequenceContext> BranchAndBoundSolver<Traits>::solve_multi_go
         if (use_bnb)
         {
             const auto lb = evaluator_.score_all(current);
+            // TODO this should check with slack and does not work
             if (lb > best_eval)
             {
                 this->stats_record_pruned(class_groups_range.count_leaves(current, position));
