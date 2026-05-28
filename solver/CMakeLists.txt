@@ -60,7 +60,14 @@ target_precompile_headers(solver_core PRIVATE
     <ranges>
 )
 
-# Provide the schema path as a compile-time constant so the validator can load it
-target_compile_definitions(solver_core PRIVATE
-    INPUT_SCHEMA_PATH="${CMAKE_SOURCE_DIR}/shared/schemas/input.schema.json"
-)
+# Provide the schema path as a compile-time constant so the validator can load it.
+# For WASM builds the schema is embedded into the binary at a virtual FS path.
+if(EMSCRIPTEN)
+    target_compile_definitions(solver_core PRIVATE
+        INPUT_SCHEMA_PATH="/input.schema.json"
+    )
+else()
+    target_compile_definitions(solver_core PRIVATE
+        INPUT_SCHEMA_PATH="${CMAKE_SOURCE_DIR}/shared/schemas/input.schema.json"
+    )
+endif()

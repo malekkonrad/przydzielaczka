@@ -52,7 +52,7 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
 
     // TODO add some selector
     using BaseTraits = SolverTraits;
-    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithMultiGoalEvaluation<true>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
+    using BnBTraits = SolverTraits::WithBranchAndBound<true>::WithMultiGoalEvaluation<false>::WithPolicies<IntTimePolicy, IntAbsencePolicy>;
 
     // BranchAndBoundSolver<BaseTraits> solver(problem, config);
     BranchAndBoundSolver<BnBTraits> solver(problem, config);
@@ -75,6 +75,13 @@ Json SolverRunner::run(const Json& input, const bool verbose) const
         }
         std::cout << "\nTotal: " << solutions.size() << " solution(s) found in "
                   << duration_ms << " ms\n";
+    }
+
+    if (config_.solution_callback) {
+        for (const auto& sol : solutions) {
+            Json single = mapper.get_solution(std::vector<TimeTableState>{sol});
+            config_.solution_callback(single.dump());
+        }
     }
 
     Json result         = mapper.get_solution(solutions);

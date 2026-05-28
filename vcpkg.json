@@ -4,7 +4,13 @@
   "version" : "0.0.1",
   "dependencies" : [
     "nlohmann-json",
-    "gtest",
-    "pybind11"
+    {
+      "name": "gtest",
+      "platform": "!emscripten"
+    },
+    {
+      "name": "pybind11",
+      "platform": "!emscripten"
+    }
   ]
 }

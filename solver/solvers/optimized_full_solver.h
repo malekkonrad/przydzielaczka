@@ -59,7 +59,7 @@ BoundedSolutionSet<SequenceContext> OptimizedFullSolver<Traits>::solve()
     const size_t n_constraints = problem_.get_constraints().size();
     const bool verbose  = config_.verbose;
 
-    SequenceContext context(n_constraints);
+    SequenceContext context(n_constraints, n_seqs);
     BoundedSolutionSet<SequenceContext> solutions(config_.max_solutions);
 
     for (int seq = 0; seq < n_seqs; ++seq)

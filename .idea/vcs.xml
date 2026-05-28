@@ -5,5 +5,7 @@
     <mapping directory="$PROJECT_DIR$/cmake-build-debug-tests/_deps/json_schema_validator-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/json_schema_validator-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-profile/_deps/json_schema_validator-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/json_schema_validator-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-wasm-release/_deps/json_schema_validator-src" vcs="Git" />
   </component>
 </project>

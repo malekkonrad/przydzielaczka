@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <ostream>
 #include <functional>
+#include <ostream>
+#include <string>
 
 class TimeTableState;
 
@@ -19,7 +20,9 @@ namespace input_models
         bool verbose = false;
         bool early_stopping = false;
         bool simplified_evaluation = false;
-        std::function<void(const TimeTableState& state)> intermediate_solution_callback = [](const TimeTableState& state){};
+        std::function<void(const TimeTableState& state)> intermediate_solution_callback = [](const TimeTableState&){};
+        // Called once per solution found, with the solution serialized as a JSON string.
+        std::function<void(const std::string& solution_json)> solution_callback = nullptr;
     };
     inline std::ostream& operator<<(std::ostream& os, const config& c)
     {
