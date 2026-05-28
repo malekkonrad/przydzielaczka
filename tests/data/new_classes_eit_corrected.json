@@ -1,0 +1,2869 @@
+[
+    {
+        "day": 1,
+        "lecturer": "\u0141ukasz Mik",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 900,
+        "end_time": 1035,
+        "group": 9,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-16",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-03-23",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-03-30",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-13",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-20",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-27",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-04",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-11",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-18",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-25",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 945
+            }
+        ]
+    },
+    {
+        "day": 1,
+        "lecturer": "\u0141ukasz Mik",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 1050,
+        "end_time": 1185,
+        "group": 7,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-16",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-03-23",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-03-30",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-13",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-20",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-27",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-04",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-11",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-18",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-25",
+                "location": {
+                    "room": "null",
+                    "building": "null"
+                },
+                "start_time": 1050,
+                "end_time": 1095
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Zbigniew Galias",
+        "week": "AB",
+        "location": {
+            "room": "1",
+            "building": "D5"
+        },
+        "class_type": "W",
+        "start_time": 585,
+        "end_time": 675,
+        "group": 1,
+        "id": "230-EIT-1S-400",
+        "sessions": [
+            {
+                "date": "2026-03-03",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-03-13",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-04-21",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-06-02",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            },
+            {
+                "date": "2026-06-09",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 585,
+                "end_time": 675
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Piotr Dziurdzia",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 690,
+        "end_time": 825,
+        "group": 8,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-04-21",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 825
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 690,
+                "end_time": 735
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Piotr Zegarmistrz",
+        "week": "AB",
+        "location": {
+            "room": "113",
+            "building": "HB3B4"
+        },
+        "class_type": "CWA",
+        "start_time": 690,
+        "end_time": 780,
+        "group": 5,
+        "id": "230-EIT-1S-400",
+        "sessions": [
+            {
+                "date": "2026-03-03",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-10",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-02",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-09",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-16",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 690,
+                "end_time": 780
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Zbigniew Galias",
+        "week": "AB",
+        "location": {
+            "room": "127",
+            "building": "D5"
+        },
+        "class_type": "CWA",
+        "start_time": 690,
+        "end_time": 780,
+        "group": 2,
+        "id": "230-EIT-1S-400",
+        "sessions": [
+            {
+                "date": "2026-03-03",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-10",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-16",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-21",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-02",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-09",
+                "location": {
+                    "room": "127",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Piotr Zegarmistrz",
+        "week": "AB",
+        "location": {
+            "room": "113",
+            "building": "HB3B4"
+        },
+        "class_type": "CWA",
+        "start_time": 795,
+        "end_time": 885,
+        "group": 1,
+        "id": "230-EIT-1S-400",
+        "sessions": [
+            {
+                "date": "2026-03-03",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-10",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-06-02",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-06-09",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-06-16",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 795,
+                "end_time": 885
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "\u0141ukasz Mik",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 840,
+        "end_time": 975,
+        "group": 4,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-04-21",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 975
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 840,
+                "end_time": 885
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Piotr Zegarmistrz",
+        "week": "AB",
+        "location": {
+            "room": "113",
+            "building": "HB3B4"
+        },
+        "class_type": "CWA",
+        "start_time": 900,
+        "end_time": 990,
+        "group": 3,
+        "id": "230-EIT-1S-400",
+        "sessions": [
+            {
+                "date": "2026-03-03",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-03-10",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-06-02",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-06-09",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-06-16",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 900,
+                "end_time": 990
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "\u0141ukasz Mik",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 990,
+        "end_time": 1125,
+        "group": 2,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-04-21",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1125
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 990,
+                "end_time": 1035
+            }
+        ]
+    },
+    {
+        "day": 2,
+        "lecturer": "Piotr Zegarmistrz",
+        "week": "AB",
+        "location": {
+            "room": "113",
+            "building": "HB3B4"
+        },
+        "class_type": "CWA",
+        "start_time": 1005,
+        "end_time": 1095,
+        "group": 4,
+        "id": "230-EIT-1S-400",
+        "sessions": [
+            {
+                "date": "2026-03-03",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-03-10",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-03-17",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-03-24",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-03-31",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-04-14",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-04-28",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-05-05",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-05-12",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-05-19",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-05-26",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-06-02",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-06-09",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            },
+            {
+                "date": "2026-06-16",
+                "location": {
+                    "room": "113",
+                    "building": "H-B3B4"
+                },
+                "start_time": 1005,
+                "end_time": 1095
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "\u0141ukasz \u015aliwczy\u0144ski",
+        "week": "A",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 645,
+        "end_time": 780,
+        "group": 10,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 735
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-27",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-17",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "\u0141ukasz \u015aliwczy\u0144ski",
+        "week": "B",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 645,
+        "end_time": 780,
+        "group": 9,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-08",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 735
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            },
+            {
+                "date": "2026-05-20",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            },
+            {
+                "date": "2026-06-10",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 645,
+                "end_time": 780
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Ireneusz Brzozowski",
+        "week": "AB",
+        "location": {
+            "room": "1",
+            "building": "D5"
+        },
+        "class_type": "W",
+        "start_time": 795,
+        "end_time": 885,
+        "group": 1,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-04",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-06",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-13",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-18",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-20",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-25",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-27",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-01",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-17",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Jakub Pawlak",
+        "week": "A",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 900,
+        "end_time": 1035,
+        "group": 6,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-27",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-06-17",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Jakub Pawlak",
+        "week": "B",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 900,
+        "end_time": 1035,
+        "group": 5,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-08",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 990
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-20",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-06-10",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Piotr Bratek",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 900,
+        "end_time": 1035,
+        "group": 1,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-18",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-03-25",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-01",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-20",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-27",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 945
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Piotr Bratek",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 1050,
+        "end_time": 1185,
+        "group": 5,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-18",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-03-25",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-01",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-20",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-27",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1095
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Jakub Pawlak",
+        "week": "A",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 1050,
+        "end_time": 1185,
+        "group": 4,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1140
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-27",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-06-17",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            }
+        ]
+    },
+    {
+        "day": 3,
+        "lecturer": "Jakub Pawlak",
+        "week": "B",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 1050,
+        "end_time": 1185,
+        "group": 3,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-08",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1140
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-20",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-06-10",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            }
+        ]
+    },
+    {
+        "day": 4,
+        "lecturer": "\u0141ukasz \u015aliwczy\u0144ski",
+        "week": "AB",
+        "location": {
+            "room": "1",
+            "building": "D5"
+        },
+        "class_type": "W",
+        "start_time": 690,
+        "end_time": 870,
+        "group": 1,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-03-05",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 870
+            },
+            {
+                "date": "2026-03-12",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 870
+            },
+            {
+                "date": "2026-03-19",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 870
+            },
+            {
+                "date": "2026-03-26",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 870
+            },
+            {
+                "date": "2026-04-09",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            }
+        ]
+    },
+    {
+        "day": 4,
+        "lecturer": "Piotr Dziurdzia",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 900,
+        "end_time": 1035,
+        "group": 3,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-19",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-03-26",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-09",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-16",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-23",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-04-30",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-07",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-14",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-21",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-28",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 900,
+                "end_time": 945
+            }
+        ]
+    },
+    {
+        "day": 4,
+        "lecturer": "Piotr Dziurdzia",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 1050,
+        "end_time": 1185,
+        "group": 6,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-19",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-03-26",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-09",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-16",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-23",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-04-30",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-07",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-14",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-21",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1185
+            },
+            {
+                "date": "2026-05-28",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 1050,
+                "end_time": 1095
+            }
+        ]
+    },
+    {
+        "day": 5,
+        "lecturer": "Ireneusz Brzozowski",
+        "week": "AB",
+        "location": {
+            "room": "1",
+            "building": "D5"
+        },
+        "class_type": "W",
+        "start_time": 690,
+        "end_time": 780,
+        "group": 1,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-04",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-06",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-13",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-18",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-20",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-03-25",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-03-27",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 690,
+                "end_time": 780
+            },
+            {
+                "date": "2026-04-01",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-15",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-17",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-22",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-04-29",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-06",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-13",
+                "location": {
+                    "room": "1",
+                    "building": "D-5"
+                },
+                "start_time": 795,
+                "end_time": 885
+            }
+        ]
+    },
+    {
+        "day": 5,
+        "lecturer": "\u0141ukasz Mik",
+        "week": "AB",
+        "location": {
+            "room": "302",
+            "building": "C3"
+        },
+        "class_type": "CWL",
+        "start_time": 795,
+        "end_time": 930,
+        "group": 10,
+        "id": "230-EIT-1S-105",
+        "sessions": [
+            {
+                "date": "2026-03-20",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-03-27",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-04-10",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-04-17",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-04-24",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-05-08",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-05-15",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-05-22",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-05-29",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-06-12",
+                "location": {
+                    "room": "302",
+                    "building": "C-3"
+                },
+                "start_time": 795,
+                "end_time": 840
+            }
+        ]
+    },
+    {
+        "day": 5,
+        "lecturer": "Karol Salwik",
+        "week": "A",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 795,
+        "end_time": 930,
+        "group": 2,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-17",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-05-08",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-29",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-06-12",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-06-23",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            }
+        ]
+    },
+    {
+        "day": 5,
+        "lecturer": "Karol Salwik",
+        "week": "B",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 795,
+        "end_time": 930,
+        "group": 1,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-10",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-04-24",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 885
+            },
+            {
+                "date": "2026-05-15",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-06-03",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            },
+            {
+                "date": "2026-06-19",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 795,
+                "end_time": 930
+            }
+        ]
+    },
+    {
+        "day": 5,
+        "lecturer": "Karol Salwik",
+        "week": "A",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 945,
+        "end_time": 1080,
+        "group": 8,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-17",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            },
+            {
+                "date": "2026-05-08",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-29",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            },
+            {
+                "date": "2026-06-12",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            },
+            {
+                "date": "2026-06-23",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            }
+        ]
+    },
+    {
+        "day": 5,
+        "lecturer": "Karol Salwik",
+        "week": "B",
+        "location": {
+            "room": "523",
+            "building": "C2"
+        },
+        "class_type": "CWL",
+        "start_time": 945,
+        "end_time": 1080,
+        "group": 7,
+        "id": "230-EIT-1S-197",
+        "sessions": [
+            {
+                "date": "2026-04-10",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            },
+            {
+                "date": "2026-04-24",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1035
+            },
+            {
+                "date": "2026-05-15",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            },
+            {
+                "date": "2026-06-03",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            },
+            {
+                "date": "2026-06-19",
+                "location": {
+                    "room": "523",
+                    "building": "C-2"
+                },
+                "start_time": 945,
+                "end_time": 1080
+            }
+        ]
+    }
+]

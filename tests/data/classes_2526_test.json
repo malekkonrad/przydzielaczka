@@ -1,0 +1,305 @@
+{
+    "constraints": [
+        {
+            "constraint_type": "minimize_total_absence",
+            "sequence": 1,
+            "weight": 1,
+            "hard": false,
+            "slack": 0
+        },
+        {
+            "constraint_type": "minimize_gaps",
+            "min_break_duration": 0,
+            "sequence": 2,
+            "weight": 1,
+            "hard": false,
+            "slack": 0
+        }
+    ],
+    "classes": [
+        {
+            "day": 3,
+            "lecturer": "Ireneusz Brzozowski",
+            "week": "AB",
+            "location": {
+                "room": "1",
+                "building": "D5"
+            },
+            "class_type": "W",
+            "start_time": 795,
+            "end_time": 885,
+            "group": 1,
+            "id": "230-EIT-1S-105",
+            "sessions": [
+                {
+                    "date": "2026-03-04",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-03-06",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 690,
+                    "end_time": 780
+                },
+                {
+                    "date": "2026-03-13",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 690,
+                    "end_time": 780
+                },
+                {
+                    "date": "2026-03-18",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-03-20",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 690,
+                    "end_time": 780
+                },
+                {
+                    "date": "2026-03-25",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-03-27",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 690,
+                    "end_time": 780
+                },
+                {
+                    "date": "2026-04-01",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-04-15",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-04-17",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-04-22",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-04-29",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-05-06",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                },
+                {
+                    "date": "2026-05-13",
+                    "location": {
+                        "room": "1",
+                        "building": "D-5"
+                    },
+                    "start_time": 795,
+                    "end_time": 885
+                }
+            ]
+        },
+        {
+            "day": 3,
+            "lecturer": "Rados\u0142aw Klimek",
+            "week": "AB",
+            "location": {
+                "room": "426",
+                "building": "C2"
+            },
+            "class_type": "CWP",
+            "start_time": 735,
+            "end_time": 870,
+            "group": 1,
+            "id": "120-ISI-1S-547",
+            "sessions": [
+                {
+                    "date": "2026-03-04",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-03-11",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-03-18",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-03-25",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-04-01",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-04-08",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-04-15",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-04-22",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-04-29",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-05-06",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-05-13",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-05-20",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-05-27",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                },
+                {
+                    "date": "2026-06-10",
+                    "location": {
+                        "room": "426",
+                        "building": "C-2"
+                    },
+                    "start_time": 735,
+                    "end_time": 870
+                }
+            ]
+        }
+    ]
+}

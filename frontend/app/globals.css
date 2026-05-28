@@ -1,0 +1,12 @@
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+
+/* react-big-calendar overrides to blend with MUI */
+.rbc-calendar { font-family: inherit; }
+.rbc-header { padding: 4px 8px; font-weight: 500; font-size: 0.75rem; }
+.rbc-event { border-radius: 4px !important; border: none !important; padding: 2px 4px !important; }
+.rbc-event-label { font-size: 0.65rem; }
+.rbc-event-content { font-size: 0.72rem; line-height: 1.2; }
+.rbc-today { background: transparent !important; }
+.rbc-timeslot-group { min-height: 40px; }
+.rbc-time-view .rbc-row { min-height: 0; }
