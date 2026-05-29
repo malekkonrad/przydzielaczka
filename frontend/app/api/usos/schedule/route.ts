@@ -55,7 +55,6 @@ export async function GET(req: NextRequest) {
   let html: string;
   try {
     html = await fetchHtml(url, cookie);
-    console.log(html);
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 502 });
   }

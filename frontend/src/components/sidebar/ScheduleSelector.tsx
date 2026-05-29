@@ -18,9 +18,9 @@ export default function ScheduleSelector() {
   const setStudyConfig   = useAppStore(s => s.setStudyConfig);
   const loadingCourses   = useAppStore(s => s.loadingCourses);
   const coursesError     = useAppStore(s => s.coursesError);
-  const setCourseGroups  = useAppStore(s => s.setCourseGroups);
-  const setLoading       = useAppStore(s => s.setLoadingCourses);
-  const setError         = useAppStore(s => s.setCoursesError);
+  const mergeCourseGroups = useAppStore(s => s.mergeCourseGroups);
+  const setLoading        = useAppStore(s => s.setLoadingCourses);
+  const setError          = useAppStore(s => s.setCoursesError);
 
   const [localConfig, setLocal] = useState(studyConfig);
   const [cookie, setCookie]     = useState('');
@@ -47,7 +47,7 @@ export default function ScheduleSelector() {
         throw new Error(body.error ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
-      setCourseGroups(data);
+      mergeCourseGroups(data);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {

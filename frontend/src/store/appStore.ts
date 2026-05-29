@@ -30,6 +30,7 @@ interface AppState {
   loadingCourses: boolean;
   coursesError: string | null;
   setCourseGroups: (groups: CourseGroup[]) => void;
+  mergeCourseGroups: (groups: CourseGroup[]) => void;
   setLoadingCourses: (v: boolean) => void;
   setCoursesError: (e: string | null) => void;
   removeCourse: (id: string) => void;
@@ -107,6 +108,20 @@ export const useAppStore = create<AppState>()(
           courseColorMap: colorMap,
           selectedCourseIds: new Set(groups.map(g => g.id)),
           disabledGroupKeys: new Set(),
+        });
+      },
+      mergeCourseGroups: (newGroups) => {
+        set(s => {
+          const merged = [...s.courseGroups];
+          newGroups.forEach(ng => {
+            const idx = merged.findIndex(g => g.id === ng.id);
+            if (idx >= 0) merged[idx] = ng; else merged.push(ng);
+          });
+          const colorMap: Record<string, string> = {};
+          merged.forEach((g, i) => { colorMap[g.id] = COURSE_COLORS[i % COURSE_COLORS.length]; });
+          const sel = new Set(s.selectedCourseIds);
+          newGroups.forEach(ng => { if (!s.courseGroups.some(g => g.id === ng.id)) sel.add(ng.id); });
+          return { courseGroups: merged, courseColorMap: colorMap, selectedCourseIds: sel };
         });
       },
       setLoadingCourses: v => set({ loadingCourses: v }),

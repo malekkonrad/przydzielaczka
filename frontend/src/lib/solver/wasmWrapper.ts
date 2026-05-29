@@ -1,6 +1,6 @@
 'use client';
 
-import type { SolverInput, SolverResult, SolutionAssignment } from '@/types';
+import type { SolverInput, SolverResult, SolutionAssignment, SolutionMeta } from '@/types';
 
 // ─── WASM module type declarations ───────────────────────────────────────────
 

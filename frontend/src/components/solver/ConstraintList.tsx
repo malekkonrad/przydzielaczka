@@ -12,7 +12,7 @@ import type { Constraint } from '@/types';
 import ConstraintEditor from './ConstraintEditor';
 
 const TYPE_SHORT: Record<string, string> = {
-  minimize_total_absence:  'brak okienek',
+  minimize_total_absence:  'nieobecności',
   minimize_gaps:           'okienka',
   group_preference:        'gr. prefer.',
   lecturer_preference:     'prow. prefer.',
