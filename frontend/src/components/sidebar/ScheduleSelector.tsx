@@ -9,6 +9,7 @@ import {
 import { Download, ExpandMore, ExpandLess, Info } from '@mui/icons-material';
 import { useAppStore } from '@/store/appStore';
 import { STUDY_PROGRAMS, STUDY_YEARS, SEMESTER_TYPE } from '@/lib/usos/constants';
+import { fetchScheduleData, IS_STATIC } from '@/lib/scheduleSource';
 import type { StudyYear } from '@/types';
 
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7];
@@ -31,22 +32,13 @@ export default function ScheduleSelector() {
     setError(null);
     setStudyConfig(localConfig);
 
-    const params = new URLSearchParams({
-      program: localConfig.program,
-      year:    localConfig.year,
-      sem:     String(localConfig.semesterNumber),
-    });
-
-    const headers: Record<string, string> = {};
-    if (cookie.trim()) headers['x-usos-cookie'] = cookie.trim();
-
     try {
-      const res = await fetch(`/api/usos/schedule?${params}`, { headers });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `HTTP ${res.status}`);
-      }
-      const data = await res.json();
+      const data = await fetchScheduleData(
+        localConfig.program,
+        localConfig.year,
+        localConfig.semesterNumber,
+        IS_STATIC ? undefined : (cookie.trim() || undefined),
+      );
       mergeCourseGroups(data);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
@@ -102,38 +94,40 @@ export default function ScheduleSelector() {
         </Select>
       </FormControl>
 
-      {/* Advanced: cookie */}
-      <Box>
-        <Button
-          size="small"
-          color="inherit"
-          sx={{ fontSize: '0.7rem', p: 0, minWidth: 0, textTransform: 'none', opacity: 0.6 }}
-          endIcon={showAdvanced ? <ExpandLess fontSize="inherit" /> : <ExpandMore fontSize="inherit" />}
-          onClick={() => setShowAdvanced(v => !v)}
-        >
-          Zaawansowane
-        </Button>
-        <Collapse in={showAdvanced}>
-          <Box sx={{ mt: 1, display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
-            <TextField
-              size="small"
-              fullWidth
-              label="Cookie USOS"
-              placeholder="PHPSESSID=abc123..."
-              value={cookie}
-              onChange={e => setCookie(e.target.value)}
-              multiline
-              minRows={2}
-              inputProps={{ style: { fontSize: '0.72rem', fontFamily: 'monospace' } }}
-            />
-            <Tooltip title="Jeśli pobieranie planu wymaga zalogowania, wklej tutaj wartość nagłówka Cookie z DevTools (F12 → Network → dowolne żądanie do usos.agh.edu.pl → Request Headers → Cookie).">
-              <IconButton size="small" sx={{ mt: 0.5 }}>
-                <Info fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Collapse>
-      </Box>
+      {/* Advanced: cookie — hidden in static build */}
+      {!IS_STATIC && (
+        <Box>
+          <Button
+            size="small"
+            color="inherit"
+            sx={{ fontSize: '0.7rem', p: 0, minWidth: 0, textTransform: 'none', opacity: 0.6 }}
+            endIcon={showAdvanced ? <ExpandLess fontSize="inherit" /> : <ExpandMore fontSize="inherit" />}
+            onClick={() => setShowAdvanced(v => !v)}
+          >
+            Zaawansowane
+          </Button>
+          <Collapse in={showAdvanced}>
+            <Box sx={{ mt: 1, display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
+              <TextField
+                size="small"
+                fullWidth
+                label="Cookie USOS"
+                placeholder="PHPSESSID=abc123..."
+                value={cookie}
+                onChange={e => setCookie(e.target.value)}
+                multiline
+                minRows={2}
+                inputProps={{ style: { fontSize: '0.72rem', fontFamily: 'monospace' } }}
+              />
+              <Tooltip title="Jeśli pobieranie planu wymaga zalogowania, wklej tutaj wartość nagłówka Cookie z DevTools (F12 → Network → dowolne żądanie do usos.agh.edu.pl → Request Headers → Cookie).">
+                <IconButton size="small" sx={{ mt: 0.5 }}>
+                  <Info fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Collapse>
+        </Box>
+      )}
 
       <Button
         variant="contained"
