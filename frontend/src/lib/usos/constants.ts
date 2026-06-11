@@ -8,10 +8,9 @@ export interface StudyProgram {
 }
 
 export const STUDY_PROGRAMS: StudyProgram[] = [
-  { code: 'ISI', name: 'Informatyka Stosowana i Inżynieria (ISI)', groupCodePrefix: 'ISI_1S_sem_',     years: 7 },
+  { code: 'ISI', name: 'Informatyka i Systemy Inteligentne (ISI)', groupCodePrefix: 'ISI_1S_sem_',     years: 7 },
   { code: 'AiR', name: 'Automatyka i Robotyka (AiR)',               groupCodePrefix: 'AiR_1S_sem_',     years: 7 },
   { code: 'EiT', name: 'Elektronika i Telekomunikacja (EiT)',        groupCodePrefix: '230-EiT_1S_sem',  years: 7 },
-  { code: 'EIT', name: 'EIT',                                        groupCodePrefix: 'EIT_1S_sem_',     years: 7 },
 ];
 
 export const STUDY_YEARS: StudyYear[] = ['23/24', '24/25', '25/26', '26/27'];

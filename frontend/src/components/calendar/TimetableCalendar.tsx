@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
-import { Calendar, dateFnsLocalizer, View, type Event } from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer, View, type Event, type ToolbarProps } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfWeek';
@@ -13,7 +13,7 @@ import setDay from 'date-fns/setDay';
 import { pl } from 'date-fns/locale';
 import {
   Box, ToggleButtonGroup, ToggleButton, Tooltip, Typography,
-  useTheme,
+  useTheme, Button, IconButton,
 } from '@mui/material';
 import { useAppStore } from '@/store/appStore';
 import type { CalendarEvent, CourseClass, SolverRun } from '@/types';
@@ -32,6 +32,20 @@ const localizer = dateFnsLocalizer({
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 const PATTERN_MONDAY = new Date(2026, 2, 2); // 2026-03-02 as reference week
+
+function CalendarNavToolbar({ label, onNavigate }: ToolbarProps<CalendarEvent>) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+      <Button size="small" variant="outlined" onClick={() => onNavigate('TODAY')}
+        sx={{ minWidth: 'auto', px: 1, fontSize: '0.75rem' }}>
+        Dziś
+      </Button>
+      <IconButton size="small" onClick={() => onNavigate('PREV')}>‹</IconButton>
+      <IconButton size="small" onClick={() => onNavigate('NEXT')}>›</IconButton>
+      <Typography variant="body2" sx={{ ml: 0.5, fontWeight: 500 }}>{label}</Typography>
+    </Box>
+  );
+}
 
 function weekLabel(week: string): string {
   if (week === 'A') return 'tyg. nieparzyste';
@@ -306,6 +320,7 @@ export default function TimetableCalendar() {
           style={{ height: '100%', background: calBg }}
           components={{
             event: EventComponent as any,
+            toolbar: CalendarNavToolbar as any,
           }}
           eventPropGetter={eventStyleGetter as any}
           min={setMinutes(setHours(new Date(), 7), 0)}
