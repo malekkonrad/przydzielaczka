@@ -1,4 +1,8 @@
 # przydzielaczka
+
+[![Deploy to GitHub Pages](https://github.com/malekkonrad/przydzielaczka/actions/workflows/deploy.yml/badge.svg)](https://github.com/malekkonrad/przydzielaczka/actions/workflows/deploy.yml)
+&nbsp;
+[**Otwórz aplikację →**](https://malekkonrad.github.io/przydzielaczka/)
 Przydzielaczka to system do inteligentnego przypisywania studentów do grup zajęciowych z uwzględnieniem ich preferencji, jakości prowadzących oraz ograniczeń czasowych. Projekt wykorzystuje własny solver oparty na podejściu Constraint Satisfaction Problem (CSP), rozszerzony o optymalizację miękkich ograniczeń, takich jak minimalizacja przerw, liczby godzin czy konfliktów w planie.
 
 Rdzeń aplikacji został zaimplementowany w C++, z możliwością użycia zarówno jako biblioteka, moduł Pythona, jak i solver działający w przeglądarce dzięki WebAssembly. System umożliwia analizę różnych scenariuszy oraz ocenę jakości przydziału, oferując elastyczne dostosowanie wag dla poszczególnych kryteriów.
