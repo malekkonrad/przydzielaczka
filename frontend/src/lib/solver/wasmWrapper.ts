@@ -74,8 +74,11 @@ export async function loadSolverModule(): Promise<PrzydzielaczkaModule> {
         return;
       }
 
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+      const wasmSrc = `${basePath}/wasm/przydzielaczka_wasm.js`;
+
       const script = document.createElement('script');
-      script.src = '/wasm/przydzielaczka_wasm.js';
+      script.src = wasmSrc;
       script.dataset.wasm = 'przydzielaczka';
       script.onload = () => {
         if (!window.createPrzydzielaczkaModule) {
@@ -90,7 +93,7 @@ export async function loadSolverModule(): Promise<PrzydzielaczkaModule> {
           .catch(reject);
       };
       script.onerror = () =>
-        reject(new Error('Failed to load /wasm/przydzielaczka_wasm.js — did you run "npm run copy-wasm"?'));
+        reject(new Error(`Failed to load ${wasmSrc} — did you run "npm run copy-wasm"?`));
       document.head.appendChild(script);
     });
   }
