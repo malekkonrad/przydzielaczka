@@ -88,3 +88,4 @@ solver/bindings/wasm/node_modules/
 frontend/.next/
 frontend/node_modules/
 frontend/tsconfig.tsbuildinfo
+frontend/public/data/*.json
