@@ -14,12 +14,6 @@ const ROOT = process.cwd();
 const DATA_DIR = path.join(ROOT, 'public', 'data');
 const MAJORS_FILE = path.join(ROOT, 'covered_majors.json');
 
-const FETCH_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'pl-PL,pl;q=0.9',
-};
-
 function slugify(year: string) {
   return year.replace('/', '_');
 }
@@ -38,7 +32,7 @@ async function fileExists(p: string): Promise<boolean> {
 }
 
 async function fetchHtml(url: string): Promise<string> {
-  const res = await fetch(url, { headers: FETCH_HEADERS });
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status} dla ${url}`);
   const text = await res.text();
   if (text.includes('id="loginform"') || text.includes('action="logowanie"')) {
