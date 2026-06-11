@@ -6,9 +6,9 @@ import {
   TextField, FormControlLabel, Switch, Tooltip, Stack,
   CircularProgress,
 } from '@mui/material';
-import { PlayArrow, Science } from '@mui/icons-material';
+import { PlayArrow, Science, Stop } from '@mui/icons-material';
 import { useAppStore } from '@/store/appStore';
-import { runSolver } from '@/lib/solver/wasmWrapper';
+import { runSolver, cancelSolver, isCancelError } from '@/lib/solver/wasmWrapper';
 import type { SolverInput, SolverRun } from '@/types';
 import ConstraintList from './ConstraintList';
 import SolutionSelector from './SolutionSelector';
@@ -24,7 +24,7 @@ export default function SolverPanel() {
 
   const [maxSolutions, setMaxSolutions]   = useState(5);
   const [maxRuntime,   setMaxRuntime]     = useState(30);
-  const [earlyStopping, setEarlyStopping] = useState(true);
+  const [earlyStopping, setEarlyStopping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
@@ -65,8 +65,9 @@ export default function SolverPanel() {
       addSolverRun(run);
       setActiveSolverRunId(runId);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg);
+      if (!isCancelError(e)) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
     } finally {
       setSolverRunning(false);
     }
@@ -131,18 +132,30 @@ export default function SolverPanel() {
           </Alert>
         )}
 
-        <Tooltip title="Solver działa w przeglądarce przez WebAssembly. Wymaga pliku /wasm/przydzielaczka_wasm.js">
+        {solverRunning ? (
           <Button
             variant="contained"
-            color="secondary"
-            startIcon={solverRunning ? <CircularProgress size={16} color="inherit" /> : <PlayArrow />}
-            disabled={solverRunning}
-            onClick={handleSolve}
+            color="error"
+            startIcon={<CircularProgress size={16} color="inherit" />}
+            endIcon={<Stop />}
+            onClick={() => { cancelSolver(); setSolverRunning(false); }}
             fullWidth
           >
-            {solverRunning ? 'Rozwiązywanie…' : 'Uruchom solver'}
+            Zatrzymaj
           </Button>
-        </Tooltip>
+        ) : (
+          <Tooltip title="Solver działa w przeglądarce przez WebAssembly. Wymaga pliku /wasm/przydzielaczka_wasm.js">
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<PlayArrow />}
+              onClick={handleSolve}
+              fullWidth
+            >
+              Uruchom solver
+            </Button>
+          </Tooltip>
+        )}
 
         <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.65rem' }}>
           <Science sx={{ fontSize: 10, mr: 0.3 }} />

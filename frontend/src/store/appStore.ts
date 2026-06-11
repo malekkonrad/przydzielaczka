@@ -181,7 +181,7 @@ export const useAppStore = create<AppState>()(
 
       // Constraints
       constraints: [
-        { constraint_type: 'minimize_total_absence', sequence: 1, weight: 1, hard: false, slack: 0 },
+        { constraint_type: 'minimize_total_absence', sequence: 1, weight: 1, hard: true, slack: 0 },
         { constraint_type: 'minimize_gaps', sequence: 2, weight: 1, hard: false, slack: 0, min_break_duration: 0 },
       ],
       addConstraint: c => set(s => ({ constraints: [...s.constraints, c] })),

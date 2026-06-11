@@ -70,6 +70,23 @@ function getWorker(): Worker {
   return _worker;
 }
 
+// ─── Cancel ───────────────────────────────────────────────────────────────────
+
+export const CANCEL_MESSAGE = 'SOLVER_CANCELLED';
+
+export function cancelSolver(): void {
+  if (!_worker) return;
+  _worker.terminate();
+  _worker = null;
+  const err = new Error(CANCEL_MESSAGE);
+  for (const run of pending.values()) run.reject(err);
+  pending.clear();
+}
+
+export function isCancelError(e: unknown): boolean {
+  return e instanceof Error && e.message === CANCEL_MESSAGE;
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function runSolver(
