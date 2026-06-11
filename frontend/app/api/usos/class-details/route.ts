@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { parseClassDetailHtml } from '@/lib/usos/parser';
 import { USOS_BASE } from '@/lib/usos/constants';
 
+export const dynamic = 'force-static';
+
 export async function GET(req: NextRequest) {
+  if (process.env.STATIC_BUILD === 'true') return NextResponse.json([]);
   const { searchParams } = req.nextUrl;
   const zajCykId = searchParams.get('zaj_cyk_id');
   const grNr     = searchParams.get('gr_nr');
