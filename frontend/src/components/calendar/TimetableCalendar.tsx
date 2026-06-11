@@ -33,6 +33,12 @@ const localizer = dateFnsLocalizer({
 
 const PATTERN_MONDAY = new Date(2026, 2, 2); // 2026-03-02 as reference week
 
+function weekLabel(week: string): string {
+  if (week === 'A') return 'tyg. nieparzyste';
+  if (week === 'B') return 'tyg. parzyste';
+  return '';
+}
+
 function minutesToDate(base: Date, minutes: number): Date {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -103,7 +109,7 @@ function EventComponent({ event }: { event: CalendarEvent }) {
       title={
         <Box sx={{ fontSize: '0.75rem', lineHeight: 1.5 }}>
           <b>{r.courseName}</b><br />
-          {r.classType} · gr.{r.group} · {r.week}<br />
+          {r.classType} · gr.{r.group}{r.week !== 'AB' ? ` · ${weekLabel(r.week)}` : ''}<br />
           {r.lecturer}<br />
           sala {r.room}, {r.building}
           {r.source === 'solver' && <><br /><em>← wynik solvera</em></>}
@@ -121,7 +127,7 @@ function EventComponent({ event }: { event: CalendarEvent }) {
         </Typography>
         {r.week !== 'AB' && (
           <Typography sx={{ fontSize: '0.58rem', opacity: 0.7 }}>
-            tyg. {r.week}
+            {weekLabel(r.week)}
           </Typography>
         )}
       </Box>
@@ -225,21 +231,33 @@ export default function TimetableCalendar() {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 1, gap: 1 }}>
       {/* Toolbar */}
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-        <ToggleButtonGroup
-          size="small"
-          exclusive
-          value={calendarMode}
-          onChange={(_, v) => v && setCalendarMode(v)}
+        <Tooltip
+          title={view === 'month' ? 'Widok miesięczny wymaga trybu Terminy' : ''}
+          disableHoverListener={view !== 'month'}
         >
-          <ToggleButton value="pattern">Wzorzec</ToggleButton>
-          <ToggleButton value="dates">Terminy</ToggleButton>
-        </ToggleButtonGroup>
+          <span>
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={calendarMode}
+              onChange={(_, v) => v && setCalendarMode(v)}
+              disabled={view === 'month'}
+            >
+              <ToggleButton value="pattern">Wzorzec</ToggleButton>
+              <ToggleButton value="dates">Terminy</ToggleButton>
+            </ToggleButtonGroup>
+          </span>
+        </Tooltip>
 
         <ToggleButtonGroup
           size="small"
           exclusive
           value={view}
-          onChange={(_, v) => v && setView(v)}
+          onChange={(_, v) => {
+            if (!v) return;
+            if (v === 'month') setCalendarMode('dates');
+            setView(v);
+          }}
         >
           <ToggleButton value="week">Tydzień</ToggleButton>
           <ToggleButton value="month">Miesiąc</ToggleButton>

@@ -1,8 +1,18 @@
 import type { StudyYear, SemesterType } from '@/types';
 
-export const STUDY_PROGRAMS = [
-  { code: 'ISI', name: 'Informatyka Stosowana i Inżynieria (ISI)', years: 7 },
-] as const;
+export interface StudyProgram {
+  code: string;
+  name: string;
+  groupCodePrefix: string;
+  years: number;
+}
+
+export const STUDY_PROGRAMS: StudyProgram[] = [
+  { code: 'ISI', name: 'Informatyka Stosowana i Inżynieria (ISI)', groupCodePrefix: 'ISI_1S_sem_',     years: 7 },
+  { code: 'AiR', name: 'Automatyka i Robotyka (AiR)',               groupCodePrefix: 'AiR_1S_sem_',     years: 7 },
+  { code: 'EiT', name: 'Elektronika i Telekomunikacja (EiT)',        groupCodePrefix: '230-EiT_1S_sem',  years: 7 },
+  { code: 'EIT', name: 'EIT',                                        groupCodePrefix: 'EIT_1S_sem_',     years: 7 },
+];
 
 export const STUDY_YEARS: StudyYear[] = ['23/24', '24/25', '25/26', '26/27'];
 
@@ -10,9 +20,11 @@ export const SEMESTER_TYPE: Record<number, SemesterType> = {
   1: 'Z', 2: 'L', 3: 'Z', 4: 'L', 5: 'Z', 6: 'L', 7: 'Z',
 };
 
-/** Constructs the USOS group code, e.g. ISI_1S_sem_6 */
+/** Constructs the USOS group code using the program's prefix, e.g. ISI_1S_sem_6 or 230-EiT_1S_sem7 */
 export function buildGroupCode(program: string, semesterNumber: number): string {
-  return `${program}_1S_sem_${semesterNumber}`;
+  const prefix = STUDY_PROGRAMS.find(p => p.code === program)?.groupCodePrefix
+    ?? `${program}_1S_sem_`;
+  return `${prefix}${semesterNumber}`;
 }
 
 /** Constructs the USOS cdyd_kod, e.g. "25/26-L" */

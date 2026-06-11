@@ -1,3 +1,23 @@
 [
-  { "program": "ISI", "year": "25/26", "sem": 6 }
+  {
+    "program": "ISI",
+    "name": "Informatyka i Systemy Inteligentne",
+    "groupCodePrefix": "ISI_1S_sem_",
+    "years": ["23/24", "24/25", "25/26"],
+    "sems": [1, 2, 3, 4, 5, 6, 7]
+  },
+  {
+    "program": "AiR",
+    "name": "Automatyka i Robotyka",
+    "groupCodePrefix": "AiR_1S_sem_",
+    "years": ["23/24", "24/25", "25/26"],
+    "sems": [1, 2, 3, 4, 5, 6, 7]
+  },
+  {
+    "program": "EiT",
+    "name": "Elektronika i Telekomunikacja",
+    "groupCodePrefix": "230-EiT_1S_sem",
+    "years": ["23/24", "24/25", "25/26"],
+    "sems": [1, 2, 3, 4, 5, 6, 7]
+  }
 ]

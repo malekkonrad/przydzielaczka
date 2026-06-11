@@ -11,6 +11,16 @@ import { useAppStore } from '@/store/appStore';
 import { STUDY_PROGRAMS, STUDY_YEARS, SEMESTER_TYPE } from '@/lib/usos/constants';
 import { fetchScheduleData, IS_STATIC } from '@/lib/scheduleSource';
 import type { StudyYear } from '@/types';
+import coveredMajorsRaw from '../../../covered_majors.json';
+
+type CoveredProgram = {
+  program: string;
+  name?: string;
+  groupCodePrefix: string;
+  years: string[];
+  sems: number[];
+};
+const coveredMajors: CoveredProgram[] = coveredMajorsRaw as CoveredProgram[];
 
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7];
 
@@ -26,6 +36,44 @@ export default function ScheduleSelector() {
   const [localConfig, setLocal] = useState(studyConfig);
   const [cookie, setCookie]     = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // In static mode options come from covered_majors.json; otherwise use all constants
+  const availablePrograms = IS_STATIC
+    ? STUDY_PROGRAMS.filter(p => coveredMajors.some(m => m.program === p.code))
+    : STUDY_PROGRAMS;
+
+  const coveredEntry = coveredMajors.find(m => m.program === localConfig.program);
+
+  const availableYears = IS_STATIC
+    ? (coveredEntry?.years ?? [])
+    : STUDY_YEARS;
+
+  const availableSemesters = IS_STATIC
+    ? (coveredEntry?.sems ?? [])
+    : SEMESTERS;
+
+  function handleProgramChange(program: string) {
+    if (IS_STATIC) {
+      const entry = coveredMajors.find(m => m.program === program);
+      const years = entry?.years ?? [];
+      const year = years.includes(localConfig.year) ? localConfig.year : (years[0] ?? localConfig.year);
+      const sems = entry?.sems ?? [];
+      const sem = sems.includes(localConfig.semesterNumber) ? localConfig.semesterNumber : (sems[0] ?? localConfig.semesterNumber);
+      setLocal(p => ({ ...p, program, year: year as StudyYear, semesterNumber: sem }));
+    } else {
+      setLocal(p => ({ ...p, program }));
+    }
+  }
+
+  function handleYearChange(year: StudyYear) {
+    if (IS_STATIC) {
+      const sems = coveredEntry?.sems ?? [];
+      const sem = sems.includes(localConfig.semesterNumber) ? localConfig.semesterNumber : (sems[0] ?? localConfig.semesterNumber);
+      setLocal(p => ({ ...p, year, semesterNumber: sem }));
+    } else {
+      setLocal(p => ({ ...p, year }));
+    }
+  }
 
   async function handleLoad() {
     setLoading(true);
@@ -58,9 +106,9 @@ export default function ScheduleSelector() {
         <Select
           label="Kierunek"
           value={localConfig.program}
-          onChange={e => setLocal(p => ({ ...p, program: e.target.value }))}
+          onChange={e => handleProgramChange(e.target.value)}
         >
-          {STUDY_PROGRAMS.map(p => (
+          {availablePrograms.map(p => (
             <MenuItem key={p.code} value={p.code}>{p.name}</MenuItem>
           ))}
         </Select>
@@ -71,9 +119,9 @@ export default function ScheduleSelector() {
         <Select
           label="Rok akademicki"
           value={localConfig.year}
-          onChange={e => setLocal(p => ({ ...p, year: e.target.value as StudyYear }))}
+          onChange={e => handleYearChange(e.target.value as StudyYear)}
         >
-          {STUDY_YEARS.map(y => (
+          {availableYears.map(y => (
             <MenuItem key={y} value={y}>{y}</MenuItem>
           ))}
         </Select>
@@ -86,7 +134,7 @@ export default function ScheduleSelector() {
           value={localConfig.semesterNumber}
           onChange={e => setLocal(p => ({ ...p, semesterNumber: Number(e.target.value) }))}
         >
-          {SEMESTERS.map(n => (
+          {availableSemesters.map(n => (
             <MenuItem key={n} value={n}>
               {n} ({SEMESTER_TYPE[n] === 'Z' ? 'Zimowy' : 'Letni'})
             </MenuItem>
