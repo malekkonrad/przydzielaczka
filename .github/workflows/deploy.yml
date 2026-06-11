@@ -33,6 +33,7 @@ jobs:
       - name: Fetch static schedule data
         run: npx tsx scripts/fetch-static.ts
         working-directory: frontend
+        timeout-minutes: 30
 
       - name: Copy coi-serviceworker (enables SharedArrayBuffer / WASM on GitHub Pages)
         run: cp node_modules/coi-serviceworker/coi-serviceworker.min.js public/coi-serviceworker.js

@@ -87,3 +87,4 @@ http-client.private.env.json
 solver/bindings/wasm/node_modules/
 frontend/.next/
 frontend/node_modules/
+frontend/tsconfig.tsbuildinfo

@@ -1,8 +1,16 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { Agent, setGlobalDispatcher } from 'undici';
 import { parseGroupScheduleHtml, parseClassDetailHtml, rawToClass } from '../src/lib/usos/parser';
 import { buildCdydCode, USOS_BASE } from '../src/lib/usos/constants';
 import type { CourseGroup, StudyYear } from '../src/types';
+
+// AGH USOS may use older SSL configuration that fails strict cert verification in CI
+setGlobalDispatcher(new Agent({
+  connect: { rejectUnauthorized: false },
+  connectTimeout: 30_000,
+  keepAliveTimeout: 30_000,
+}));
 
 interface ProgramEntry {
   program: string;
@@ -16,11 +24,8 @@ const ROOT = process.cwd();
 const DATA_DIR = path.join(ROOT, 'public', 'data');
 const MAJORS_FILE = path.join(ROOT, 'covered_majors.json');
 
-const FETCH_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'pl-PL,pl;q=0.9',
-};
+const RETRY_COUNT = 3;
+const RETRY_DELAY_MS = 3_000;
 
 function slugify(year: string) {
   return year.replace('/', '_');
@@ -39,20 +44,37 @@ async function fileExists(p: string): Promise<boolean> {
   }
 }
 
-async function fetchHtml(url: string): Promise<string> {
-  const res = await fetch(url, { headers: FETCH_HEADERS });
-  if (!res.ok) throw new Error(`HTTP ${res.status} dla ${url}`);
-  const text = await res.text();
-  if (text.includes('id="loginform"') || text.includes('action="logowanie"')) {
-    throw new Error('USOS wymaga zalogowania — ten semestr/kierunek jest niedostępny publicznie.');
+async function fetchWithRetry(url: string): Promise<string> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= RETRY_COUNT; attempt++) {
+    try {
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      if (text.includes('id="loginform"') || text.includes('action="logowanie"')) {
+        throw new Error('USOS wymaga zalogowania — ten semestr/kierunek jest niedostępny publicznie.');
+      }
+      return text;
+    } catch (err) {
+      lastErr = err;
+      const cause = (err as any)?.cause;
+      const detail = cause ? ` (${cause})` : '';
+      if (attempt < RETRY_COUNT) {
+        console.warn(`  próba ${attempt}/${RETRY_COUNT} nieudana${detail}, ponawiam za ${RETRY_DELAY_MS / 1000}s…`);
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+      }
+    }
   }
-  return text;
+  const cause = (lastErr as any)?.cause;
+  throw new Error(`Fetch nieudany po ${RETRY_COUNT} próbach${cause ? `: ${cause}` : `: ${lastErr}`}`);
 }
 
 async function fetchSessions(zajCykId: string, grNr: number) {
   const url = `${USOS_BASE}?_action=katalog2/przedmioty/pokazZajecia&zaj_cyk_id=${zajCykId}&gr_nr=${grNr}`;
   try {
-    const html = await fetchHtml(url);
+    const html = await fetchWithRetry(url);
     return parseClassDetailHtml(html);
   } catch {
     return [];
@@ -68,7 +90,7 @@ async function fetchSchedule(
   const cdydCode = buildCdydCode(year as StudyYear, sem);
   const url = `${USOS_BASE}?_action=katalog2/przedmioty/pokazPlanGrupyPrzedmiotow&grupa_kod=${groupCode}&cdyd_kod=${encodeURIComponent(cdydCode)}`;
 
-  const html = await fetchHtml(url);
+  const html = await fetchWithRetry(url);
   const rawClasses = parseGroupScheduleHtml(html);
 
   const BATCH = 8;
@@ -113,6 +135,7 @@ async function main() {
 
   let fetched = 0;
   let skipped = 0;
+  const failed: string[] = [];
 
   for (const prog of programs) {
     for (const year of prog.years) {
@@ -133,13 +156,17 @@ async function main() {
           fetched++;
         } catch (e) {
           console.error(`✗ błąd   ${prog.program} ${year} sem${sem}: ${e}`);
-          process.exit(1);
+          failed.push(`${prog.program} ${year} sem${sem}`);
         }
       }
     }
   }
 
-  console.log(`\nGotowe: ${fetched} pobrano, ${skipped} pominięto.`);
+  console.log(`\nGotowe: ${fetched} pobrano, ${skipped} pominięto, ${failed.length} błędów.`);
+  if (failed.length > 0) {
+    console.error(`Nieudane wpisy:\n${failed.map(f => `  - ${f}`).join('\n')}`);
+    process.exit(1);
+  }
 }
 
 main();
